@@ -341,9 +341,9 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .gateform h1{margin:12px 0 2px;font-size:21px;font-weight:900;letter-spacing:-.02em}
 .gsub{margin:0 0 20px;font-size:10.5px;letter-spacing:.26em;color:var(--tx3);font-weight:800;text-transform:uppercase}
 #gateCode{width:100%;height:54px;border-radius:14px;border:1px solid var(--line2);background:#0b1119;color:var(--tx);
-  font-size:22px;font-weight:800;letter-spacing:.42em;text-align:center;padding:0 10px 0 20px;outline:none;
+  font-size:22px;font-weight:800;letter-spacing:.42em;text-indent:.42em;text-align:center;padding:0 10px;outline:none;
   transition:border-color .15s,box-shadow .15s}
-#gateCode::placeholder{letter-spacing:.02em;font-size:14px;font-weight:600;color:var(--tx3)}
+#gateCode::placeholder{letter-spacing:.02em;text-indent:0;font-size:14px;font-weight:600;color:var(--tx3)}
 #gateCode:focus{border-color:rgba(255,122,24,.7);box-shadow:0 0 0 3px rgba(255,122,24,.16)}
 .ggo{width:100%;height:50px;margin-top:10px;border-radius:14px;border:0;cursor:pointer;
   background:linear-gradient(96deg,var(--amber),var(--orange));color:#170d04;font-size:15.5px;font-weight:900;letter-spacing:.02em}
@@ -1015,14 +1015,14 @@ function renderAll() {
 }
 $('#weekSel').addEventListener('change', e => selectWeek(e.target.value));
 $('#prevBtn').addEventListener('click', () => {
-  const i = CHRONO.findIndex(w => w.date === curDate);
-  if (i > 0) selectWeek(CHRONO[i - 1].date);
+  const o = dateOrder(), i = o.indexOf(curDate);
+  if (i > 0) selectWeek(o[i - 1]);
 });
 $('#nextBtn').addEventListener('click', () => {
-  const i = CHRONO.findIndex(w => w.date === curDate);
-  if (i < CHRONO.length - 1) selectWeek(CHRONO[i + 1].date);
+  const o = dateOrder(), i = o.indexOf(curDate);
+  if (i >= 0 && i < o.length - 1) selectWeek(o[i + 1]);
 });
-$('#latestBtn').addEventListener('click', () => selectWeek(LATEST.date));
+$('#latestBtn').addEventListener('click', () => { const o = dateOrder(); selectWeek(o[o.length - 1]); });
 $('#q').addEventListener('input', e => { Q = e.target.value.trim(); $('#searchbox').classList.toggle('hasq', !!Q); renderRank(); });
 $('#clr').addEventListener('click', () => { Q = ''; $('#q').value = ''; $('#searchbox').classList.remove('hasq'); renderRank(); $('#q').focus(); });
 document.addEventListener('click', e => {
