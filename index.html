@@ -53,8 +53,9 @@ button,select{font-family:inherit;color:inherit}
   transition:border-color .16s,background .16s,transform .1s,box-shadow .16s}
 .ytlink .ytlogo{display:block;width:38px;height:38px;border-radius:50%;
   box-shadow:0 0 0 1.5px rgba(255,255,255,.88),0 3px 9px rgba(0,0,0,.6)}
-.ytbadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:900;
+.ytbadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;
   letter-spacing:-.01em;line-height:1;white-space:nowrap}
+.ytbadge .ytst{font-weight:800;color:var(--tx2)}
 .ytbadge .ytplay{display:inline-flex;align-items:center;justify-content:center;
   width:16px;height:11px;border-radius:3px;background:#ff2d2d;box-shadow:0 1px 3px rgba(0,0,0,.45)}
 .ytbadge .ytplay svg{display:block;width:5px;height:6px;fill:#fff}
@@ -69,10 +70,17 @@ button,select{font-family:inherit;color:inherit}
 @media (max-width:520px){
   .heroTop{gap:8px}
   .eyebrow{font-size:9.5px;letter-spacing:.05em;padding:3px 7px;gap:5px}
-  .ytlink{padding:3px 9px 3px 3px;gap:7px}
-  .ytlink .ytlogo{width:36px;height:36px}
-  .ytbadge{font-size:10px;gap:4px}
-  .ytbadge .ytplay{width:15px;height:10px}
+  .ytlink{padding:2px 8px 2px 2px;gap:6px}
+  .ytlink .ytlogo{width:34px;height:34px}
+  .ytbadge{font-size:10px;gap:3.5px;letter-spacing:-.02em}
+  .ytbadge .ytplay{width:14px;height:10px}
+  .ytbadge .arw{font-size:10px}
+  .ytbadge .ytst{font-size:9.5px}
+}
+/* 'YouTube 구독' 문구가 들어간 뒤에도 왼쪽 제목과 붙지 않도록 좁은 화면 미세 조정 */
+@media (max-width:400px){
+  .hero h1{font-size:26px}
+  .hero h1 .en{font-size:9.5px;letter-spacing:.32em}
 }
 @media (max-width:359px){
   .hero h1{font-size:23px;gap:8px}
@@ -489,10 +497,10 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
         <h1>리버스 <span class="en">REVERSE</span></h1>
         <p class="period" id="periodLine"></p>
       </div>
-      <a class="ytlink" href="https://youtube.com/@reverse_basketball" target="_blank" rel="noopener noreferrer"
-         aria-label="리버스 유튜브 채널 열기 (새 창)" title="리버스 유튜브 @reverse_basketball">
+      <a class="ytlink" id="ytLink" href="https://www.youtube.com/@reverse_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
+         aria-label="리버스 유튜브 채널 구독 (새 창)" title="리버스 유튜브 @reverse_basketball 구독하기">
         <img class="ytlogo" src="assets/reverse-logo.png" alt="리버스 로고" width="38" height="38" decoding="async">
-        <span class="ytbadge"><span class="ytplay" aria-hidden="true"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span>YouTube<span class="arw" aria-hidden="true">↗</span></span>
+        <span class="ytbadge"><span class="ytplay" aria-hidden="true"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span>YouTube <span class="ytst">구독</span><span class="arw" aria-hidden="true">↗</span></span>
       </a>
     </div>
     <div class="stats" id="heroStats"></div>
@@ -1394,6 +1402,45 @@ async function openWith(bits) {
 function saveBits(bits) { try { localStorage.setItem(LSKEY, b64e(bits)); } catch (e) { } }
 function loadBits() { try { const s = localStorage.getItem(LSKEY); return s ? b64d(s) : null; } catch (e) { return null; } }
 function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
+
+/* ---------- YouTube 구독 버튼: 앱 우선 열기 ---------- */
+(function () {
+  const yt = document.getElementById('ytLink');
+  if (!yt) return;
+  const WEB = 'https://www.youtube.com/@reverse_basketball?sub_confirmation=1';
+  const INTENT = 'intent://www.youtube.com/@reverse_basketball?sub_confirmation=1#Intent;scheme=https;package=com.google.android.youtube;S.browser_fallback_url='
+    + encodeURIComponent(WEB) + ';end';
+  const IOS = 'youtube://www.youtube.com/@reverse_basketball';
+  const ua = navigator.userAgent || '';
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPad|iPhone|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+
+  function webFallback() {
+    try { location.href = WEB; } catch (e) { }
+  }
+  function armFallback(ms) {
+    let done = false;
+    const timer = setTimeout(() => {
+      if (done) return;
+      if (document.hidden || document.visibilityState === 'hidden') return; // 앱으로 띄웠으면 이동하지 않음
+      webFallback();
+    }, ms);
+    const cancel = () => { done = true; clearTimeout(timer); };
+    document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); }, { once: true });
+    window.addEventListener('pagehide', cancel, { once: true });
+  }
+  yt.addEventListener('click', e => {
+    if (!isAndroid && !isIOS) return; // PC·기타: 기본 https 링크를 새 탭으로
+    e.preventDefault();
+    if (isAndroid) {
+      armFallback(1400);
+      try { location.href = INTENT; } catch (err) { webFallback(); }
+    } else {
+      armFallback(700);
+      try { location.href = IOS; } catch (err) { webFallback(); }
+    }
+  });
+})();
 
 const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
 function gateSay(t, ok) { gateMsg.textContent = t || ''; gateMsg.classList.toggle('ok', !!ok); }
