@@ -323,12 +323,57 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mweek .gl .w{color:var(--green)} .mweek .gl .l{color:#ff8a6a}
 .mempty{color:var(--tx3);font-size:12px}
 .mprof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:3px 0 4px}
+.mprof[hidden]{display:none}
 .mprof .num{font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;font-variant-numeric:tabular-nums;
   background:linear-gradient(120deg,rgba(255,122,24,.22),rgba(255,122,24,.07));
   border:1px solid rgba(255,122,24,.42);color:var(--amber)}
 .mprof .hgt{font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;color:var(--tx2);
   background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.mprof .pos{font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;color:var(--cyan);
+  background:rgba(74,210,255,.10);border:1px solid rgba(74,210,255,.34)}
+.mprof .num.none{background:rgba(255,255,255,.06);border-color:var(--line);color:var(--tx3)}
 .mprof .sep{color:var(--tx3);font-size:11px;font-weight:800}
+
+/* ---------- 개인 상세정보 입력 (정회원) ---------- */
+.pinfo{margin:12px 0 4px;border:1px solid rgba(255,122,24,.30);border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,122,24,.10),rgba(255,255,255,.02));padding:12px 12px 13px}
+.pinfo h4{margin:0 0 3px;font-size:12.5px;font-weight:900;color:var(--amber);letter-spacing:-.01em}
+.pinfo .hint{font-size:10.5px;color:var(--tx3);line-height:1.45;margin:0 0 9px}
+.pinfo .warn{font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;margin:0 0 11px;
+  padding:7px 9px;border-radius:9px;background:rgba(255,209,102,.10);border:1px solid rgba(255,209,102,.26)}
+.pinfo .row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pinfo .row>label{font-size:11px;font-weight:800;color:var(--tx2);flex:0 0 46px}
+.pinfo input[type=number]{flex:1 1 auto;min-width:0;width:100%;height:42px;border-radius:10px;border:1px solid var(--line2);
+  background:#0b1119;color:var(--tx);font-size:15px;font-weight:800;padding:0 11px;
+  font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none;margin:0}
+.pinfo input[type=number]:disabled{opacity:.38}
+.pinfo input[type=number]:focus{outline:2px solid rgba(255,122,24,.55);outline-offset:0;border-color:var(--orange)}
+.pinfo .unit{font-size:11px;color:var(--tx3);font-weight:800;flex:0 0 auto}
+.pinfo .none{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--tx2);flex:0 0 auto;cursor:pointer}
+.pinfo .none input{width:17px;height:17px;margin:0;accent-color:var(--orange)}
+.pinfo .fixed{font-size:13.5px;font-weight:900}
+.pinfo .poss{display:flex;gap:5px;flex:1 1 auto;min-width:0}
+.pinfo .poss button{flex:1 1 0;min-width:0;height:40px;border-radius:10px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:12px;font-weight:900;cursor:pointer;padding:0}
+.pinfo .poss button[aria-pressed="true"]{background:linear-gradient(120deg,rgba(255,122,24,.32),rgba(255,122,24,.12));
+  border-color:rgba(255,122,24,.62);color:var(--amber)}
+.pinfo .perr{font-size:11px;color:var(--red);font-weight:800;margin:0;min-height:0;line-height:1.4}
+.pinfo .perr:not(:empty){margin:0 0 8px}
+.pinfo .sbtn{display:block;width:100%;height:46px;border-radius:12px;border:0;cursor:pointer;
+  background:linear-gradient(92deg,var(--orange),var(--amber));color:#20140a;font-size:13.5px;font-weight:900;
+  letter-spacing:-.01em;box-shadow:0 6px 16px rgba(255,122,24,.22)}
+.pinfo .sbtn:active{transform:translateY(1px)}
+.pinfo .ubtn{display:block;width:100%;height:40px;margin-top:6px;border-radius:11px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:12px;font-weight:900;cursor:pointer}
+.pinfo .openbtn{display:block;width:100%;height:42px;border-radius:11px;border:1px solid rgba(255,122,24,.45);
+  background:rgba(255,122,24,.12);color:var(--amber);font-size:12.5px;font-weight:900;cursor:pointer}
+.pinfo .cp{margin-top:11px;border:1px solid var(--line2);border-radius:12px;background:rgba(0,0,0,.30);padding:10px 11px}
+.pinfo .cp p{margin:0 0 7px;font-size:11.5px;font-weight:900;color:var(--lime);line-height:1.4}
+.pinfo .cp .note{font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;margin:8px 0 0}
+.pinfo .cp textarea{display:block;width:100%;border:0;background:transparent;color:var(--tx);
+  font-family:inherit;font-size:12.5px;line-height:1.55;resize:none;min-height:54px;outline:none;padding:0;white-space:pre-wrap}
+.pinfo .cp .ok{font-size:10.5px;font-weight:800;color:var(--green);margin-top:6px}
+.pinfo .cp .wr{font-size:10.5px;font-weight:800;color:var(--amber);margin-top:6px;line-height:1.45}
 .mbadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .mbadge{font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:999px;background:rgba(255,209,102,.14);
   border:1px solid rgba(255,209,102,.32);color:var(--gold)}
@@ -1014,6 +1059,185 @@ function renderWeeks() {
   $('#cntWeek').textContent = `${CHRONO.filter(w => !w.noSheet).length}주 기록${PREVIEW ? ' + 9주차 예정' : ''}`;
 }
 
+/* ---------------- 개인 상세정보 (정회원 전용) ----------------
+   키(cm)·넘버·포지션을 이 기기에 저장(localStorage)하고 카드 배지에 즉시 반영합니다.
+   저장과 동시에 리버스 카톡방에 공유할 문구를 클립보드에 복사합니다. 게스트는 대상이 아닙니다. */
+const PROF_KEY = 'reverse-profile-v1';
+const POS_LIST = ['PG', 'SG', 'SF', 'PF', 'C'];
+let lastProfName = '';
+
+function loadProfStore() {
+  try {
+    const o = JSON.parse(localStorage.getItem(PROF_KEY) || '{}');
+    return (o && typeof o === 'object') ? o : {};
+  } catch (e) { return {}; }
+}
+function saveProfStore(o) { try { localStorage.setItem(PROF_KEY, JSON.stringify(o)); } catch (e) { } }
+function baseProfile(name) {
+  const p = PROFILES.get(name) || {};
+  return {
+    height: (p.height === undefined || p.height === null || p.height === '') ? undefined : p.height,
+    number: (p.number === undefined || p.number === null || p.number === '') ? undefined : p.number,
+    position: p.position ? String(p.position) : ''
+  };
+}
+/* 이 기기에서 저장한 값이 로스터(src/data.json) 값보다 우선합니다. number === null 은 '없음' 선택. */
+function effProfile(name) {
+  const b = baseProfile(name), ov = loadProfStore()[name];
+  if (!ov || typeof ov !== 'object') return b;
+  return {
+    height: ov.height === undefined ? b.height : ov.height,
+    number: ov.number === undefined ? b.number : ov.number,
+    position: ov.position === undefined ? b.position : ov.position
+  };
+}
+function hasFullProfile(pf) {
+  return pf.height !== undefined && pf.height !== null && pf.height !== ''
+    && pf.position !== undefined && pf.position !== null && pf.position !== ''
+    && pf.number !== undefined;   /* null(=없음) 은 입력한 값으로 봅니다 */
+}
+/* 정회원(정규·순위 외·미출전 정회원)만 — 게스트 제외 */
+function canEditProfile(name) { return REGULAR.has(name) && !GUEST.has(name); }
+function profBadgeHtml(pf) {
+  const bits = [];
+  if (pf.number === null) bits.push('<span class="num none">번호없음</span>');
+  else if (pf.number !== undefined && pf.number !== '') bits.push('<span class="num">#' + esc(pf.number) + '</span>');
+  if (pf.height !== undefined && pf.height !== null && pf.height !== '') bits.push('<span class="hgt">' + esc(pf.height) + 'cm</span>');
+  if (pf.position) bits.push('<span class="pos">' + esc(pf.position) + '</span>');
+  return bits.join('<span class="sep">·</span>');
+}
+function paintProfBadge(name) {
+  const el = $('#mProf');
+  if (!el) return;
+  const html = profBadgeHtml(effProfile(name));
+  el.innerHTML = html;
+  el.hidden = !html;
+}
+function profFormHtml(name) {
+  const pf = effProfile(name), none = pf.number === null;
+  const poss = String(pf.position || '').split('/').filter(Boolean);
+  const hv = (pf.height === undefined || pf.height === null) ? '' : pf.height;
+  const nv = (pf.number === undefined || pf.number === null) ? '' : pf.number;
+  return '<div class="pinfo" id="pInfo">'
+    + '<h4>개인 상세정보를 입력해 주세요</h4>'
+    + '<div class="hint">키·넘버·포지션을 저장하면 카드에 바로 표시되고, 카톡 공유용 문구가 복사됩니다.</div>'
+    + '<div class="warn">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 복사된 양식을 리버스 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>'
+    + '<div class="row"><label>이름</label><span class="fixed">' + esc(name) + '</span></div>'
+    + '<div class="row"><label for="pHeight">키</label><input id="pHeight" type="number" inputmode="numeric" min="120" max="230" step="1" placeholder="예: 181" value="' + esc(hv) + '"><span class="unit">cm</span></div>'
+    + '<div class="row"><label for="pNumber">넘버</label><input id="pNumber" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="예: 24" value="' + esc(nv) + '"' + (none ? ' disabled' : '') + '>'
+    + '<label class="none"><input type="checkbox" id="pNumNone"' + (none ? ' checked' : '') + '>없음</label></div>'
+    + '<div class="row" style="align-items:flex-start"><label style="padding-top:11px">포지션</label><div class="poss">'
+    + POS_LIST.map(function (p) { return '<button type="button" data-pos="' + p + '" aria-pressed="' + (poss.indexOf(p) >= 0 ? 'true' : 'false') + '">' + p + '</button>'; }).join('')
+    + '</div></div>'
+    + '<p class="perr" id="pErr"></p>'
+    + '<button type="button" class="sbtn" data-psave="1">저장 및 카톡 복사</button>'
+    + '<button type="button" class="ubtn" data-pclose="1">' + (hasFullProfile(pf) ? '취소' : '다음에 하기') + '</button>'
+    + '</div>';
+}
+function openProfForm(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot) return;
+  slot.innerHTML = profFormHtml(name);
+}
+/* 폅을 접고 정보 입력/업데이트 버튼만 남깁니다(전적을 볼 때 방해되지 않도록)
+   아직 정보가 없는 정회원은 '정보 입력하기', 이미 등록된 정회원은 '개인정보 업데이트하기' */
+function collapseProfSlot(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot || !canEditProfile(name)) return;
+  const label = hasFullProfile(effProfile(name)) ? '개인정보 업데이트하기' : '정보 입력하기';
+  slot.innerHTML = '<div class="pinfo" style="padding:9px;background:rgba(255,122,24,.06)">'
+    + '<button type="button" class="openbtn" data-popen="1">' + label + '</button></div>';
+}
+function renderProfSlot(name) {
+  const slot = $('#pInfoSlot');
+  if (!slot) return;
+  if (!canEditProfile(name)) { slot.innerHTML = ''; return; }
+  /* 정보가 비어 있으면 폅을 바로 펼치고, 이미 있으면 버튼만 둡니다 */
+  if (hasFullProfile(effProfile(name))) collapseProfSlot(name);
+  else openProfForm(name);
+}
+function readProfForm() {
+  const setErr = function (m) { const el = $('#pErr'); if (el) el.textContent = m; };
+  setErr('');
+  const hEl = $('#pHeight'), nEl = $('#pNumber'), noneEl = $('#pNumNone');
+  const hRaw = (hEl ? hEl.value : '').trim();
+  if (!hRaw) { setErr('키를 숫자로 입력해 주세요.'); if (hEl) hEl.focus(); return null; }
+  const h = Number(hRaw);
+  if (!isFinite(h) || h < 120 || h > 230) { setErr('키는 120~230 사이 숫자로 입력해 주세요.'); if (hEl) hEl.focus(); return null; }
+  const none = !!(noneEl && noneEl.checked);
+  let num = null;
+  if (!none) {
+    const nRaw = (nEl ? nEl.value : '').trim();
+    if (!nRaw) { setErr('넘버를 숫자로 입력하거나 \'없음\'을 선택해 주세요.'); if (nEl) nEl.focus(); return null; }
+    const n = Number(nRaw);
+    if (!isFinite(n) || n < 0 || n > 99 || Math.floor(n) !== n) { setErr('넘버는 0~99 사이 숫자로 입력해 주세요.'); if (nEl) nEl.focus(); return null; }
+    num = n;
+  }
+  const picked = $$('#pInfo [data-pos]').filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
+    .map(function (b) { return b.getAttribute('data-pos'); });
+  if (!picked.length) { setErr('포지션을 1개 이상 선택해 주세요.'); return null; }
+  return { height: Math.round(h), number: num, position: POS_LIST.filter(function (p) { return picked.indexOf(p) >= 0; }).join('/') };
+}
+function ktalkText(name, pf) {
+  const num = (pf.number === null) ? '없음' : pf.number + '번';
+  return '리버스 정보 업데이트 요청 드립니다.\n[' + name + ' / ' + pf.height + 'cm / ' + num + ' / ' + pf.position + ']';
+}
+function copyText(t) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }).catch(function () { return legacyCopy(t); });
+    }
+  } catch (e) { }
+  return Promise.resolve(legacyCopy(t));
+}
+function legacyCopy(t) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, t.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  } catch (e) { return false; }
+}
+/* 저장 → 배지 즉시 반영 → 클립보드 복사 → 수동 복사용 텍스트 박스 표시 */
+function saveProf(name) {
+  const v = readProfForm();
+  if (!v) return;
+  const store = loadProfStore();
+  store[name] = v;
+  saveProfStore(store);
+  paintProfBadge(name);
+  const closeBtn = $('#pInfo [data-pclose]');   /* 저장 후에는 '다음에 하기' → '취소' */
+  if (closeBtn) closeBtn.textContent = '취소';
+  const text = ktalkText(name, v);
+  const info = $('#pInfo');
+  if (!info) return;
+  let box = $('#pCopy');
+  if (!box) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cp';
+    wrap.id = 'pCopyBox';
+    wrap.innerHTML = '<p>아래 양식을 리버스 카톡방에 공유해 주세요.</p>'
+      + '<textarea id="pCopy" readonly rows="2"></textarea><div id="pCopyStat"></div>'
+      + '<div class="note">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 위 양식을 리버스 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>';
+    info.appendChild(wrap);
+    box = $('#pCopy');
+    if (wrap.scrollIntoView) wrap.scrollIntoView({ block: 'nearest' });
+  }
+  box.value = text;
+  box.style.height = 'auto';
+  box.style.height = Math.max(54, box.scrollHeight) + 'px';
+  const stat = $('#pCopyStat');
+  copyText(text).then(function (ok) {
+    if (!stat) return;
+    stat.className = ok ? 'ok' : 'wr';
+    stat.textContent = ok ? '복사되었습니다. 카톡방에 붙여넣어 주세요.' : '자동 복사가 막혔습니다. 위 텍스트를 길게 눌러 직접 복사해 주세요.';
+  });
+}
+
 /* ---------------- modal ---------------- */
 let lastFocus = null;
 function openPerson(name) {
@@ -1042,15 +1266,13 @@ function openPerson(name) {
     }
   }
   const badges = [p.captain ? '👑 팀장' : '', p.perfect ? '🔥 개근' : '', p.kind === 'guest' ? '게스트' : ''].filter(Boolean);
-  /* 등록 로스터(basketball/reverse-roster.md)에 있는 선수만 등번호·신장 표시 */
-  const prof = PROFILES.get(name) || {};
-  const profBits = [];
-  if (prof.number !== undefined && prof.number !== null && prof.number !== '') profBits.push(`<span class="num">#${esc(prof.number)}</span>`);
-  if (prof.height !== undefined && prof.height !== null && prof.height !== '') profBits.push(`<span class="hgt">${esc(prof.height)}cm</span>`);
+  /* 로스터(reverse-roster.md)·이 기기 저장값 기준 등번호·신장·포지션 */
+  const pf = effProfile(name);
+  const profBits = profBadgeHtml(pf);
   const totalGames = p.w + p.l;
   $('#mBody').innerHTML = `
     <div class="mname" id="mName">${esc(name)}</div>
-    ${profBits.length ? `<div class="mprof">${profBits.join('<span class="sep">·</span>')}</div>` : ''}
+    <div class="mprof" id="mProf"${profBits ? '' : ' hidden'}>${profBits}</div>
     <div class="mrank">${esc(rankLabel)}</div>
     ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge">${b}</span>`).join('')}</div>` : ''}
     <div class="mrate"><span class="big">${pct(p.rate)}%</span><span class="lbl">승률 · ${p.w}승 ${p.l}패 / ${totalGames}경기</span></div>
@@ -1061,6 +1283,7 @@ function openPerson(name) {
       <div class="mcell"><div class="v">${p.lead ? pct(p.lead.rate) + '%' : '—'}</div><div class="k">팀장 승률${p.lead ? ` (${p.lead.w}승 ${p.lead.l}패)` : ''}</div></div>
     </div>
     <div class="masof">${bd === LATEST.date ? '최종 기록(' + LATEST.date + ') 기준' : bd + '까지 누적 기준'}</div>
+    ${canEditProfile(name) ? '<div id="pInfoSlot"></div>' : ''}
     <div class="msec">주차별 기록</div>
     ${wk.length ? wk.map(w => `<div class="mweek">
         <span class="dt">${short(w.date)}</span>
@@ -1070,6 +1293,8 @@ function openPerson(name) {
       </div>`).join('') : '<div class="mempty">해당 주차까지 출전 기록이 없습니다.</div>'}
     ${p.lead ? `<div class="msec">팀장 전적</div><div class="mempty" style="color:var(--tx2)">${p.lead.weeks}주 팀장 · ${p.lead.w}승 ${p.lead.l}패 (${pct(p.lead.rate)}%)</div>` : ''}`;
   lastFocus = document.activeElement;
+  lastProfName = name;
+  renderProfSlot(name);
   $('#modal').hidden = false;
   document.body.style.overflow = 'hidden';
   $('#modal .x').focus();
@@ -1130,7 +1355,18 @@ document.addEventListener('click', e => {
   if (jump) { jumpSummary(jump.dataset.jump); return; }
   const t = e.target.closest('[data-person]');
   if (t) { openPerson(t.dataset.person); return; }
+  if (e.target.closest('[data-popen]')) { openProfForm(lastProfName); return; }
+  if (e.target.closest('[data-pclose]')) { collapseProfSlot(lastProfName); return; }
+  if (e.target.closest('[data-psave]')) { saveProf(lastProfName); return; }
+  const posb = e.target.closest('[data-pos]');
+  if (posb) { posb.setAttribute('aria-pressed', posb.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
   if (e.target.closest('[data-close]')) closeModal();
+});
+document.addEventListener('change', e => {
+  if (e.target && e.target.id === 'pNumNone') {
+    const num = $('#pNumber');
+    if (num) num.disabled = !!e.target.checked;   /* '없음' 선택 시 숫자 입력 비활성화 */
+  }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('#modal').hidden) closeModal();

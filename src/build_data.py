@@ -75,10 +75,19 @@ for r in rows(gst.split("## 📊 게스트 누적 전적")[1])[1:]:
     rate = float(clean(r[5]).replace("%", ""))
     guests.append(dict(rank=int(clean(r[0])), name=name, weeks=weeks, dates=dates, w=w, l=l, rate=rate))
 
-# ---------- 로스터(등번호·신장) ----------
-# basketball/reverse-roster.md — 「이름 | 신장 | 등번호 | 비고」 표. 계속 추가되는 파일이므로
-# 등록된 선수만 height(cm)·number 필드를 붙이고, 미등록 선수는 필드 없이 둡니다.
+# ---------- 로스터(등번호·신장·포지션) ----------
+# basketball/reverse-roster.md — 「이름 | 신장 | 등번호 | 포지션 | 비고」 표. 계속 추가되는 파일이므로
+# 등록된 선수만 height(cm)·number·position 필드를 붙이고, 미등록 선수는 필드 없이 둡니다.
 ROSTER_PATH = ROOT + "/basketball/reverse-roster.md"
+POSITIONS = ("PG", "SG", "SF", "PF", "C")
+
+def parse_position(cell):
+    """'SF/PF' → 'SF/PF'. 허용 포지션만 남기고 POSITIONS 순서로 정규화합니다."""
+    raw = clean(cell).upper().replace(" ", "").replace(",", "/").replace("ㆍ", "/")
+    picked = [t for t in raw.split("/") if t in POSITIONS]
+    ordered = [p for p in POSITIONS if p in picked]
+    return "/".join(ordered)
+
 roster = {}
 if os.path.isfile(ROSTER_PATH):
     for r in rows(io.open(ROSTER_PATH, encoding="utf-8").read()):
@@ -93,12 +102,17 @@ if os.path.isfile(ROSTER_PATH):
             info["height"] = int(hv) if hv.is_integer() else hv
         if nm:
             info["number"] = int(nm.group(1))
+        if len(r) >= 4:
+            pos = parse_position(r[3])
+            if pos:
+                info["position"] = pos
         if name and info:
             roster[name] = info
 for p in members + outsiders + guests:
     p.update(roster.get(p["name"], {}))
 print("로스터 등록", len(roster), "명:", ", ".join(
-    f"{n} #{v.get('number', '-')} {v.get('height', '-')}cm" for n, v in roster.items()) or "없음")
+    f"{n} #{v.get('number', '-')} {v.get('height', '-')}cm {v.get('position', '-')}"
+    for n, v in roster.items()) or "없음")
 
 # ---------- 주간 로그 ----------
 week_blocks = re.split(r"### ", rec.split("## 📅 주간 경기 로그")[1])[1:]
@@ -165,7 +179,8 @@ for g in guests:
         errors.append(f"게스트 {g['name']}: 표 {g['w']}-{g['l']} vs 계산 {c['w']}-{c['l']}")
 
 print("정규", len(members), "순위외", len(outsiders), "게스트", len(guests), "주차", len(weeks))
-print("등번호·신장 포함 선수:", [p["name"] for p in members + outsiders + guests if "number" in p or "height" in p] or "없음")
+print("등번호·신장·포지션 포함 선수:", [p["name"] for p in members + outsiders + guests
+                              if "number" in p or "height" in p or "position" in p] or "없음")
 print("검증 오류:", errors if errors else "없음")
 
 # 순위 검증: 승률 desc, 다승 desc
