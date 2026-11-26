@@ -345,7 +345,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
     <div class="shead"><h2 id="hRank">최종 승률</h2><span class="n" id="rankScope"></span><span class="right" id="rankCount"></span></div>
     <div class="searchbox" id="searchbox">
       <span class="ico">🔍</span>
-      <input id="q" type="search" placeholder="이름 검색 · 정규 15 · 순위 외 7 · 게스트 18" autocomplete="off" enterkeyhint="search" aria-label="선수 이름 검색">
+      <input id="q" type="search" placeholder="이름 검색 · 선수 40명" autocomplete="off" enterkeyhint="search" aria-label="선수 이름 검색">
       <button class="clr" id="clr" aria-label="검색어 지우기">✕</button>
     </div>
     <p class="hint" id="searchHint" hidden></p>
@@ -1727,8 +1727,9 @@ function renderHero() {
   const games = (st.n * 3);
   $('#periodLine').innerHTML = `<b>${p.start.replace(/-/g, '.')} – ${p.end.slice(5).replace('-', '.')}</b> · ${p.weeks}주 · 3파전`;
   const best = st.regular[0];
+  const isLast = curDate === LATEST.date;
   $('#heroStats').innerHTML = [
-    ['정규', st.regular.length + '명'],
+    [isLast ? '정규' : '순위권', st.regular.length + '명'],
     ['경기', games + '경기'],
     ['게스트', st.guests.length + '명'],
     ['최고 승률', best ? `${best.name} ${pct(best.rate)}%` : '—', 'hi'],
@@ -1815,7 +1816,7 @@ function renderRank() {
   ST = computeAsOf(curDate);
   const total = CHRONO.filter(w => !w.noSheet && w.date <= curDate).length;
   $('#rankScope').textContent = ST.n ? `${curDate === LATEST.date ? '최종' : short(curDate) + ' 기준'} · ${ST.n}주 누적` : '결과지 없음';
-  $('#rankCount').textContent = `정규 ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
+  $('#rankCount').textContent = `${curDate === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
   $('#hRank').textContent = curDate === LATEST.date ? '최종 승률' : (ST.n ? `${ST.n}주차까지 승률` : '기록 없음');
   $('#critInner').innerHTML = `<div class="crit"><b>정규 순위 산정</b> — 전체 경기 수 <b>${DATA.criteria.minRate}% 이상</b> 참여자만 정규 순위에 들어갑니다.
       (지금은 <b>${ST.n ? `${ST.n}주 중 ${ST.minWeeks}주 이상` : '기록 없음'}</b>)
@@ -1828,7 +1829,7 @@ function renderRank() {
   const regs = ST.regular.filter(f), outs = ST.outsiders.filter(f), gs = ST.guests.filter(f);
   $('#memberRows').innerHTML = regs.length ? regs.map((p, i) => memberRow(p, Q, ST.regular.indexOf(p) + 1)).join('')
     : `<div class="nores">${Q ? '해당 이름의 정규 순위 선수가 없습니다.' : `아직 ${ST.minWeeks}주를 채운 선수가 없습니다.`}</div>`;
-  $('#q').placeholder = `이름 검색 · 정규 ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
+  $('#q').placeholder = `이름 검색 · ${curDate === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
   $('#outRows').innerHTML = outs.length ? outs.map(p => {
     const prog = Math.round(p.weeks / ST.minWeeks * 100);
     const soon = p.need === 1;
