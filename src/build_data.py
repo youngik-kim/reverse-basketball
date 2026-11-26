@@ -75,11 +75,13 @@ for r in rows(gst.split("## 📊 게스트 누적 전적")[1])[1:]:
     rate = float(clean(r[5]).replace("%", ""))
     guests.append(dict(rank=int(clean(r[0])), name=name, weeks=weeks, dates=dates, w=w, l=l, rate=rate))
 
-# ---------- 로스터(등번호·신장·포지션) ----------
+# ---------- 로스터(등번호·신장·포지션·플레이 장단점) ----------
 # basketball/reverse-roster.md — 「이름 | 신장 | 등번호 | 포지션 | 비고」 표. 계속 추가되는 파일이므로
-# 등록된 선수만 height(cm)·number·position 필드를 붙이고, 미등록 선수는 필드 없이 둡니다.
+# 헤더 이름으로 열을 찾아 읽습니다. 장점·단점(strengths/weaknesses) 열을 나중에 덧붙여도 자동으로 인식되며,
+# 등록된 선수만 height(cm)·number·position·strengths·weaknesses 필드를 붙이고, 미등록 선수는 필드 없이 둡니다.
 ROSTER_PATH = ROOT + "/basketball/reverse-roster.md"
 POSITIONS = ("PG", "SG", "SF", "PF", "C")
+EMPTY_VALS = ("", "-", "—", "–", "없음", "n/a", "N/A", "x", "X")
 
 def parse_position(cell):
     """'SF/PF' → 'SF/PF'. 허용 포지션만 남기고 POSITIONS 순서로 정규화합니다."""
@@ -88,24 +90,57 @@ def parse_position(cell):
     ordered = [p for p in POSITIONS if p in picked]
     return "/".join(ordered)
 
+def col_index(header, *keys):
+    """헤더셀에 keys 중 하나가 들어 있는 열 번호(없으면 None)."""
+    for i, cell in enumerate(header):
+        c = clean(cell).lower()
+        for k in keys:
+            if k.lower() in c:
+                return i
+    return None
+
 roster = {}
 if os.path.isfile(ROSTER_PATH):
-    for r in rows(io.open(ROSTER_PATH, encoding="utf-8").read()):
-        if len(r) < 3 or clean(r[0]) in ("이름", "선수", "성명"):
+    rrows = rows(io.open(ROSTER_PATH, encoding="utf-8").read())
+    cols = {"name": 0, "height": 1, "number": 2, "position": 3,
+            "strengths": None, "weaknesses": None}
+    data_rows = rrows
+    for i, r in enumerate(rrows):
+        if clean(r[0]) in ("이름", "선수", "성명"):
+            ni = col_index(r, "이름", "선수", "성명")
+            cols = {
+                "name": 0 if ni is None else ni,
+                "height": col_index(r, "신장", "키"),
+                "number": col_index(r, "등번호", "번호"),
+                "position": col_index(r, "포지션", "position"),
+                "strengths": col_index(r, "장점", "강점", "strengths"),
+                "weaknesses": col_index(r, "단점", "약점", "weaknesses"),
+            }
+            data_rows = rrows[i + 1:]
+            break
+    for r in data_rows:
+        if len(r) < 3:
             continue
-        name = clean(r[0])
-        hm = re.search(r"(\d+(?:\.\d+)?)", clean(r[1]))
-        nm = re.search(r"(\d+)", clean(r[2]))
+        def cell(key):
+            i = cols.get(key)
+            return clean(r[i]) if i is not None and i < len(r) else ""
+        name = cell("name")
+        hm = re.search(r"(\d+(?:\.\d+)?)", cell("height"))
+        nm = re.search(r"(\d+)", cell("number"))
         info = {}
         if hm:
             hv = float(hm.group(1))
             info["height"] = int(hv) if hv.is_integer() else hv
         if nm:
             info["number"] = int(nm.group(1))
-        if len(r) >= 4:
-            pos = parse_position(r[3])
-            if pos:
-                info["position"] = pos
+        pos = parse_position(cell("position"))
+        if pos:
+            info["position"] = pos
+        # 장점·단점은 선택 항목: 값이 있을 때만 필드를 넣습니다.
+        for key in ("strengths", "weaknesses"):
+            v = cell(key)
+            if v not in EMPTY_VALS:
+                info[key] = v
         if name and info:
             roster[name] = info
 for p in members + outsiders + guests:
@@ -181,6 +216,8 @@ for g in guests:
 print("정규", len(members), "순위외", len(outsiders), "게스트", len(guests), "주차", len(weeks))
 print("등번호·신장·포지션 포함 선수:", [p["name"] for p in members + outsiders + guests
                               if "number" in p or "height" in p or "position" in p] or "없음")
+print("플레이 장점·단점 포함 선수:", [p["name"] for p in members + outsiders + guests
+                                if "strengths" in p or "weaknesses" in p] or "없음")
 print("검증 오류:", errors if errors else "없음")
 
 # 순위 검증: 승률 desc, 다승 desc

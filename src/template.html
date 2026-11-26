@@ -42,6 +42,16 @@ button,select{font-family:inherit;color:inherit}
 .hero h1 .en{font-size:10px;letter-spacing:.38em;color:var(--tx3);font-weight:800}
 .hero .period{color:var(--tx2);font-size:12px;margin:4px 0 0}
 .hero .period b{color:var(--tx);font-weight:700}
+/* 기간 줄 + 주요 변경점 버튼 (좁은 화면에서는 버튼이 다음 줄로 내려감 — 겹침 없음) */
+.hero .periodRow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:4px 0 0}
+.hero .periodRow .period{margin:0}
+.hero .logbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;height:23px;padding:0 9px;border-radius:999px;
+  border:1px solid rgba(74,210,255,.38);background:rgba(74,210,255,.10);color:var(--cyan);
+  font-size:10.5px;font-weight:900;letter-spacing:-.01em;line-height:1;cursor:pointer;white-space:nowrap;
+  transition:border-color .16s,background .16s}
+.hero .logbtn:hover{border-color:rgba(74,210,255,.62);background:rgba(74,210,255,.17)}
+.hero .logbtn:active{transform:translateY(1px)}
+.hero .logbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(74,210,255,.28)}
 /* hero 상단 좌우 배치 — 왼쪽 브랜드 / 오른쪽 로고+유튜브 링크 */
 .heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .heroId{flex:1 1 auto;min-width:0}
@@ -394,6 +404,37 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   background:rgba(74,210,255,.10);border:1px solid rgba(74,210,255,.34)}
 .mprof .num.none{background:rgba(255,255,255,.06);border-color:var(--line);color:var(--tx3)}
 .mprof .sep{color:var(--tx3);font-size:11px;font-weight:800}
+/* 플레이 장점·단점 — 입력된 항목만 카드에 표시 */
+.mplay{display:flex;flex-direction:column;gap:5px;margin:7px 0 2px}
+.mplay .pl{display:flex;align-items:flex-start;gap:7px;font-size:11.5px;line-height:1.45}
+.mplay .pl b{flex:0 0 auto;font-size:10.5px;font-weight:900;padding:2px 7px;border-radius:7px;letter-spacing:-.01em}
+.mplay .pl.s b{color:var(--lime);background:rgba(163,255,120,.12);border:1px solid rgba(163,255,120,.30)}
+.mplay .pl.w b{color:#ffae8a;background:rgba(255,138,106,.12);border:1px solid rgba(255,138,106,.30)}
+.mplay .pl span{color:var(--tx2);font-weight:700;word-break:keep-all;padding-top:1px}
+
+/* ---------- 주요 변경점 시트 ---------- */
+.ltitle{margin:12px 0 3px;font-size:17px;font-weight:900;letter-spacing:-.02em;padding-right:38px;color:var(--tx)}
+.lsub{font-size:11px;color:var(--tx3);font-weight:700;margin:0 0 14px;line-height:1.5;word-break:keep-all}
+.lgroup+.lgroup{margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.ldate{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:900;color:var(--amber);
+  background:rgba(255,122,24,.10);border:1px solid rgba(255,122,24,.30);border-radius:999px;padding:3px 9px;margin-bottom:8px;
+  font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.ldate .new{font-size:9.5px;font-weight:900;color:#20140a;background:linear-gradient(92deg,var(--orange),var(--amber));
+  border-radius:999px;padding:1px 5px;letter-spacing:0}
+.lgroup ul{list-style:none;margin:0;padding:0}
+.lgroup li{position:relative;padding-left:13px;font-size:12px;line-height:1.55;color:var(--tx2);font-weight:600;word-break:keep-all}
+.lgroup li+li{margin-top:6px}
+.lgroup li::before{content:'';position:absolute;left:2px;top:7px;width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);opacity:.75}
+.lgroup li b{display:block;color:var(--tx);font-weight:900;font-size:12px;margin-bottom:1px}
+.lentry+.lentry{margin-top:12px}
+.ltitle2{font-size:12.5px;font-weight:900;color:var(--tx);line-height:1.45;margin:0 0 5px;word-break:keep-all}
+.lkind{display:inline-block;vertical-align:1px;margin-right:5px;font-size:9.5px;font-weight:900;padding:1px 5px;border-radius:5px;color:var(--cyan);
+  background:rgba(74,210,255,.12);border:1px solid rgba(74,210,255,.30);letter-spacing:0}
+.lkind.rec{color:var(--amber);background:rgba(255,122,24,.12);border-color:rgba(255,122,24,.30)}
+.lnote{margin:16px 0 0;font-size:10.5px;line-height:1.5;color:var(--tx3);font-weight:700;word-break:keep-all;
+  border-top:1px solid var(--line);padding-top:11px}
+.lnote b{color:var(--tx2);font-weight:800}
 
 /* ---------- 개인 상세정보 입력 (정회원) ---------- */
 .pinfo{margin:12px 0 4px;border:1px solid rgba(255,122,24,.30);border-radius:14px;
@@ -409,6 +450,17 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none;margin:0}
 .pinfo input[type=number]:disabled{opacity:.38}
 .pinfo input[type=number]:focus{outline:2px solid rgba(255,122,24,.55);outline-offset:0;border-color:var(--orange)}
+.pinfo input[type=text]{flex:1 1 auto;min-width:0;width:100%;height:42px;border-radius:10px;border:1px solid var(--line2);
+  background:#0b1119;color:var(--tx);font-size:13.5px;font-weight:700;padding:0 11px;letter-spacing:-.01em;
+  -webkit-appearance:none;appearance:none;margin:0}
+.pinfo input[type=text]:focus{outline:2px solid rgba(255,122,24,.55);outline-offset:0;border-color:var(--orange)}
+.pinfo input[type=text]::placeholder{color:#5d6d7f;font-size:12px;font-weight:600;letter-spacing:0}
+.pinfo .plrow{display:block;margin-bottom:8px}
+.pinfo .plrow>label{display:block;font-size:11px;font-weight:800;color:var(--tx2);margin-bottom:5px}
+.pinfo .plrow>label em{font-style:normal;color:var(--tx3);font-weight:700}
+.pinfo .sec{margin:0 0 11px;padding:8px 10px;border-radius:9px;font-size:10.5px;line-height:1.55;font-weight:600;
+  color:var(--tx2);word-break:keep-all;background:rgba(74,210,255,.07);border:1px solid rgba(74,210,255,.24)}
+.pinfo .sec b{display:block;font-size:10.5px;font-weight:900;color:var(--cyan);margin-bottom:2px;letter-spacing:.02em}
 .pinfo .unit{font-size:11px;color:var(--tx3);font-weight:800;flex:0 0 auto}
 .pinfo .none{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--tx2);flex:0 0 auto;cursor:pointer}
 .pinfo .none input{width:17px;height:17px;margin:0;accent-color:var(--orange)}
@@ -431,6 +483,8 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .pinfo .cp{margin-top:11px;border:1px solid var(--line2);border-radius:12px;background:rgba(0,0,0,.30);padding:10px 11px}
 .pinfo .cp p{margin:0 0 7px;font-size:11.5px;font-weight:900;color:var(--lime);line-height:1.4}
 .pinfo .cp .note{font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;margin:8px 0 0}
+.pinfo .cp .note.sec2{color:var(--tx2);font-weight:700;background:rgba(74,210,255,.07);border:1px solid rgba(74,210,255,.22);
+  padding:6px 8px;border-radius:8px}
 .pinfo .cp textarea{display:block;width:100%;border:0;background:transparent;color:var(--tx);
   font-family:inherit;font-size:12.5px;line-height:1.55;resize:none;min-height:54px;outline:none;padding:0;white-space:pre-wrap}
 .pinfo .cp .ok{font-size:10.5px;font-weight:800;color:var(--green);margin-top:6px}
@@ -495,6 +549,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 /* ---------- 입장 코드 잠금 화면 ---------- */
 body.locked .wrap,body.locked #modal{display:none}
 body.locked #venueModal{display:none}
+body.locked #logModal{display:none}
 .gate{display:none}
 body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;
   padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
@@ -557,7 +612,10 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
       <div class="heroId">
         <button class="eyebrow vbtn" id="venueBtn" type="button" aria-haspopup="dialog" aria-controls="venueModal" title="구장 위치 · 길찾기 열기">🏀 Saturday · 부천JW스포츠센터 <span class="vtap" aria-hidden="true">›</span></button>
         <h1>리버스 <span class="en">REVERSE</span></h1>
-        <p class="period" id="periodLine"></p>
+        <div class="periodRow">
+          <p class="period" id="periodLine"></p>
+          <button class="logbtn" id="logBtn" type="button" aria-haspopup="dialog" aria-controls="logModal" title="주요 변경점 보기">📋 주요 변경점</button>
+        </div>
       </div>
       <div class="heroRight">
         <a class="ytlink" id="ytLink" href="https://www.youtube.com/@reverse_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
@@ -668,6 +726,19 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     </div>
     <div class="vnotice" id="vNotice" hidden></div>
     <p class="vnote">앱이 설치되어 있지 않으면 웹 지도로 열립니다. 티맵은 앱 설치가 필요합니다.</p>
+  </div>
+</div>
+
+<div class="modal" id="logModal" hidden>
+  <div class="bd" data-lclose></div>
+  <div class="sheet lsheet" role="dialog" aria-modal="true" aria-labelledby="lTitle">
+    <div class="grab"></div>
+    <button class="x" data-lclose aria-label="닫기">✕</button>
+    <h3 class="ltitle" id="lTitle">📋 주요 변경점</h3>
+    <p class="lsub">리버스 홈페이지에 반영된 기능·기록 업데이트를 최신순으로 정리했습니다.</p>
+    <div id="lList"></div>
+    <p class="lnote">매주 토요일 <b>경기 결과·누적 승률</b>이 반영되면 새 날짜로 이 목록에 추가됩니다.
+      선수 개인정보 수정 내역은 표시하지 않습니다.</p>
   </div>
 </div>
 
@@ -1158,12 +1229,14 @@ function renderWeeks() {
 }
 
 /* ---------------- 개인 상세정보 (정회원 · 게스트) ----------------
-   키(cm)·넘버·포지션을 이 기기에 저장(localStorage)하고 카드 배지에 즉시 반영합니다.
+   키(cm)·넘버·포지션과 함께, 선택 항목인 플레이 장점·단점을 이 기기에 저장(localStorage)하고
+   카드에 즉시 반영합니다. 장점·단점은 비워 두어도 저장되며, 입력된 항목만 표시됩니다.
    저장과 동시에 리버스 카톡방에 공유할 문구를 클립보드에 복사합니다.
    게스트도 입력·업데이트할 수 있지만, 전적 보기를 방해하지 않도록 폼을 자동으로 펼치지 않고
    '정보 입력하기' / '개인정보 업데이트하기' 버튼만 보여 줍니다. */
 const PROF_KEY = 'reverse-profile-v1';
 const POS_LIST = ['PG', 'SG', 'SF', 'PF', 'C'];
+const PLAY_MAX = 60;   /* 장점·단점 입력 글자수 상한 */
 let lastProfName = '';
 
 function loadProfStore() {
@@ -1178,17 +1251,29 @@ function baseProfile(name) {
   return {
     height: (p.height === undefined || p.height === null || p.height === '') ? undefined : p.height,
     number: (p.number === undefined || p.number === null || p.number === '') ? undefined : p.number,
-    position: p.position ? String(p.position) : ''
+    position: p.position ? String(p.position) : '',
+    /* data.json 의 strengths / weaknesses (선택 항목, 없으면 빈 문자열) */
+    strengths: playVal(p.strengths),
+    weaknesses: playVal(p.weaknesses)
   };
 }
-/* 이 기기에서 저장한 값이 로스터(src/data.json) 값보다 우선합니다. number === null 은 '없음' 선택. */
+/* 장점·단점 값은 문자열 또는 문자열 배열을 모두 받아들입니다(스키마 호환). */
+function playVal(v) {
+  if (v === undefined || v === null) return '';
+  if (Object.prototype.toString.call(v) === '[object Array]') return v.map(function (x) { return String(x).trim(); }).filter(Boolean).join(', ');
+  return String(v).replace(/\s+/g, ' ').trim();
+}
+/* 이 기기에서 저장한 값이 로스터(src/data.json) 값보다 우선합니다. number === null 은 '없음' 선택.
+   장점·단점은 빈 문자열로 저장하면 '지움'으로 보고 비워 둡니다. */
 function effProfile(name) {
   const b = baseProfile(name), ov = loadProfStore()[name];
   if (!ov || typeof ov !== 'object') return b;
   return {
     height: ov.height === undefined ? b.height : ov.height,
     number: ov.number === undefined ? b.number : ov.number,
-    position: ov.position === undefined ? b.position : ov.position
+    position: ov.position === undefined ? b.position : ov.position,
+    strengths: ov.strengths === undefined ? b.strengths : playVal(ov.strengths),
+    weaknesses: ov.weaknesses === undefined ? b.weaknesses : playVal(ov.weaknesses)
   };
 }
 function hasFullProfile(pf) {
@@ -1209,19 +1294,33 @@ function profBadgeHtml(pf) {
 function paintProfBadge(name) {
   const el = $('#mProf');
   if (!el) return;
-  const html = profBadgeHtml(effProfile(name));
+  const pf = effProfile(name);
+  const html = profBadgeHtml(pf);
   el.innerHTML = html;
   el.hidden = !html;
+  const play = $('#mPlay');   /* 장점·단점 블록도 저장 즉시 갱신 */
+  if (play) play.innerHTML = playStyleHtml(pf);
+}
+/* 장점·단점은 입력된 항목만 라인으로 표시합니다. 둘 다 비어 있으면 아무것도 그리지 않습니다. */
+function playStyleHtml(pf) {
+  const st = playVal(pf && pf.strengths), wk = playVal(pf && pf.weaknesses);
+  if (!st && !wk) return '';
+  return '<div class="mplay">'
+    + (st ? '<div class="pl s"><b>장점</b><span>' + esc(st) + '</span></div>' : '')
+    + (wk ? '<div class="pl w"><b>단점</b><span>' + esc(wk) + '</span></div>' : '')
+    + '</div>';
 }
 function profFormHtml(name) {
   const pf = effProfile(name), none = pf.number === null;
   const poss = String(pf.position || '').split('/').filter(Boolean);
   const hv = (pf.height === undefined || pf.height === null) ? '' : pf.height;
   const nv = (pf.number === undefined || pf.number === null) ? '' : pf.number;
+  const sv = playVal(pf.strengths), wv = playVal(pf.weaknesses);
   return '<div class="pinfo" id="pInfo">'
     + '<h4>개인 상세정보를 입력해 주세요</h4>'
-    + '<div class="hint">키·넘버·포지션을 저장하면 카드에 바로 표시되고, 카톡 공유용 문구가 복사됩니다.</div>'
+    + '<div class="hint">키·넘버·포지션은 필수, 플레이 장점·단점은 선택입니다. 저장하면 카드에 바로 표시되고 카톡 공유용 문구가 복사됩니다.</div>'
     + '<div class="warn">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 복사된 양식을 리버스 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>'
+    + '<div class="sec"><b>🔒 보안 안내</b>이 기능이 실시간으로 자동 연동되면 개인정보가 외부 서버에 저장되는 등 보안에 취약해질 수 있습니다. 그래서 팀 기록과 개인정보를 안전하게 보호하기 위해, 입력 내용은 이 기기에만 임시 저장하고 관리자에게 전달해 반영하는 방식으로 진행합니다.</div>'
     + '<div class="row"><label>이름</label><span class="fixed">' + esc(name) + '</span></div>'
     + '<div class="row"><label for="pHeight">키</label><input id="pHeight" type="number" inputmode="numeric" min="120" max="230" step="1" placeholder="예: 181" value="' + esc(hv) + '"><span class="unit">cm</span></div>'
     + '<div class="row"><label for="pNumber">넘버</label><input id="pNumber" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="예: 24" value="' + esc(nv) + '"' + (none ? ' disabled' : '') + '>'
@@ -1229,6 +1328,10 @@ function profFormHtml(name) {
     + '<div class="row" style="align-items:flex-start"><label style="padding-top:11px">포지션</label><div class="poss">'
     + POS_LIST.map(function (p) { return '<button type="button" data-pos="' + p + '" aria-pressed="' + (poss.indexOf(p) >= 0 ? 'true' : 'false') + '">' + p + '</button>'; }).join('')
     + '</div></div>'
+    + '<div class="plrow"><label for="pStrengths">플레이 장점 <em>(선택)</em></label>'
+    + '<input id="pStrengths" type="text" maxlength="' + PLAY_MAX + '" autocomplete="off" enterkeyhint="done" placeholder="예: 돌파, 3점 슛, 리바운드" value="' + esc(sv) + '"></div>'
+    + '<div class="plrow"><label for="pWeaknesses">플레이 단점 <em>(선택)</em></label>'
+    + '<input id="pWeaknesses" type="text" maxlength="' + PLAY_MAX + '" autocomplete="off" enterkeyhint="done" placeholder="예: 체력, 자유투, 수비 로테이션" value="' + esc(wv) + '"></div>'
     + '<p class="perr" id="pErr"></p>'
     + '<button type="button" class="sbtn" data-psave="1">저장 및 카톡 복사</button>'
     + '<button type="button" class="ubtn" data-pclose="1">' + (hasFullProfile(pf) ? '취소' : '다음에 하기') + '</button>'
@@ -1277,11 +1380,21 @@ function readProfForm() {
   const picked = $$('#pInfo [data-pos]').filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })
     .map(function (b) { return b.getAttribute('data-pos'); });
   if (!picked.length) { setErr('포지션을 1개 이상 선택해 주세요.'); return null; }
-  return { height: Math.round(h), number: num, position: POS_LIST.filter(function (p) { return picked.indexOf(p) >= 0; }).join('/') };
+  /* 장점·단점은 선택 항목 — 비워 둔 채로도 저장됩니다. */
+  const sEl = $('#pStrengths'), wEl = $('#pWeaknesses');
+  const strengths = sEl ? sEl.value.replace(/\s+/g, ' ').trim().slice(0, PLAY_MAX) : '';
+  const weaknesses = wEl ? wEl.value.replace(/\s+/g, ' ').trim().slice(0, PLAY_MAX) : '';
+  return { height: Math.round(h), number: num,
+    position: POS_LIST.filter(function (p) { return picked.indexOf(p) >= 0; }).join('/'),
+    strengths: strengths, weaknesses: weaknesses };
 }
 function ktalkText(name, pf) {
   const num = (pf.number === null) ? '없음' : pf.number + '번';
-  return '리버스 정보 업데이트 요청 드립니다.\n[' + name + ' / ' + pf.height + 'cm / ' + num + ' / ' + pf.position + ']';
+  let t = '리버스 정보 업데이트 요청 드립니다.\n[' + name + ' / ' + pf.height + 'cm / ' + num + ' / ' + pf.position + ']';
+  const st = playVal(pf.strengths), wk = playVal(pf.weaknesses);
+  if (st) t += '\n장점: ' + st;
+  if (wk) t += '\n단점: ' + wk;
+  return t;
 }
 function copyText(t) {
   try {
@@ -1323,7 +1436,8 @@ function saveProf(name) {
     wrap.id = 'pCopyBox';
     wrap.innerHTML = '<p>아래 양식을 리버스 카톡방에 공유해 주세요.</p>'
       + '<textarea id="pCopy" readonly rows="2"></textarea><div id="pCopyStat"></div>'
-      + '<div class="note">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 위 양식을 리버스 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>';
+      + '<div class="note">※ 입력 내용은 현재 기기에만 임시 적용됩니다. 위 양식을 리버스 카톡방(관리자)에 전달해 주셔야 전체 페이지에 최종 반영됩니다.</div>'
+      + '<div class="note sec2">🔒 실시간 자동 연동 대신 관리자 전달 방식으로 운영해, 팀 기록과 개인정보를 안전하게 보호합니다.</div>';
     info.appendChild(wrap);
     box = $('#pCopy');
     if (wrap.scrollIntoView) wrap.scrollIntoView({ block: 'nearest' });
@@ -1374,6 +1488,7 @@ function openPerson(name) {
   $('#mBody').innerHTML = `
     <div class="mname" id="mName">${esc(name)}</div>
     <div class="mprof" id="mProf"${profBits ? '' : ' hidden'}>${profBits}</div>
+    <div id="mPlay">${playStyleHtml(pf)}</div>
     <div class="mrank">${esc(rankLabel)}</div>
     ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge">${b}</span>`).join('')}</div>` : ''}
     <div class="mrate"><span class="big">${pct(p.rate)}%</span><span class="lbl">승률 · ${p.w}승 ${p.l}패 / ${totalGames}경기</span></div>
@@ -1735,6 +1850,78 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
   /* 입장 해제 뒤 히어로 날씨 칩 로드 */
   document.addEventListener('reverse:unlocked', function () { try { loadWeather(); } catch (e) { } });
   if (!document.body.classList.contains('locked')) { try { loadWeather(); } catch (e) { } }
+})();
+
+/* ---------------- 주요 변경점 (기능 · 기록 업데이트 이력) ----------------
+   새 이력을 추가할 때: 새 날짜면 맨 위에, 같은 날짜면 그 날짜의 항목 뒤에 이어서 넣습니다.
+   kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
+   선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
+const UPDATES = [
+  { date: '2026-11-26', kind: '기능', title: '플레이 장단점 · 보안 안내 · 주요 변경점',
+    items: [
+      '개인 상세정보에 플레이 장점·단점(선택) 입력 — 입력한 항목만 개인 카드에 표시',
+      '카톡 복사 양식에 장점·단점 포함 (한쪽만 입력하거나 비워 두어도 저장)',
+      '외부 서버에 저장하지 않고 관리자 전달로 반영하는 보안 안내 문구 추가',
+      '이 화면(📋 주요 변경점)에서 기능·기록 이력 확인'
+    ] },
+  { date: '2026-11-26', kind: '기능', title: '11/28 매치 프리뷰\u00a0· 경기일 날씨\u00a0· 구장 길찾기\u00a0· 게이트 로고\u00a0· YouTube 구독',
+    items: [
+      '2026-11-28(9주차) 팀 구성·예상 승률 매치 프리뷰 카드',
+      '경기일(토) 날씨를 히어로 우상단 칩으로 표시',
+      '구장 배지 → 네이버지도·카카오맵·티맵 길찾기 시트, 다가오는 토요일 일기예보',
+      '게이트 카드 상단 리버스 로고, 오입력 제한·보안 안내 문구',
+      'YouTube 구독 버튼(앱 우선 열기) 연결'
+    ] },
+  { date: '2026-11-26', kind: '오픈', title: '리버스 홈페이지 오픈 — 8주차(11/21) 경기 결과·승률 반영',
+    items: [
+      '2026-10-03~11-21 8주 누적 승률·순위와 주차별 경기 결과',
+      '정회원·게스트 개인 상세정보(키·넘버·포지션) 입력·업데이트와 카톡 복사',
+      '입장 코드 잠금·데이터 암호화·검색엔진 차단(robots.txt)'
+    ] }
+];
+(function () {
+  const modal = $('#logModal'), btn = $('#logBtn'), box = $('#lList');
+  if (!modal || !btn || !box) return;
+  let lastFocus = null;
+  function render() {
+    if (box.getAttribute('data-done') === '1') return;
+    const groups = [];
+    UPDATES.forEach(function (u) {
+      const last = groups[groups.length - 1];
+      if (last && last.date === u.date) last.entries.push(u);
+      else groups.push({ date: u.date, entries: [u] });
+    });
+    box.innerHTML = groups.map(function (g, gi) {
+      return '<div class="lgroup">'
+        + '<div class="ldate">' + esc(g.date)
+        + (gi === 0 ? ' <span class="new">최신</span>' : '') + '</div>'
+        + g.entries.map(function (e) {
+          return '<div class="lentry">'
+            + '<div class="ltitle2"><span class="lkind' + (e.kind === '기록' ? ' rec' : '') + '">' + esc(e.kind) + '</span>' + esc(e.title) + '</div>'
+            + '<ul>' + e.items.map(function (it) { return '<li>' + esc(it) + '</li>'; }).join('') + '</ul></div>';
+        }).join('')
+        + '</div>';
+    }).join('');
+    box.setAttribute('data-done', '1');
+  }
+  function openLog() {
+    render();
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const x = modal.querySelector('.x');
+    if (x) x.focus();
+  }
+  function closeLog() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  btn.addEventListener('click', openLog);
+  modal.addEventListener('click', function (e) { if (e.target.closest('[data-lclose]')) closeLog(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeLog();
+  });
 })();
 
 const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
