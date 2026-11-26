@@ -42,6 +42,29 @@ button,select{font-family:inherit;color:inherit}
 .hero h1 .en{font-size:10px;letter-spacing:.38em;color:var(--tx3);font-weight:800}
 .hero .period{color:var(--tx2);font-size:12px;margin:4px 0 0}
 .hero .period b{color:var(--tx);font-weight:700}
+/* hero 상단 좌우 배치 — 왼쪽 브랜드 / 오른쪽 로고+유튜브 링크 */
+.heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.heroId{flex:1 1 auto;min-width:0}
+.ytlink{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;margin-top:1px;
+  padding:3px 10px 3px 3px;border-radius:999px;text-decoration:none;color:var(--tx);
+  background:linear-gradient(150deg,rgba(255,255,255,.10),rgba(20,27,37,.94));
+  border:1px solid var(--line2);
+  box-shadow:0 8px 20px -14px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.07);
+  transition:border-color .16s,background .16s,transform .1s,box-shadow .16s}
+.ytlink .ytlogo{display:block;width:38px;height:38px;border-radius:50%;
+  box-shadow:0 0 0 1.5px rgba(255,255,255,.88),0 3px 9px rgba(0,0,0,.6)}
+.ytbadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:900;
+  letter-spacing:-.01em;line-height:1;white-space:nowrap}
+.ytbadge .ytplay{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:11px;border-radius:3px;background:#ff2d2d;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+.ytbadge .ytplay svg{display:block;width:5px;height:6px;fill:#fff}
+.ytbadge .arw{color:var(--tx3);font-size:11px;font-weight:800;margin-left:0;transition:color .16s,transform .16s}
+@media (hover:hover){
+  .ytlink:hover{border-color:rgba(255,45,45,.5);background:linear-gradient(150deg,rgba(255,45,45,.16),rgba(20,27,37,.96))}
+  .ytlink:hover .arw{color:var(--amber);transform:translate(1px,-1px)}
+}
+.ytlink:active{transform:scale(.97)}
+.ytlink:focus-visible{outline:none;border-color:rgba(255,45,45,.7);box-shadow:0 0 0 3px rgba(255,45,45,.35)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
 .stat{display:block;width:100%;font:inherit;color:inherit;text-align:center;cursor:pointer;
   -webkit-tap-highlight-color:transparent;appearance:none;-webkit-appearance:none;
@@ -310,6 +333,11 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
   .hero{padding:34px 0 8px}
   .hero h1{font-size:38px}
   .hero h1 .en{font-size:12px}
+  .ytlink{padding:4px 13px 4px 4px;gap:10px}
+  .ytlink .ytlogo{width:46px;height:46px}
+  .ytbadge{font-size:11.5px}
+  .ytbadge .ytplay{width:18px;height:13px}
+  .ytbadge .ytplay svg{width:6px;height:7px}
   .stat .v{font-size:19px}
   .selbar{margin:14px -22px 0;padding:9px 22px;justify-content:center}
   .selwrap{flex:0 1 440px;max-width:440px;margin:0}
@@ -397,9 +425,18 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 <div class="wrap">
 
   <header class="hero">
-    <span class="eyebrow">🏀 Saturday · 부천JW스포츠센터</span>
-    <h1>리버스 <span class="en">REVERSE</span></h1>
-    <p class="period" id="periodLine"></p>
+    <div class="heroTop">
+      <div class="heroId">
+        <span class="eyebrow">🏀 Saturday · 부천JW스포츠센터</span>
+        <h1>리버스 <span class="en">REVERSE</span></h1>
+        <p class="period" id="periodLine"></p>
+      </div>
+      <a class="ytlink" href="https://youtube.com/@reverse_basketball" target="_blank" rel="noopener noreferrer"
+         aria-label="리버스 유튜브 채널 열기 (새 창)" title="리버스 유튜브 @reverse_basketball">
+        <img class="ytlogo" src="assets/reverse-logo.png" alt="리버스 로고" width="38" height="38" decoding="async">
+        <span class="ytbadge"><span class="ytplay" aria-hidden="true"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span>YouTube<span class="arw" aria-hidden="true">↗</span></span>
+      </a>
+    </div>
     <div class="stats" id="heroStats"></div>
   </header>
 
