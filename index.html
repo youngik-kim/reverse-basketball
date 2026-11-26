@@ -319,6 +319,18 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   background:rgba(255,122,24,.24);color:var(--amber);font-weight:900}
 .vname{font-size:19px;font-weight:900;margin:12px 0 2px;letter-spacing:-.02em;padding-right:34px}
 .vsub{font-size:11px;color:var(--tx3);font-weight:800;margin:0 0 12px}
+.vwx{display:block;margin:0 0 9px;padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(74,210,255,.26);background:linear-gradient(180deg,rgba(74,210,255,.10),rgba(74,210,255,.03));
+  line-height:1.45;word-break:keep-all}
+.vwx[hidden]{display:none}
+.vwx-h{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:900;color:var(--tx)}
+.vwx-h .wico{font-size:14px;line-height:1;flex:0 0 auto}
+.vwx-h .vwx-sub{font-weight:800;color:var(--tx3);font-size:10.5px}
+.vwx-r{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap}
+.vwx-r .chip{font-size:10.5px;font-weight:800;color:var(--tx2);background:rgba(255,255,255,.06);
+  border:1px solid var(--line);border-radius:999px;padding:3px 8px;white-space:nowrap}
+.vwx-r .chip b{color:var(--tx);font-weight:900}
+.vwx-t{margin-top:6px;font-size:10.5px;font-weight:800;color:var(--tx3)}
 .vaddr{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);
   border-radius:12px;padding:10px 11px}
 .vaddr .vtxt{flex:1 1 auto;font-size:12px;font-weight:800;line-height:1.45;color:var(--tx);word-break:keep-all}
@@ -631,6 +643,7 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <button class="x" data-vclose aria-label="닫기">✕</button>
     <h3 class="vname" id="vName">🏀 부천JW스포츠센터</h3>
     <p class="vsub">매주 토요일 · 리버스 3파전 라운드로빈</p>
+    <div class="vwx" id="vWx" role="status" aria-live="polite" hidden></div>
     <div class="vaddr">
       <span class="vtxt" id="vAddr">경기 부천시 오정구 석천로442번길 19</span>
       <button type="button" class="vcopy" data-vcopy>주소 복사</button>
@@ -1541,6 +1554,87 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
     tmap: androidIntent('tmap', 'com.skt.tmap.ku', PATH.tmap, WEB.tmapPlay)
   };
 
+  /* 날씨 — Open-Meteo(키·CORS 제한 없음), 모달을 열 때 실시간 조회 */
+  const WX_URL = 'https://api.open-meteo.com/v1/forecast?latitude=37.5266&longitude=126.7707'
+    + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+    + '&hourly=temperature_2m,weather_code,precipitation_probability'
+    + '&timezone=Asia%2FSeoul&forecast_days=8';
+  const WX_TEXT = { 0: '맑음', 1: '대체로 맑음', 2: '구름조금', 3: '흐림', 45: '안개', 48: '안개',
+    51: '이슬비', 53: '이슬비', 55: '이슬비', 56: '어는 이슬비', 57: '어는 이슬비', 61: '비', 63: '비', 65: '비',
+    66: '어는 비', 67: '어는 비', 71: '눈', 73: '눈', 75: '눈', 77: '눈알갱이', 80: '소나기', 81: '소나기', 82: '소나기',
+    85: '소낙눈', 86: '소낙눈', 95: '뇌우', 96: '뇌우', 99: '뇌우' };
+  const WX_ICON = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️', 51: '🌦️', 53: '🌦️', 55: '🌦️',
+    56: '🌧️', 57: '🌧️', 61: '🌧️', 63: '🌧️', 65: '🌧️', 66: '🌨️', 67: '🌨️', 71: '🌨️', 73: '🌨️', 75: '❄️', 77: '❄️',
+    80: '🌦️', 81: '🌧️', 82: '⛈️', 85: '🌨️', 86: '🌨️', 95: '⛈️', 96: '⛈️', 99: '⛈️' };
+  let wxCache = null, wxAt = 0;
+
+  function nextSaturday() {                 /* KST 기준 가장 가까운 토요일(오늘이 토요일이면 오늘) */
+    const kst = new Date(Date.now() + 9 * 3600 * 1000);
+    const add = (6 - kst.getUTCDay() + 7) % 7;
+    return new Date(kst.getTime() + add * 86400000).toISOString().slice(0, 10);
+  }
+  function wxDate(iso) {
+    const p = String(iso).split('-');
+    return String(p[1]).padStart(2, '0') + '/' + String(p[2]).padStart(2, '0');
+  }
+  /* 다가오는 토요일(경기일) 일기예보 카드: 상태·최저~최고·강수확률· 오전 09~12시 기온 */
+  function wxHtml(d) {
+    const day = (d && d.daily) || {}, hour = (d && d.hourly) || {};
+    const key = nextSaturday();
+    const i = (day.time || []).indexOf(key);
+    if (i < 0) return '';
+    const code = Number(day.weather_code[i]);
+    const lo = Math.round(Number(day.temperature_2m_min[i]));
+    const hi = Math.round(Number(day.temperature_2m_max[i]));
+    const pop = (day.precipitation_probability_max || [])[i];
+    const hTimes = hour.time || [], hTemps = hour.temperature_2m || [];
+    const slots = [9, 10, 11, 12].map(function (h) {
+      const t = hTimes.indexOf(key + 'T' + (h < 10 ? '0' + h : h) + ':00');
+      return (t >= 0 && isFinite(Number(hTemps[t]))) ? (h < 10 ? '0' + h : h) + '시 ' + Math.round(Number(hTemps[t])) + '°' : '';
+    }).filter(Boolean);
+    let html = '<div class="vwx-h"><span class="wico" aria-hidden="true">' + (WX_ICON[code] || '🌤️') + '</span>'
+      + '<span>' + wxDate(key) + '(토) 경기일 예보</span><span class="vwx-sub">· 부천 오정구</span></div>'
+      + '<div class="vwx-r"><span class="chip"><b>' + (WX_TEXT[code] || '날씨') + '</b></span>'
+      + '<span class="chip"><b>' + lo + '~' + hi + '°C</b></span>';
+    if (pop !== null && pop !== undefined && isFinite(Number(pop))) {
+      html += '<span class="chip">강수 <b>' + Math.round(Number(pop)) + '%</b></span>';
+    }
+    html += '</div>';
+    if (slots.length) html += '<div class="vwx-t">경기 시간대(09~12시) · ' + slots.join(' · ') + '</div>';
+    return html;
+  }
+  function loadWeather() {
+    const box = $('#vWx');
+    if (!box) return;
+    if (wxCache && (Date.now() - wxAt) < 600000) {
+      const cached = wxHtml(wxCache);
+      if (cached) { box.innerHTML = cached; box.hidden = false; }
+      return;
+    }
+    box.hidden = true;
+    let timer = null, ctrl = null;
+    try {
+      ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      if (ctrl) timer = setTimeout(function () { try { ctrl.abort(); } catch (e) { } }, 6000);
+    } catch (e) { ctrl = null; }
+    (async function () {
+      try {
+        const res = await fetch(WX_URL, ctrl ? { signal: ctrl.signal, cache: 'no-store' } : { cache: 'no-store' });
+        if (!res || !res.ok) throw new Error('HTTP ' + (res && res.status));
+        const data = await res.json();
+        const html = wxHtml(data);
+        if (!html) throw new Error('no forecast');
+        wxCache = data; wxAt = Date.now();
+        box.innerHTML = html;
+        box.hidden = false;
+      } catch (err) {
+        box.hidden = true;                 /* 실패해도 모달은 그대로 — 카드만 숨김 */
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    })();
+  }
+
   const modal = $('#venueModal'), stat = $('#vCopyStat'), notice = $('#vNotice');
   const ua = navigator.userAgent || '';
   const isAndroid = /Android/i.test(ua);
@@ -1578,6 +1672,7 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
     document.body.style.overflow = 'hidden';
     const x = $('#venueModal .x');
     if (x) x.focus();
+    try { loadWeather(); } catch (e) { }
   }
   function closeVenue() {
     if (!modal || modal.hidden) return;
