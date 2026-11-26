@@ -1067,9 +1067,11 @@ function renderWeeks() {
   $('#cntWeek').textContent = `${CHRONO.filter(w => !w.noSheet).length}주 기록${PREVIEW ? ' + 9주차 예정' : ''}`;
 }
 
-/* ---------------- 개인 상세정보 (정회원 전용) ----------------
+/* ---------------- 개인 상세정보 (정회원 · 게스트) ----------------
    키(cm)·넘버·포지션을 이 기기에 저장(localStorage)하고 카드 배지에 즉시 반영합니다.
-   저장과 동시에 리버스 카톡방에 공유할 문구를 클립보드에 복사합니다. 게스트는 대상이 아닙니다. */
+   저장과 동시에 리버스 카톡방에 공유할 문구를 클립보드에 복사합니다.
+   게스트도 입력·업데이트할 수 있지만, 전적 보기를 방해하지 않도록 폼을 자동으로 펼치지 않고
+   '정보 입력하기' / '개인정보 업데이트하기' 버튼만 보여 줍니다. */
 const PROF_KEY = 'reverse-profile-v1';
 const POS_LIST = ['PG', 'SG', 'SF', 'PF', 'C'];
 let lastProfName = '';
@@ -1104,8 +1106,8 @@ function hasFullProfile(pf) {
     && pf.position !== undefined && pf.position !== null && pf.position !== ''
     && pf.number !== undefined;   /* null(=없음) 은 입력한 값으로 봅니다 */
 }
-/* 정회원(정규·순위 외·미출전 정회원)만 — 게스트 제외 */
-function canEditProfile(name) { return REGULAR.has(name) && !GUEST.has(name); }
+/* 정회원(정규·순위 외·미출전 정회원)과 게스트 모두 가능 */
+function canEditProfile(name) { return REGULAR.has(name) || GUEST.has(name); }
 function profBadgeHtml(pf) {
   const bits = [];
   if (pf.number === null) bits.push('<span class="num none">번호없음</span>');
@@ -1147,8 +1149,8 @@ function openProfForm(name) {
   if (!slot) return;
   slot.innerHTML = profFormHtml(name);
 }
-/* 폅을 접고 정보 입력/업데이트 버튼만 남깁니다(전적을 볼 때 방해되지 않도록)
-   아직 정보가 없는 정회원은 '정보 입력하기', 이미 등록된 정회원은 '개인정보 업데이트하기' */
+/* 폼을 접고 정보 입력/업데이트 버튼만 남깁니다(전적을 볼 때 방해되지 않도록)
+   아직 정보가 없으면 '정보 입력하기', 이미 등록되어 있으면 '개인정보 업데이트하기' */
 function collapseProfSlot(name) {
   const slot = $('#pInfoSlot');
   if (!slot || !canEditProfile(name)) return;
@@ -1160,8 +1162,9 @@ function renderProfSlot(name) {
   const slot = $('#pInfoSlot');
   if (!slot) return;
   if (!canEditProfile(name)) { slot.innerHTML = ''; return; }
-  /* 정보가 비어 있으면 폅을 바로 펼치고, 이미 있으면 버튼만 둡니다 */
-  if (hasFullProfile(effProfile(name))) collapseProfSlot(name);
+  /* 게스트는 정보가 없어도 폼을 자동으로 펼치지 않고 버튼만 둡니다. */
+  if (GUEST.has(name) || hasFullProfile(effProfile(name))) collapseProfSlot(name);
+  /* 정회원은 정보가 비어 있으면 폼을 바로 펼치고, 이미 있으면 버튼만 둡니다 */
   else openProfForm(name);
 }
 function readProfForm() {
