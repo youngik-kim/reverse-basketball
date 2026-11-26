@@ -1042,8 +1042,8 @@ document.addEventListener('keydown', e => {
 const LSKEY = 'reverse-unlock-v1';
 let started = false;
 function showApp() {
+  if (!started) { renderAll(); started = true; }
   document.body.classList.remove('locked');
-  if (!started) { started = true; renderAll(); }
 }
 async function openWith(bits) {
   const text = await decryptBits(bits);
@@ -1088,7 +1088,13 @@ $('#lockBtn').addEventListener('click', () => { clearBits(); location.reload(); 
 (async function boot() {
   const bits = loadBits();
   if (bits) {
-    try { if (await openWith(bits)) return; } catch (e) { }
+    let ok = false;
+    try { ok = await openWith(bits); } catch (e) { ok = false; }
+    if (ok) return;
+    // 일시적 오류(렌더 실패 등)로 기억된 키를 잃지 않도록 한 번 더 시도
+    await new Promise(r => setTimeout(r, 250));
+    try { ok = await openWith(bits); } catch (e) { ok = false; }
+    if (ok) return;
     clearBits();
   }
   gateSay('');
