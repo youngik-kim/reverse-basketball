@@ -43,11 +43,22 @@ button,select{font-family:inherit;color:inherit}
 .hero .period{color:var(--tx2);font-size:12px;margin:4px 0 0}
 .hero .period b{color:var(--tx);font-weight:700}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
-.stat{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
-  border-radius:10px;padding:6px 3px;text-align:center}
-.stat .v{font-size:14.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15}
-.stat .k{font-size:10px;color:var(--tx3);margin-top:1px}
+.stat{display:block;width:100%;font:inherit;color:inherit;text-align:center;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;appearance:none;-webkit-appearance:none;
+  background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
+  border-radius:10px;padding:6px 3px;
+  transition:border-color .16s,background .16s,transform .1s,box-shadow .16s}
+.stat .v{display:block;font-size:14.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15}
+.stat .k{display:block;font-size:10px;color:var(--tx3);margin-top:1px}
 .stat.hi .v{background:linear-gradient(92deg,var(--amber),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (hover:hover){
+  .stat:hover{border-color:rgba(255,122,24,.55);background:linear-gradient(160deg,rgba(255,122,24,.14),var(--card))}
+  .stat:hover .k{color:var(--tx2)}
+}
+.stat:active{transform:scale(.95);border-color:rgba(255,122,24,.85);background:linear-gradient(160deg,rgba(255,122,24,.2),var(--card))}
+.stat:focus-visible{outline:none;border-color:rgba(255,122,24,.85);box-shadow:0 0 0 3px rgba(255,122,24,.3)}
+/* 상단 요약 카드 이동 대상 — 고정 주차 바(≈57px)에 가리지 않게 */
+#secRank,#secWeeks,#guestBox{scroll-margin-top:66px}
 
 /* ---------- week selector (sticky) ---------- */
 .selbar{position:sticky;top:0;z-index:50;display:flex;gap:7px;align-items:center;
@@ -275,6 +286,13 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .mweek .gl{grid-column:2 / -1;font-size:10.5px;color:var(--tx3);font-variant-numeric:tabular-nums;margin-top:-1px}
 .mweek .gl .w{color:var(--green)} .mweek .gl .l{color:#ff8a6a}
 .mempty{color:var(--tx3);font-size:12px}
+.mprof{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:3px 0 4px}
+.mprof .num{font-size:12px;font-weight:900;padding:2px 8px;border-radius:999px;font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,rgba(255,122,24,.22),rgba(255,122,24,.07));
+  border:1px solid rgba(255,122,24,.42);color:var(--amber)}
+.mprof .hgt{font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;color:var(--tx2);
+  background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.mprof .sep{color:var(--tx3);font-size:11px;font-weight:800}
 .mbadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .mbadge{font-size:10.5px;font-weight:800;padding:3px 7px;border-radius:999px;background:rgba(255,209,102,.14);
   border:1px solid rgba(255,209,102,.32);color:var(--gold)}
@@ -643,7 +661,7 @@ async function decryptBits(bits) {
 }
 
 /* ---------------- 상태 ---------------- */
-let DATA = null, CHRONO = [], LATEST = null, PREVIEW = null, curDate = null, REGULAR = new Set(), GUEST = new Set();
+let DATA = null, CHRONO = [], LATEST = null, PREVIEW = null, curDate = null, REGULAR = new Set(), GUEST = new Set(), PROFILES = new Map();
 const NAME_ORDER = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function bindData(d) {
   DATA = d;
@@ -653,6 +671,7 @@ function bindData(d) {
   curDate = PREVIEW ? PREVIEW.date : LATEST.date;
   REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
   GUEST = new Set(DATA.guests.map(p => p.name));
+  PROFILES = new Map([].concat(DATA.members || [], DATA.outsiders || [], DATA.guests || []).map(p => [p.name, p]));
 }
 /* 예정 경기(PREVIEW)를 보고 있을 때는 승률·순위를 직전 확정 주차(LATEST) 기준으로 계산합니다 */
 const isPreview = () => !!(PREVIEW && curDate === PREVIEW.date);
@@ -720,12 +739,19 @@ function renderHero() {
   $('#periodLine').innerHTML = `<b>${p.start.replace(/-/g, '.')} – ${p.end.slice(5).replace('-', '.')}</b> · ${p.weeks}주 · 3파전`;
   const best = st.regular[0];
   const isLast = bd === LATEST.date;
+  const card = (k, v, o = {}) => `<button type="button" class="stat${o.hi ? ' hi' : ''}"`
+    + (o.person ? ` data-person="${esc(o.person)}"` : ` data-jump="${o.jump}"`)
+    + ` aria-label="${esc(o.label)}" title="${esc(o.label)}">`
+    + `<span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></button>`;
   $('#heroStats').innerHTML = [
-    [isLast ? '정규' : '순위권', st.regular.length + '명'],
-    ['경기', games + '경기'],
-    ['게스트', st.guests.length + '명'],
-    ['최고 승률', best ? `${best.name} ${pct(best.rate)}%` : '—', 'hi'],
-  ].map(([k, v, c]) => `<div class="stat ${c || ''}"><div class="v">${esc(v)}</div><div class="k">${esc(k)}</div></div>`).join('');
+    card(isLast ? '정규' : '순위권', st.regular.length + '명',
+      { jump: 'rank', label: (isLast ? '정규' : '순위권') + ' 승률 순위로 이동' }),
+    card('경기', games + '경기', { jump: 'games', label: '주간 결과 전체로 이동' }),
+    card('게스트', st.guests.length + '명', { jump: 'guest', label: '게스트 명단을 펼치고 이동' }),
+    best ? card('최고 승률', `${best.name} ${pct(best.rate)}%`,
+      { person: best.name, hi: true, label: `최고 승률 ${best.name} 개인 전적 카드 열기` })
+      : card('최고 승률', '—', { jump: 'rank', label: '승률 순위로 이동' }),
+  ].join('');
   $('#fPeriod').textContent = `${p.start} ~ ${p.end} (${p.weeks}주)`;
   $('#fNote').innerHTML = `기록은 <b>${p.start}</b>부터 집계된 ${p.weeks}주분입니다. 그 이전 주차는 원본 결과지가 없어 <b>보완 예정</b>으로 표시됩니다.`;
 }
@@ -966,9 +992,15 @@ function openPerson(name) {
     }
   }
   const badges = [p.captain ? '👑 팀장' : '', p.perfect ? '🔥 개근' : '', p.kind === 'guest' ? '게스트' : ''].filter(Boolean);
+  /* 등록 로스터(basketball/reverse-roster.md)에 있는 선수만 등번호·신장 표시 */
+  const prof = PROFILES.get(name) || {};
+  const profBits = [];
+  if (prof.number !== undefined && prof.number !== null && prof.number !== '') profBits.push(`<span class="num">#${esc(prof.number)}</span>`);
+  if (prof.height !== undefined && prof.height !== null && prof.height !== '') profBits.push(`<span class="hgt">${esc(prof.height)}cm</span>`);
   const totalGames = p.w + p.l;
   $('#mBody').innerHTML = `
     <div class="mname" id="mName">${esc(name)}</div>
+    ${profBits.length ? `<div class="mprof">${profBits.join('<span class="sep">·</span>')}</div>` : ''}
     <div class="mrank">${esc(rankLabel)}</div>
     ${badges.length ? `<div class="mbadges">${badges.map(b => `<span class="mbadge">${b}</span>`).join('')}</div>` : ''}
     <div class="mrate"><span class="big">${pct(p.rate)}%</span><span class="lbl">승률 · ${p.w}승 ${p.l}패 / ${totalGames}경기</span></div>
@@ -996,6 +1028,22 @@ function closeModal() {
   $('#modal').hidden = true;
   document.body.style.overflow = '';
   if (lastFocus) lastFocus.focus();
+}
+
+/* ---------------- 상단 요약 카드 이동 ---------------- */
+function smoothTo(el) {
+  if (!el) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}
+function jumpSummary(kind) {
+  if (kind === 'rank') smoothTo($('#secRank'));
+  else if (kind === 'games') smoothTo($('#secWeeks'));
+  else if (kind === 'guest') {
+    const box = $('#guestBox');
+    if (box && !box.open) box.open = true;   // 접혀 있으면 먼저 펼친다
+    smoothTo(box);
+  }
 }
 
 /* ---------------- events ---------------- */
@@ -1028,6 +1076,8 @@ $('#clr').addEventListener('click', () => { Q = ''; $('#q').value = ''; $('#sear
 document.addEventListener('click', e => {
   const pick = e.target.closest('[data-pick]');
   if (pick) { selectWeek(pick.dataset.pick, { scroll: true }); return; }
+  const jump = e.target.closest('[data-jump]');
+  if (jump) { jumpSummary(jump.dataset.jump); return; }
   const t = e.target.closest('[data-person]');
   if (t) { openPerson(t.dataset.person); return; }
   if (e.target.closest('[data-close]')) closeModal();

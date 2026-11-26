@@ -75,6 +75,31 @@ for r in rows(gst.split("## 📊 게스트 누적 전적")[1])[1:]:
     rate = float(clean(r[5]).replace("%", ""))
     guests.append(dict(rank=int(clean(r[0])), name=name, weeks=weeks, dates=dates, w=w, l=l, rate=rate))
 
+# ---------- 로스터(등번호·신장) ----------
+# basketball/reverse-roster.md — 「이름 | 신장 | 등번호 | 비고」 표. 계속 추가되는 파일이므로
+# 등록된 선수만 height(cm)·number 필드를 붙이고, 미등록 선수는 필드 없이 둡니다.
+ROSTER_PATH = ROOT + "/basketball/reverse-roster.md"
+roster = {}
+if os.path.isfile(ROSTER_PATH):
+    for r in rows(io.open(ROSTER_PATH, encoding="utf-8").read()):
+        if len(r) < 3 or clean(r[0]) in ("이름", "선수", "성명"):
+            continue
+        name = clean(r[0])
+        hm = re.search(r"(\d+(?:\.\d+)?)", clean(r[1]))
+        nm = re.search(r"(\d+)", clean(r[2]))
+        info = {}
+        if hm:
+            hv = float(hm.group(1))
+            info["height"] = int(hv) if hv.is_integer() else hv
+        if nm:
+            info["number"] = int(nm.group(1))
+        if name and info:
+            roster[name] = info
+for p in members + outsiders + guests:
+    p.update(roster.get(p["name"], {}))
+print("로스터 등록", len(roster), "명:", ", ".join(
+    f"{n} #{v.get('number', '-')} {v.get('height', '-')}cm" for n, v in roster.items()) or "없음")
+
 # ---------- 주간 로그 ----------
 week_blocks = re.split(r"### ", rec.split("## 📅 주간 경기 로그")[1])[1:]
 weeks = []
@@ -140,6 +165,7 @@ for g in guests:
         errors.append(f"게스트 {g['name']}: 표 {g['w']}-{g['l']} vs 계산 {c['w']}-{c['l']}")
 
 print("정규", len(members), "순위외", len(outsiders), "게스트", len(guests), "주차", len(weeks))
+print("등번호·신장 포함 선수:", [p["name"] for p in members + outsiders + guests if "number" in p or "height" in p] or "없음")
 print("검증 오류:", errors if errors else "없음")
 
 # 순위 검증: 승률 desc, 다승 desc
@@ -174,6 +200,8 @@ data = dict(
     members=members, outsiders=outsiders, absent=absent, guests=guests, weeks=weeks,
     leaders=[dict(name=p["name"], **p["lead"]) for p in members + outsiders if p["lead"]],
 )
-json.dump(data, io.open(SITE + "/data.json", "w", encoding="utf-8"),
-          ensure_ascii=False, indent=1)
-print("저장 완료")
+json_text = json.dumps(data, ensure_ascii=False, indent=1)
+# build_site.py 는 src/data.json 을 우선 읽는다 → 두 경로 모두 최신으로 유지
+for path in (SITE + "/src/data.json", SITE + "/data.json"):
+    io.open(path, "w", encoding="utf-8").write(json_text)
+print("저장 완료:", "src/data.json, data.json")
