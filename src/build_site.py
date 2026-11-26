@@ -8,9 +8,10 @@
   브라우저 쪽 복호화 코드는 src/template.html 안에 있습니다(Web Crypto + 순수 JS 대체 구현).
 
 사용:
-    python3 src/build_site.py --code 2020
-    REVERSE_CODE=2020 python3 src/build_site.py
-    python3 src/build_site.py --code 2020 --reencrypt   # data.json 강제 재암호화
+    python3 src/build_site.py                 # 입장 코드를 프론트로 입력
+    python3 src/build_site.py --code ****     # 코드를 인자로 (배포하며 쓰지 말 것)
+    REVERSE_CODE=**** python3 src/build_site.py
+    python3 src/build_site.py --code **** --reencrypt   # data.json 강제 재암호화
 """
 import argparse, base64, getpass, hashlib, hmac, io, json, os, sys
 
