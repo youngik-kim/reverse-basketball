@@ -45,6 +45,18 @@ button,select{font-family:inherit;color:inherit}
 /* hero 상단 좌우 배치 — 왼쪽 브랜드 / 오른쪽 로고+유튜브 링크 */
 .heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .heroId{flex:1 1 auto;min-width:0}
+.heroRight{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-top:1px}
+/* 경기일(토) 날씨 칩 — 히어로 우상남, 유튜브 버튼 아래 */
+.wxchip{display:block;max-width:126px;text-align:right;border:1px solid rgba(74,210,255,.28);
+  background:linear-gradient(180deg,rgba(74,210,255,.12),rgba(74,210,255,.04));border-radius:11px;
+  padding:6px 9px;cursor:pointer;color:var(--tx);line-height:1.25;transition:border-color .16s,background .16s,transform .1s}
+.wxchip[hidden]{display:none}
+.wxchip:hover{border-color:rgba(74,210,255,.5);background:linear-gradient(180deg,rgba(74,210,255,.18),rgba(74,210,255,.06))}
+.wxchip:active{transform:scale(.98)}
+.wxchip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(74,210,255,.3)}
+.wxchip .wx1{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:10px;font-weight:900;white-space:nowrap}
+.wxchip .wxi{font-size:11px;line-height:1}
+.wxchip .wx2{display:block;margin-top:2px;font-size:9.5px;font-weight:800;color:var(--tx2);white-space:nowrap}
 .ytlink{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;margin-top:1px;
   padding:3px 10px 3px 3px;border-radius:999px;text-decoration:none;color:var(--tx);
   background:linear-gradient(150deg,rgba(255,255,255,.10),rgba(20,27,37,.94));
@@ -72,6 +84,8 @@ button,select{font-family:inherit;color:inherit}
   .eyebrow{font-size:9.5px;letter-spacing:.05em;padding:3px 7px;gap:5px}
   .ytlink{padding:2px 8px 2px 2px;gap:6px}
   .ytlink .ytlogo{width:34px;height:34px}
+  .wxchip{max-width:116px;padding:5px 8px}
+  .wxchip .wx2{font-size:9px}
   .ytbadge{font-size:10px;gap:3.5px;letter-spacing:-.02em}
   .ytbadge .ytplay{width:14px;height:10px}
   .ytbadge .arw{font-size:10px}
@@ -81,6 +95,11 @@ button,select{font-family:inherit;color:inherit}
 @media (max-width:400px){
   .hero h1{font-size:26px}
   .hero h1 .en{font-size:9.5px;letter-spacing:.32em}
+  .heroTop{gap:7px}
+  .eyebrow{font-size:8.8px;letter-spacing:.015em;padding:3px 6px;gap:4px}
+  .wxchip{max-width:104px;padding:5px 7px}
+  .wxchip .wx1{font-size:9.5px}
+  .wxchip .wx2{font-size:8.5px}
 }
 @media (max-width:359px){
   .hero h1{font-size:23px;gap:8px}
@@ -315,22 +334,9 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .eyebrow.vbtn:hover{border-color:rgba(255,122,24,.6);background:rgba(255,122,24,.16);box-shadow:0 0 0 3px rgba(255,122,24,.10)}
 .eyebrow.vbtn:active{transform:scale(.98)}
 .eyebrow.vbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,122,24,.35)}
-.eyebrow.vbtn .vtap{font-size:9px;letter-spacing:.02em;padding:2px 6px;border-radius:999px;
-  background:rgba(255,122,24,.24);color:var(--amber);font-weight:900}
+.eyebrow.vbtn .vtap{font-size:13px;line-height:1;padding:0 1px;color:var(--amber);font-weight:900;transform:translateY(-1px)}
 .vname{font-size:19px;font-weight:900;margin:12px 0 2px;letter-spacing:-.02em;padding-right:34px}
 .vsub{font-size:11px;color:var(--tx3);font-weight:800;margin:0 0 12px}
-.vwx{display:block;margin:0 0 9px;padding:10px 12px;border-radius:12px;
-  border:1px solid rgba(74,210,255,.26);background:linear-gradient(180deg,rgba(74,210,255,.10),rgba(74,210,255,.03));
-  line-height:1.45;word-break:keep-all}
-.vwx[hidden]{display:none}
-.vwx-h{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:900;color:var(--tx)}
-.vwx-h .wico{font-size:14px;line-height:1;flex:0 0 auto}
-.vwx-h .vwx-sub{font-weight:800;color:var(--tx3);font-size:10.5px}
-.vwx-r{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap}
-.vwx-r .chip{font-size:10.5px;font-weight:800;color:var(--tx2);background:rgba(255,255,255,.06);
-  border:1px solid var(--line);border-radius:999px;padding:3px 8px;white-space:nowrap}
-.vwx-r .chip b{color:var(--tx);font-weight:900}
-.vwx-t{margin-top:6px;font-size:10.5px;font-weight:800;color:var(--tx3)}
 .vaddr{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);
   border-radius:12px;padding:10px 11px}
 .vaddr .vtxt{flex:1 1 auto;font-size:12px;font-weight:800;line-height:1.45;color:var(--tx);word-break:keep-all}
@@ -549,15 +555,18 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   <header class="hero">
     <div class="heroTop">
       <div class="heroId">
-        <button class="eyebrow vbtn" id="venueBtn" type="button" aria-haspopup="dialog" aria-controls="venueModal" title="구장 위치 · 길찾기 열기">🏀 Saturday · 부천JW스포츠센터 <span class="vtap" aria-hidden="true">길찾기</span></button>
+        <button class="eyebrow vbtn" id="venueBtn" type="button" aria-haspopup="dialog" aria-controls="venueModal" title="구장 위치 · 길찾기 열기">🏀 Saturday · 부천JW스포츠센터 <span class="vtap" aria-hidden="true">›</span></button>
         <h1>리버스 <span class="en">REVERSE</span></h1>
         <p class="period" id="periodLine"></p>
       </div>
-      <a class="ytlink" id="ytLink" href="https://www.youtube.com/@reverse_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
-         aria-label="리버스 유튜브 채널 구독 (새 창)" title="리버스 유튜브 @reverse_basketball 구독하기">
-        <img class="ytlogo" src="assets/reverse-logo.png" alt="리버스 로고" width="38" height="38" decoding="async">
-        <span class="ytbadge"><span class="ytplay" aria-hidden="true"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span>YouTube <span class="ytst">구독</span><span class="arw" aria-hidden="true">↗</span></span>
-      </a>
+      <div class="heroRight">
+        <a class="ytlink" id="ytLink" href="https://www.youtube.com/@reverse_basketball?sub_confirmation=1" target="_blank" rel="noopener noreferrer"
+           aria-label="리버스 유튜브 채널 구독 (새 창)" title="리버스 유튜브 @reverse_basketball 구독하기">
+          <img class="ytlogo" src="assets/reverse-logo.png" alt="리버스 로고" width="38" height="38" decoding="async">
+          <span class="ytbadge"><span class="ytplay" aria-hidden="true"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span>YouTube <span class="ytst">구독</span><span class="arw" aria-hidden="true">↗</span></span>
+        </a>
+        <button class="wxchip" id="wxChip" type="button" hidden aria-label="경기일 날씨"></button>
+      </div>
     </div>
     <div class="stats" id="heroStats"></div>
   </header>
@@ -643,7 +652,6 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <button class="x" data-vclose aria-label="닫기">✕</button>
     <h3 class="vname" id="vName">🏀 부천JW스포츠센터</h3>
     <p class="vsub">매주 토요일 · 리버스 3파전 라운드로빈</p>
-    <div class="vwx" id="vWx" role="status" aria-live="polite" hidden></div>
     <div class="vaddr">
       <span class="vtxt" id="vAddr">경기 부천시 오정구 석천로442번길 19</span>
       <button type="button" class="vcopy" data-vcopy>주소 복사</button>
@@ -1473,6 +1481,7 @@ let started = false;
 function showApp() {
   if (!started) { renderAll(); started = true; }
   document.body.classList.remove('locked');
+  try { document.dispatchEvent(new CustomEvent('reverse:unlocked')); } catch (e) { }
 }
 async function openWith(bits) {
   const text = await decryptBits(bits);
@@ -1577,41 +1586,46 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
     const p = String(iso).split('-');
     return String(p[1]).padStart(2, '0') + '/' + String(p[2]).padStart(2, '0');
   }
-  /* 다가오는 토요일(경기일) 일기예보 카드: 상태·최저~최고·강수확률· 오전 09~12시 기온 */
-  function wxHtml(d) {
+  /* 다가오는 토요일(경기일) 예보 — 히어로 우상단 칩(툴팁에 상태·시간대 상세) */
+  function wxChipData(d) {
     const day = (d && d.daily) || {}, hour = (d && d.hourly) || {};
     const key = nextSaturday();
     const i = (day.time || []).indexOf(key);
-    if (i < 0) return '';
+    if (i < 0) return null;
     const code = Number(day.weather_code[i]);
     const lo = Math.round(Number(day.temperature_2m_min[i]));
     const hi = Math.round(Number(day.temperature_2m_max[i]));
-    const pop = (day.precipitation_probability_max || [])[i];
+    const rawPop = (day.precipitation_probability_max || [])[i];
+    const pop = (rawPop !== null && rawPop !== undefined && isFinite(Number(rawPop))) ? Math.round(Number(rawPop)) : null;
     const hTimes = hour.time || [], hTemps = hour.temperature_2m || [];
     const slots = [9, 10, 11, 12].map(function (h) {
       const t = hTimes.indexOf(key + 'T' + (h < 10 ? '0' + h : h) + ':00');
       return (t >= 0 && isFinite(Number(hTemps[t]))) ? (h < 10 ? '0' + h : h) + '시 ' + Math.round(Number(hTemps[t])) + '°' : '';
     }).filter(Boolean);
-    let html = '<div class="vwx-h"><span class="wico" aria-hidden="true">' + (WX_ICON[code] || '🌤️') + '</span>'
-      + '<span>' + wxDate(key) + '(토) 경기일 예보</span><span class="vwx-sub">· 부천 오정구</span></div>'
-      + '<div class="vwx-r"><span class="chip"><b>' + (WX_TEXT[code] || '날씨') + '</b></span>'
-      + '<span class="chip"><b>' + lo + '~' + hi + '°C</b></span>';
-    if (pop !== null && pop !== undefined && isFinite(Number(pop))) {
-      html += '<span class="chip">강수 <b>' + Math.round(Number(pop)) + '%</b></span>';
-    }
-    html += '</div>';
-    if (slots.length) html += '<div class="vwx-t">경기 시간대(09~12시) · ' + slots.join(' · ') + '</div>';
-    return html;
+    return { key: key, code: code, lo: lo, hi: hi, pop: pop, slots: slots,
+      status: WX_TEXT[code] || '날씨', icon: WX_ICON[code] || '🌤️' };
+  }
+  function paintWeather(d) {
+    const chip = $('#wxChip');
+    if (!chip) return false;
+    const w = wxChipData(d);
+    if (!w) return false;
+    chip.innerHTML = '<span class="wx1"><span class="wxi" aria-hidden="true">' + w.icon + '</span>'
+      + wxDate(w.key) + '(토)</span>'
+      + '<span class="wx2">' + w.lo + '~' + w.hi + '°C' + (w.pop !== null ? ' · 강수 ' + w.pop + '%' : '') + '</span>';
+    const title = wxDate(w.key) + '(토) 경기일 예보 · 부천 오정구 · ' + w.status + ' ' + w.lo + '~' + w.hi + '°C'
+      + (w.pop !== null ? ' · 강수 ' + w.pop + '%' : '')
+      + (w.slots.length ? ' · ' + w.slots.join(' · ') : '');
+    chip.title = title + ' — 누르면 구장 길찾기가 열립니다';
+    chip.setAttribute('aria-label', title + ' (누르면 길찾기 열기)');
+    chip.hidden = false;
+    return true;
   }
   function loadWeather() {
-    const box = $('#vWx');
-    if (!box) return;
-    if (wxCache && (Date.now() - wxAt) < 600000) {
-      const cached = wxHtml(wxCache);
-      if (cached) { box.innerHTML = cached; box.hidden = false; }
-      return;
-    }
-    box.hidden = true;
+    const chip = $('#wxChip');
+    if (!chip) return;
+    if (wxCache && (Date.now() - wxAt) < 600000) { paintWeather(wxCache); return; }
+    chip.hidden = true;
     let timer = null, ctrl = null;
     try {
       ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -1622,13 +1636,10 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
         const res = await fetch(WX_URL, ctrl ? { signal: ctrl.signal, cache: 'no-store' } : { cache: 'no-store' });
         if (!res || !res.ok) throw new Error('HTTP ' + (res && res.status));
         const data = await res.json();
-        const html = wxHtml(data);
-        if (!html) throw new Error('no forecast');
+        if (!paintWeather(data)) throw new Error('no forecast');
         wxCache = data; wxAt = Date.now();
-        box.innerHTML = html;
-        box.hidden = false;
       } catch (err) {
-        box.hidden = true;                 /* 실패해도 모달은 그대로 — 카드만 숨김 */
+        chip.hidden = true;                /* 실패해도 화면은 그대로 — 칩만 숨김 */
       } finally {
         if (timer) clearTimeout(timer);
       }
@@ -1672,7 +1683,6 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
     document.body.style.overflow = 'hidden';
     const x = $('#venueModal .x');
     if (x) x.focus();
-    try { loadWeather(); } catch (e) { }
   }
   function closeVenue() {
     if (!modal || modal.hidden) return;
@@ -1713,7 +1723,7 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
   }
 
   document.addEventListener('click', function (e) {
-    if (e.target.closest('#venueBtn')) { e.preventDefault(); openVenue(); return; }
+    if (e.target.closest('#venueBtn') || e.target.closest('#wxChip')) { e.preventDefault(); openVenue(); return; }
     if (e.target.closest('[data-vclose]')) { closeVenue(); return; }
     if (e.target.closest('[data-vcopy]')) { copyAddress(); return; }
     const a = e.target.closest('[data-nav]');
@@ -1722,6 +1732,9 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && modal && !modal.hidden) closeVenue();
   });
+  /* 입장 해제 뒤 히어로 날씨 칩 로드 */
+  document.addEventListener('reverse:unlocked', function () { try { loadWeather(); } catch (e) { } });
+  if (!document.body.classList.contains('locked')) { try { loadWeather(); } catch (e) { } }
 })();
 
 const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
