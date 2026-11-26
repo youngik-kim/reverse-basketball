@@ -119,9 +119,11 @@ def main():
 
     weeks = [w for w in data.get("weeks", []) if w.get("date")]
     period = data.get("period", {})
-    print("index.html %d bytes  |  %d주 · 정규 %d명 · 게스트 %d명 · 기간 %s~%s"
+    pv = data.get("preview")
+    print("index.html %d bytes  |  %d주 · 정규 %d명 · 게스트 %d명 · 기간 %s~%s%s"
           % (len(out), len(weeks), len(data.get("members", [])), len(data.get("guests", [])),
-             period.get("start", "?"), period.get("end", "?")))
+             period.get("start", "?"), period.get("end", "?"),
+             "  |  예정 프리뷰 %s (%d팀)" % (pv.get("date"), len(pv.get("teams", []))) if pv else ""))
 
 
 if __name__ == "__main__":

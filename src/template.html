@@ -311,6 +311,22 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* ---------- 예정 경기 프리뷰 ---------- */
+.pvcard{background:linear-gradient(165deg,rgba(255,122,24,.12),rgba(24,34,48,.92));
+  border:1px solid rgba(255,122,24,.34);border-radius:var(--r);padding:14px;margin-top:10px}
+.pvhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pvbadge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:900;letter-spacing:-.01em;
+  color:#170d04;background:linear-gradient(92deg,var(--gold),var(--amber));padding:5px 10px;border-radius:999px}
+.pvsub{font-size:12px;color:var(--tx2);line-height:1.5;margin:9px 0 4px}
+.pvteam{border:1px solid var(--line);border-radius:12px;padding:10px 11px;margin-top:8px;background:rgba(8,12,18,.45)}
+.pvteam .hrow{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:900}
+.pvteam .cap{font-size:11px;color:var(--gold);font-weight:800}
+.pvteam .avg{margin-left:auto;font-size:12.5px;font-weight:900;letter-spacing:-.01em;color:var(--tx)}
+.pvteam .roster{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+.pvteam .exp{margin-top:7px;font-size:11.5px;color:var(--tx2)}
+.pvteam .exp b{color:var(--amber);font-weight:900}
+.pvtile{margin-bottom:8px;border-color:rgba(255,122,24,.34)!important;background:rgba(255,122,24,.07)!important}
+
 /* ---------- 입장 코드 잠금 화면 ---------- */
 body.locked .wrap,body.locked #modal{display:none}
 .gate{display:none}
@@ -627,15 +643,24 @@ async function decryptBits(bits) {
 }
 
 /* ---------------- 상태 ---------------- */
-let DATA = null, CHRONO = [], LATEST = null, curDate = null, REGULAR = new Set(), GUEST = new Set();
+let DATA = null, CHRONO = [], LATEST = null, PREVIEW = null, curDate = null, REGULAR = new Set(), GUEST = new Set();
 const NAME_ORDER = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function bindData(d) {
   DATA = d;
   CHRONO = DATA.weeks.filter(w => w.date).slice().sort((a, b) => a.date.localeCompare(b.date));
   LATEST = CHRONO.filter(w => !w.noSheet).slice(-1)[0];
-  curDate = LATEST.date;
+  PREVIEW = DATA.preview || null;
+  curDate = PREVIEW ? PREVIEW.date : LATEST.date;
   REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
   GUEST = new Set(DATA.guests.map(p => p.name));
+}
+/* 예정 경기(PREVIEW)를 보고 있을 때는 승률·순위를 직전 확정 주차(LATEST) 기준으로 계산합니다 */
+const isPreview = () => !!(PREVIEW && curDate === PREVIEW.date);
+const basisDate = () => isPreview() ? LATEST.date : curDate;
+function dateOrder() {
+  const o = CHRONO.map(w => w.date);
+  if (PREVIEW && o.indexOf(PREVIEW.date) < 0) o.push(PREVIEW.date);
+  return o.slice().sort();
 }
 
 /* 그 주차까지의 누적 기록 계산 (weeks 로스터 기반) */
@@ -690,11 +715,11 @@ function computeAsOf(date) {
 
 /* ---------------- hero ---------------- */
 function renderHero() {
-  const p = DATA.period, st = computeAsOf(curDate);
+  const bd = basisDate(), p = DATA.period, st = computeAsOf(bd);
   const games = (st.n * 3);
   $('#periodLine').innerHTML = `<b>${p.start.replace(/-/g, '.')} – ${p.end.slice(5).replace('-', '.')}</b> · ${p.weeks}주 · 3파전`;
   const best = st.regular[0];
-  const isLast = curDate === LATEST.date;
+  const isLast = bd === LATEST.date;
   $('#heroStats').innerHTML = [
     [isLast ? '정규' : '순위권', st.regular.length + '명'],
     ['경기', games + '경기'],
@@ -707,26 +732,53 @@ function renderHero() {
 
 /* ---------------- selector ---------------- */
 function renderSelector() {
-  $('#weekSel').innerHTML = CHRONO.map((w, i) => {
+  const pvOpt = PREVIEW ? `<option value="${PREVIEW.date}" ${curDate === PREVIEW.date ? 'selected' : ''}>🔮 ${esc(PREVIEW.label)}</option>` : '';
+  $('#weekSel').innerHTML = pvOpt + CHRONO.map((w, i) => {
     const champ = w.noSheet ? null : w.standings.slice().sort((a, b) => a.pos - b.pos)[0];
     const label = w.noSheet ? `${w.date} · 원본 결과지 보완 예정`
       : `${w.date} (${i + 1}주차) · ${champ ? champ.team + ' 우승' : '결과'}`;
     return `<option value="${w.date}" ${w.date === curDate ? 'selected' : ''}>${esc(label)}</option>`;
   }).join('');
-  const i = CHRONO.findIndex(w => w.date === curDate);
+  const order = dateOrder(), i = order.indexOf(curDate);
   $('#prevBtn').disabled = i <= 0;
-  $('#nextBtn').disabled = i >= CHRONO.length - 1;
-  $('#latestBtn').hidden = curDate === LATEST.date;
+  $('#nextBtn').disabled = i >= order.length - 1;
+  $('#latestBtn').hidden = curDate === order[order.length - 1];
   const b = $('#pastBanner');
-  if (curDate === LATEST.date) { b.hidden = true; }
+  if (isPreview()) {
+    b.hidden = false;
+    b.innerHTML = `🔮 <b>${PREVIEW.date} (9주차) 예정 경기</b> · 승률·순위는 <b>${LATEST.date} (8주 확정)</b> 기준입니다`;
+  } else if (curDate === LATEST.date) { b.hidden = true; }
   else {
     b.hidden = false;
-    b.innerHTML = `📅 <b>${curDate} (${i + 1}주차) 기준</b> 화면입니다 · 최종 기록은 <b>${LATEST.date}</b>`;
+    b.innerHTML = `📅 <b>${curDate} (${CHRONO.findIndex(w => w.date === curDate) + 1}주차) 기준</b> 화면입니다 · 최종 기록은 <b>${LATEST.date}</b>`;
   }
+}
+
+/* ---------------- 예정 경기 카드 ---------------- */
+function renderPreview() {
+  const pv = PREVIEW;
+  $('#resWeek').textContent = `${pv.date} (${wd(pv.date)}) · 예정`;
+  $('#resRight').textContent = pv.venue || '9주차';
+  const teams = (pv.teams || []).map(t => `<div class="pvteam" data-team="${esc(t.team)}">
+      <div class="hrow"><span class="dot ${esc(t.team)}"></span>${esc(t.team)}
+        <span class="cap">👑 ${esc(t.cap)}</span>
+        <span class="avg">평균 ${pct(t.avg)}%</span></div>
+      <div class="roster">${(t.roster || []).map(n => `<button class="chip" data-person="${esc(n)}">${esc(n)}${n === t.cap ? ' <span class="st">👑</span>' : ''}</button>`).join('')}</div>
+      <div class="exp">예상 <b>${esc(t.expected)}</b>${t.note ? ` · ${esc(t.note)}` : ''}</div>
+    </div>`).join('');
+  const nP = (pv.teams || []).reduce((s, t) => s + (t.roster || []).length, 0);
+  $('#resultCard').innerHTML = `<div class="pvcard">
+    <div class="pvhead"><span class="pvbadge">🔮 ${esc(pv.date)} (${wd(pv.date)}) ${esc(pv.title)}</span></div>
+    <div class="pvsub">${esc(pv.venue || '')} · 3파전(팀당 2경기) · ${nP}명 — 아직 치르지 않은 경기입니다.
+      아래 <b>최종 승률·순위·누적</b>은 <b>${LATEST.date} 8주 확정</b> 기준 그대로입니다.</div>
+    ${teams}
+    ${pv.note ? `<div class="note" style="margin-top:11px"><b>NOTE</b> ${esc(pv.note)}</div>` : ''}
+  </div>`;
 }
 
 /* ---------------- result card ---------------- */
 function renderResult() {
+  if (isPreview()) { renderPreview(); return; }
   const w = CHRONO.find(x => x.date === curDate);
   const i = CHRONO.findIndex(x => x.date === curDate);
   $('#resWeek').textContent = `${i + 1}주차 · ${curDate} (${wd(curDate)})`;
@@ -780,11 +832,12 @@ function hl(name, q) {
 }
 let ST = null, Q = '';
 function renderRank() {
-  ST = computeAsOf(curDate);
-  const total = CHRONO.filter(w => !w.noSheet && w.date <= curDate).length;
-  $('#rankScope').textContent = ST.n ? `${curDate === LATEST.date ? '최종' : short(curDate) + ' 기준'} · ${ST.n}주 누적` : '결과지 없음';
-  $('#rankCount').textContent = `${curDate === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
-  $('#hRank').textContent = curDate === LATEST.date ? '최종 승률' : (ST.n ? `${ST.n}주차까지 승률` : '기록 없음');
+  const bd = basisDate();
+  ST = computeAsOf(bd);
+  const total = CHRONO.filter(w => !w.noSheet && w.date <= bd).length;
+  $('#rankScope').textContent = ST.n ? `${bd === LATEST.date ? '최종' : short(bd) + ' 기준'} · ${ST.n}주 누적` : '결과지 없음';
+  $('#rankCount').textContent = `${bd === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
+  $('#hRank').textContent = bd === LATEST.date ? '최종 승률' : (ST.n ? `${ST.n}주차까지 승률` : '기록 없음');
   $('#critInner').innerHTML = `<div class="crit"><b>정규 순위 산정</b> — 전체 경기 수 <b>${DATA.criteria.minRate}% 이상</b> 참여자만 정규 순위에 들어갑니다.
       (지금은 <b>${ST.n ? `${ST.n}주 중 ${ST.minWeeks}주 이상` : '기록 없음'}</b>)
       <div class="row"><span class="pill">① 참여율 ${DATA.criteria.minRate}%↑</span><span class="pill">② 동률 시 다승</span><span class="pill">③ 팀장 승률</span><span class="pill">④ 가나다 순</span></div></div>
@@ -796,7 +849,7 @@ function renderRank() {
   const regs = ST.regular.filter(f), outs = ST.outsiders.filter(f), gs = ST.guests.filter(f);
   $('#memberRows').innerHTML = regs.length ? regs.map((p, i) => memberRow(p, Q, ST.regular.indexOf(p) + 1)).join('')
     : `<div class="nores">${Q ? '해당 이름의 정규 순위 선수가 없습니다.' : `아직 ${ST.minWeeks}주를 채운 선수가 없습니다.`}</div>`;
-  $('#q').placeholder = `이름 검색 · ${curDate === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
+  $('#q').placeholder = `이름 검색 · ${bd === LATEST.date ? '정규' : '순위권'} ${ST.regular.length} · 순위 외 ${ST.outsiders.length} · 게스트 ${ST.guests.length}`;
   $('#outRows').innerHTML = outs.length ? outs.map(p => {
     const prog = Math.round(p.weeks / ST.minWeeks * 100);
     const soon = p.need === 1;
@@ -821,7 +874,7 @@ function renderRank() {
   $('#guestRows').innerHTML = gs.length ? gs.map((p, i) => `<button class="grow" data-person="${esc(p.name)}">
       <span class="rk" style="font-size:11.5px">${i + 1}</span>
       <span><span class="nn">${hl(p.name, Q)}</span>
-        <span class="d">${personDates(p.name, curDate).join(', ')}</span></span>
+        <span class="d">${personDates(p.name, basisDate()).join(', ')}</span></span>
       <span class="rec">${p.w}승 ${p.l}패</span>
       <span class="rt ${rateClass(p.rate)}" style="font-size:12px">${pct(p.rate)}%</span></button>`).join('')
     : `<div class="nores">${Q ? '해당 이름의 게스트가 없습니다.' : '게스트 기록이 없습니다.'}</div>`;
@@ -842,7 +895,12 @@ function personDates(name, date) {
 
 /* ---------------- weekly list ---------------- */
 function renderWeeks() {
-  $('#weekList').innerHTML = CHRONO.slice().reverse().map(w => {
+  const pvTile = PREVIEW ? `<button class="otile pvtile" data-pick="${PREVIEW.date}">
+      <span class="rk">🔮</span>
+      <span><span class="nn">${short(PREVIEW.date)} (예정) · 9주차 매치 프리뷰</span>
+        <span class="meta">형광 · 화이트 · 블랙 3파전 · 승률 기반 예상</span></span>
+      <span class="cond">보기</span></button>` : '';
+  $('#weekList').innerHTML = pvTile + CHRONO.slice().reverse().map(w => {
     const idx = CHRONO.findIndex(x => x.date === w.date) + 1;
     if (w.noSheet) return `<details class="wkcard"><summary>
         <div class="dbox"><div class="m">${w.date.slice(5, 7)}월</div><div class="d">${w.date.slice(8, 10)}</div></div>
@@ -877,13 +935,13 @@ function renderWeeks() {
         <button class="pickbtn" data-pick="${w.date}" ${sel ? 'disabled' : ''}>${sel ? '지금 이 주차를 보고 있습니다' : '이 주차 기준으로 보기'}</button>
       </div></details>`;
   }).join('');
-  $('#cntWeek').textContent = `${CHRONO.filter(w => !w.noSheet).length}주 기록`;
+  $('#cntWeek').textContent = `${CHRONO.filter(w => !w.noSheet).length}주 기록${PREVIEW ? ' + 9주차 예정' : ''}`;
 }
 
 /* ---------------- modal ---------------- */
 let lastFocus = null;
 function openPerson(name) {
-  const st = computeAsOf(curDate);
+  const bd = basisDate(), st = computeAsOf(bd);
   const s = st.byName.get(name);
   const p = s || { name: name, weeks: 0, w: 0, l: 0, rate: 0, lead: null, captain: false, perfect: false, kind: GUEST.has(name) ? 'guest' : 'regular' };
   const regIdx = st.regular.findIndex(x => x.name === name);
@@ -893,7 +951,7 @@ function openPerson(name) {
   if (regIdx >= 0) rankLabel = `정규 ${regIdx + 1}위 · 참여율 ${pct(p.weeks / st.n * 100)}%`;
   else if (outIdx >= 0) rankLabel = `순위 외 ${outIdx + 1} · 참여율 ${pct(p.weeks / st.n * 100)}%`;
   else if (gstIdx >= 0) rankLabel = `게스트 · ${p.weeks}주 출전`;
-  else rankLabel = curDate === LATEST.date ? '정회원 · 출전 기록 없음' : `${st.n}주차까지 출전 기록 없음`;
+  else rankLabel = bd === LATEST.date ? '정회원 · 출전 기록 없음' : `${st.n}주차까지 출전 기록 없음`;
 
   const wk = [];
   for (const w of st.weeks.slice().reverse()) {
@@ -920,7 +978,7 @@ function openPerson(name) {
       <div class="mcell"><div class="v">${p.w}<span style="font-size:10px;color:var(--tx3)">승</span> ${p.l}<span style="font-size:10px;color:var(--tx3)">패</span></div><div class="k">전적</div></div>
       <div class="mcell"><div class="v">${p.lead ? pct(p.lead.rate) + '%' : '—'}</div><div class="k">팀장 승률${p.lead ? ` (${p.lead.w}승 ${p.lead.l}패)` : ''}</div></div>
     </div>
-    <div class="masof">${curDate === LATEST.date ? '최종 기록(' + LATEST.date + ') 기준' : curDate + '까지 누적 기준'}</div>
+    <div class="masof">${bd === LATEST.date ? '최종 기록(' + LATEST.date + ') 기준' : bd + '까지 누적 기준'}</div>
     <div class="msec">주차별 기록</div>
     ${wk.length ? wk.map(w => `<div class="mweek">
         <span class="dt">${short(w.date)}</span>

@@ -146,8 +146,27 @@ print("검증 오류:", errors if errors else "없음")
 sorted_check = sorted(members, key=lambda p: (-p["rate"], -p["w"]))
 print("순위 일치:", [p["rank"] for p in sorted_check] == list(range(1, len(members) + 1)))
 
+# 예정 경기 프리뷰 — 다음 주차 명단이 확정되면 이 블록만 고칩니다(주차별로 교체).
+#  이 값은 누적 승률·순위(PERIOD/members/outsiders/guests)에 포함되지 않습니다.
+PREVIEW = dict(
+    date="2026-11-28",
+    label="2026-11-28 (예정 · 9주차 프리뷰)",
+    title="매치 프리뷰 & 승률 예상",
+    venue="부천JW스포츠센터",
+    note="아직 치르지 않은 경기이므로 승률·순위·누적 집계는 2026-11-21(8주차) 확정 기준을 그대로 유지합니다. 평균 승률은 각 팀 기록 보유 선수의 8주 확정 개인 승률 단순 평균입니다.",
+    teams=[
+        dict(team="형광", cap="박광현", avg=53.7, expected="2승 0패 또는 1승 1패", note="최정범 첫 출전",
+             roster=["박광현", "김준성", "심호길", "김현준", "최정범"]),
+        dict(team="화이트", cap="유동훈", avg=51.3, expected="1승 1패 또는 2승 0패", note="",
+             roster=["변정훈", "정승혁", "유동훈", "나윤", "김영익"]),
+        dict(team="블랙", cap="고건우", avg=41.3, expected="0승 2패", note="이변 시 1승",
+             roster=["정민규", "고건우", "조성현", "김재호", "김영수"]),
+    ],
+)
+
 data = dict(
     team="리버스", teamEn="REVERSE", venue="부천JW스포츠센터",
+    preview=PREVIEW,
     period=dict(start="2026-10-03", end="2026-11-21", weeks=8),
     criteria=dict(minRate=40, minWeeks=4, totalWeeks=8,
                   tiebreak=["다승", "팀장 승률", "가나다 순"],
