@@ -84,11 +84,13 @@ POSITIONS = ("PG", "SG", "SF", "PF", "C")
 EMPTY_VALS = ("", "-", "—", "–", "없음", "n/a", "N/A", "x", "X")
 
 def parse_position(cell):
-    """'SF/PF' → 'SF/PF'. 허용 포지션만 남기고 POSITIONS 순서로 정규화합니다."""
+    """'PF/SF' -> 'PF/SF'. 적힌 순서를 그대로 보존하고, 허용 포지션만 남깁니다."""
     raw = clean(cell).upper().replace(" ", "").replace(",", "/").replace("ㆍ", "/")
-    picked = [t for t in raw.split("/") if t in POSITIONS]
-    ordered = [p for p in POSITIONS if p in picked]
-    return "/".join(ordered)
+    picked = []
+    for t in raw.split("/"):
+        if t in POSITIONS and t not in picked:
+            picked.append(t)
+    return "/".join(picked)
 
 def col_index(header, *keys):
     """헤더셀에 keys 중 하나가 들어 있는 열 번호(없으면 None)."""

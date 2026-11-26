@@ -116,6 +116,16 @@ button,select{font-family:inherit;color:inherit}
   .hero h1 .en{font-size:9px;letter-spacing:.28em}
 }
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
+/* 히어로 바로 아래 — 짝꿍 승률 계산 진입 버튼(한 줄, 오렌지 강조) */
+.pairbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:42px;margin:9px 0 0;
+  padding:0 12px;border:0;border-radius:12px;cursor:pointer;white-space:nowrap;overflow:hidden;
+  background:linear-gradient(96deg,var(--amber),var(--orange));color:#20140a;
+  font-size:12.5px;font-weight:900;letter-spacing:-.01em;box-shadow:0 6px 16px rgba(255,122,24,.20)}
+.pairbtn .pbico{font-size:14px;line-height:1;flex:0 0 auto}
+.pairbtn .pbtxt{overflow:hidden;text-overflow:ellipsis}
+.pairbtn .pbarw{margin-left:auto;font-size:16px;font-weight:900;line-height:1;opacity:.65;flex:0 0 auto}
+.pairbtn:active{transform:translateY(1px)}
+.pairbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,122,24,.35)}
 .stat{display:block;width:100%;font:inherit;color:inherit;text-align:center;cursor:pointer;
   -webkit-tap-highlight-color:transparent;appearance:none;-webkit-appearance:none;
   background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);
@@ -436,6 +446,82 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
   border-top:1px solid var(--line);padding-top:11px}
 .lnote b{color:var(--tx2);font-weight:800}
 
+/* ---------- 짝꿍 승률 (조합 예측) 시트 ---------- */
+.ptitle{margin:12px 0 3px;font-size:17px;font-weight:900;letter-spacing:-.02em;padding-right:38px;color:var(--tx)}
+.plead{font-size:11.5px;color:var(--tx2);font-weight:600;line-height:1.55;margin:0 0 6px;word-break:keep-all}
+.plead b{color:var(--tx);font-weight:800}
+.pwarn{margin:0 0 10px;font-size:10.5px;font-weight:800;color:var(--amber);line-height:1.5;word-break:keep-all;
+  padding:6px 9px;border-radius:8px;background:rgba(255,209,102,.09);border:1px solid rgba(255,209,102,.24)}
+.pwarn[hidden]{display:none}
+.pmsg{margin:0 0 8px;font-size:10.5px;font-weight:800;color:var(--amber)}
+.pmsg[hidden]{display:none}
+.pbar2{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.pcnt{font-size:11.5px;font-weight:800;color:var(--tx2)}
+.pcnt b{color:var(--amber);font-size:13px;font-variant-numeric:tabular-nums}
+.preset{margin-left:auto;height:26px;padding:0 10px;border-radius:8px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);color:var(--tx2);font-size:10.5px;font-weight:800;cursor:pointer}
+.preset[hidden]{display:none}
+.pfilter{display:flex;gap:4px;margin:0 0 9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.pfilter button{flex:0 0 auto;height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.04);color:var(--tx3);font-size:10.5px;font-weight:800;cursor:pointer}
+.pfilter button[aria-pressed="true"]{color:var(--amber);border-color:rgba(255,122,24,.55);background:rgba(255,122,24,.14)}
+.pchips{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pchip{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0;height:34px;
+  padding:0 7px;border-radius:9px;border:1px solid var(--line2);background:rgba(255,255,255,.045);
+  color:var(--tx2);font-size:11.5px;font-weight:800;cursor:pointer}
+.pchip .pn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pchip .pb{flex:0 0 auto;font-size:8.5px;font-weight:900;padding:1px 4px;border-radius:4px;color:var(--cyan);
+  background:rgba(74,210,255,.12);border:1px solid rgba(74,210,255,.30);letter-spacing:.02em}
+.pchip .pb.nb{color:var(--tx3);background:rgba(255,255,255,.05);border-color:var(--line)}
+.pchip[aria-pressed="true"]{color:#20140a;border-color:rgba(255,122,24,.75);
+  background:linear-gradient(120deg,var(--amber),var(--orange))}
+.pchip[aria-pressed="true"] .pb{color:#20140a;background:rgba(0,0,0,.14);border-color:rgba(0,0,0,.18)}
+.pchip.off{opacity:.42}
+.presult{margin-top:11px}
+.pcard{border:1px solid rgba(74,210,255,.26);border-radius:12px;padding:10px 11px;background:rgba(74,210,255,.05)}
+.pcard.warn{border-color:rgba(255,209,102,.35);background:rgba(255,209,102,.06)}
+.prow1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.plabel{font-size:10.5px;font-weight:900;color:var(--tx3);letter-spacing:.02em}
+.pval{font-size:24px;font-weight:900;color:var(--lime);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.15}
+.pval.none{font-size:16px;color:var(--amber)}
+.pbadge{margin-left:auto;font-size:9.5px;font-weight:900;padding:2px 6px;border-radius:5px}
+.pbadge.ok{color:var(--green);background:rgba(94,255,150,.12);border:1px solid rgba(94,255,150,.30)}
+.pbadge.low{color:var(--amber);background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.30)}
+.pbadge.bal{color:var(--cyan);background:rgba(74,210,255,.12);border:1px solid rgba(74,210,255,.30)}
+.pmeta{font-size:11px;color:var(--tx2);font-weight:700;margin-top:3px;line-height:1.5;word-break:keep-all}
+.pmeta b{color:var(--tx);font-weight:900}
+.pbar{height:7px;border-radius:999px;background:rgba(255,255,255,.08);margin:7px 0 0;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--orange),var(--amber))}
+.ppos{font-size:10.5px;color:var(--tx3);font-weight:800;margin-top:7px;line-height:1.5}
+.pguides{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pguides span{font-size:9.5px;font-weight:900;padding:2px 6px;border-radius:5px;color:var(--amber);
+  background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.28)}
+.ppairs{margin-top:8px;border-top:1px solid var(--line);padding-top:7px}
+.ppairs div{font-size:10.5px;color:var(--tx2);font-weight:700;line-height:1.6;font-variant-numeric:tabular-nums}
+.ppairs b{color:var(--tx);font-weight:900}
+.pempty{border:1px dashed var(--line2);border-radius:12px;padding:14px 12px;text-align:center;
+  font-size:11.5px;font-weight:800;color:var(--tx2);line-height:1.6}
+.pempty span{font-size:10.5px;color:var(--tx3);font-weight:600}
+.prank{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.prank h4{margin:0 0 6px;font-size:12.5px;font-weight:900;color:var(--tx)}
+.ptoggle{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;color:var(--tx2);cursor:pointer;margin:0 0 5px}
+.ptoggle input{width:15px;height:15px;margin:0;accent-color:var(--orange)}
+.prankNote{font-size:10px;color:var(--tx3);font-weight:700;line-height:1.5;margin:0 0 8px;word-break:keep-all}
+.prankCond{margin:0 0 7px;display:inline-block;font-size:10px;font-weight:900;color:var(--cyan);
+  padding:2px 7px;border-radius:6px;background:rgba(74,210,255,.10);border:1px solid rgba(74,210,255,.26)}
+.prkTitle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;color:var(--amber);margin:10px 0 5px}
+.prkTitle.bot{color:#ff9a7a}
+.prrow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid var(--line2);
+  border-radius:10px;padding:7px 9px;background:rgba(255,255,255,.04);color:var(--tx);cursor:pointer;margin-bottom:5px}
+.prrow:active{transform:translateY(1px)}
+.prrow .prk{flex:0 0 auto;width:15px;font-size:10.5px;font-weight:900;color:var(--tx3);font-variant-numeric:tabular-nums}
+.prmain{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+.prrow .pnames{font-size:11px;font-weight:800;line-height:1.4;word-break:keep-all}
+.prrow .pmeta2{font-size:9.5px;color:var(--tx3);font-weight:700;font-variant-numeric:tabular-nums}
+.prrow .ppos2{font-size:9.5px;color:var(--cyan);font-weight:700;opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prrow .prate2{flex:0 0 auto;font-size:13px;font-weight:900;color:var(--lime);font-variant-numeric:tabular-nums}
+.pnote{margin:14px 0 0;font-size:10.5px;line-height:1.5;color:var(--tx3);font-weight:700;word-break:keep-all}
+
 /* ---------- 개인 상세정보 입력 (정회원) ---------- */
 .pinfo{margin:12px 0 4px;border:1px solid rgba(255,122,24,.30);border-radius:14px;
   background:linear-gradient(180deg,rgba(255,122,24,.10),rgba(255,255,255,.02));padding:12px 12px 13px}
@@ -550,6 +636,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 body.locked .wrap,body.locked #modal{display:none}
 body.locked #venueModal{display:none}
 body.locked #logModal{display:none}
+body.locked #pairModal{display:none}
 .gate{display:none}
 body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;
   padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
@@ -627,6 +714,9 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
       </div>
     </div>
     <div class="stats" id="heroStats"></div>
+    <button class="pairbtn" id="pairBtn" type="button" aria-haspopup="dialog" aria-controls="pairModal" title="짝꿍 승률 계산하기">
+      <span class="pbico" aria-hidden="true">🤝</span><span class="pbtxt">짝꿍 승률 계산하기</span><span class="pbarw" aria-hidden="true">›</span>
+    </button>
   </header>
 
   <div class="selbar">
@@ -739,6 +829,45 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <div id="lList"></div>
     <p class="lnote">매주 토요일 <b>경기 결과·누적 승률</b>이 반영되면 새 날짜로 이 목록에 추가됩니다.
       선수 개인정보 수정 내역은 표시하지 않습니다.</p>
+  </div>
+</div>
+
+<div class="modal" id="pairModal" hidden>
+  <div class="bd" data-pclose2></div>
+  <div class="sheet psheet" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+    <div class="grab"></div>
+    <button class="x" data-pclose2 aria-label="닫기">✕</button>
+    <h3 class="ptitle" id="pTitle">🤝 짝꿍 승률 계산하기</h3>
+    <p class="plead">정회원 1~7명을 고르면, 8주 기록에서 <b>같은 팀으로 함께 출전한 경기</b>만 모아 예상 승률을 계산합니다.</p>
+    <p class="pwarn" id="pPosWarn" hidden></p>
+    <div class="pbar2">
+      <span class="pcnt">선택 <b id="pCount">0</b>/7명</span>
+      <button type="button" class="preset" id="pReset" hidden>초기화</button>
+    </div>
+    <p class="pmsg" id="pMsg" role="status" aria-live="polite" hidden></p>
+    <div class="pfilter" id="pPosFilter" role="group" aria-label="포지션 필터">
+      <button type="button" data-posf="" aria-pressed="true">전체</button>
+      <button type="button" data-posf="PG" aria-pressed="false">PG</button>
+      <button type="button" data-posf="SG" aria-pressed="false">SG</button>
+      <button type="button" data-posf="SF" aria-pressed="false">SF</button>
+      <button type="button" data-posf="PF" aria-pressed="false">PF</button>
+      <button type="button" data-posf="C" aria-pressed="false">C</button>
+    </div>
+    <div class="pchips" id="pChips"></div>
+    <div class="presult" id="pResult"></div>
+    <section class="prank" aria-labelledby="pRankTitle">
+      <h4 id="pRankTitle">조합 랭킹 · 5인</h4>
+      <p class="prankCond" id="pRankCond">5인 · 가드 2~3 · 포워드 2~3</p>
+      <label class="ptoggle"><input type="checkbox" id="pBal" checked> 포지션 균형 맞춘 조합만</label>
+      <label class="ptoggle"><input type="checkbox" id="pLowSample"> 표본 적은 조합 포함</label>
+      <label class="ptoggle" id="pFixWrap" hidden><input type="checkbox" id="pFix"> 선택한 선수 포함 조합만</label>
+      <p class="prankNote" id="pRankNote"></p>
+      <div class="prkTitle">▲ 최고 승률 조합 5</div>
+      <div id="pRankTop"></div>
+      <div class="prkTitle bot">▼ 최저 승률 조합 5</div>
+      <div id="pRankBot"></div>
+    </section>
+    <p class="pnote">상대 팀 구성은 예측 대상이 아닙니다. 표본이 적은 조합은 참고용으로만 봐 주세요.</p>
   </div>
 </div>
 
@@ -1857,6 +1986,12 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
    kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
    선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
 const UPDATES = [
+  { date: '2026-11-26', kind: '기능', title: '짝꿍 승률 계산 — 조합 예측 · 최고/최저 조합 랭킹',
+    items: [
+      '정회원 1~7명을 골라 함께 출전한 경기로 예상 승률·표본 경기 수 표시',
+      '5인 자동 랭킹(C(15,5)=3,003) — 최고·최저 승률 조합 상위 5개, 가드 2~3·포워드 2~3 포지션 균형 조건',
+      '포지션 배지·구성 요약과 자동 랭킹의 균형 배지(계산식에는 포지션 미반영)'
+    ] },
   { date: '2026-11-26', kind: '기능', title: '플레이 장단점 · 보안 안내 · 주요 변경점',
     items: [
       '개인 상세정보에 플레이 장점·단점(선택) 입력 — 입력한 항목만 개인 카드에 표시',
@@ -1921,6 +2056,385 @@ const UPDATES = [
   modal.addEventListener('click', function (e) { if (e.target.closest('[data-lclose]')) closeLog(); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !modal.hidden) closeLog();
+  });
+})();
+
+/* ---------------- 짝꿍 승률 (조합 예측) ----------------
+   8주 주차별 로스터에서 **같은 팀으로 함께 출전한 경기**만 모아 계산합니다.
+   - 1명: 해당 선수의 8주 누적 승률
+   - 2명 이상: 조합을 이루는 모든 짝(pair)의 동반승/동반경기를 동반 경기 수로 가중 평균
+              (= Σ짝 동반승 / Σ짝 동반경기)
+   포지션은 data.json 의 position 으로 구성 안내만 하고 계산식에는 넣지 않습니다(표본 부족). */
+const POS_ORDER = ['PG', 'SG', 'SF', 'PF', 'C'];
+const MAX_PICK = 7;                      /* 수동 선택 최대 인원 */
+const RANK_SIZE = 5, RANK_MIN_PG = 6, RANK_MIN_PAIRS = 8;   /* 자동 랭킹: 5인 조합 */
+let PSEL = [], PFILTER = '', PAIR_TBL = null, RANK_CACHE = null;
+
+function pkey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+function pairTable() {
+  if (PAIR_TBL) return PAIR_TBL;
+  PAIR_TBL = new Map();
+  CHRONO.forEach(function (w) {
+    const st = {};
+    (w.standings || []).forEach(function (s) { st[s.team] = s; });
+    Object.keys(w.rosters || {}).forEach(function (team) {
+      const ns = (w.rosters[team] || []).slice().sort();
+      const s = st[team] || { w: 0, l: 0 };
+      for (let i = 0; i < ns.length; i++) {
+        for (let j = i + 1; j < ns.length; j++) {
+          const k = ns[i] + '|' + ns[j];
+          const o = PAIR_TBL.get(k) || { w: 0, g: 0 };
+          o.w += s.w; o.g += s.w + s.l;
+          PAIR_TBL.set(k, o);
+        }
+      }
+    });
+  });
+  return PAIR_TBL;
+}
+function personTotals(name) {
+  let w = 0, g = 0;
+  CHRONO.forEach(function (wk) {
+    const st = {};
+    (wk.standings || []).forEach(function (s) { st[s.team] = s; });
+    Object.keys(wk.rosters || {}).forEach(function (t) {
+      if ((wk.rosters[t] || []).indexOf(name) >= 0) {
+        const s = st[t] || { w: 0, l: 0 };
+        w += s.w; g += s.w + s.l;
+      }
+    });
+  });
+  return { w: w, g: g };
+}
+/* detail=true 면 짝별 내역·표본 없는 짝까지 담아 돌려줍니다(선택 조합 화면용). */
+function comboSums(names, detail) {
+  const out = { w: 0, g: 0, pairs: 0, sample: 0, list: [], none: [] };
+  if (!names || !names.length) return out;
+  if (names.length === 1) {
+    const p = personTotals(names[0]);
+    out.w = p.w; out.g = p.g;
+    return out;
+  }
+  const tb = pairTable();
+  for (let i = 0; i < names.length; i++) {
+    for (let j = i + 1; j < names.length; j++) {
+      out.pairs++;
+      const e = tb.get(pkey(names[i], names[j]));
+      if (!e || !e.g) { if (detail) out.none.push(names[i] + '·' + names[j]); continue; }
+      out.w += e.w; out.g += e.g; out.sample++;
+      if (detail) out.list.push({ a: names[i], b: names[j], w: e.w, g: e.g, rate: e.w / e.g * 100 });
+    }
+  }
+  if (detail) out.list.sort(function (x, y) { return y.g - x.g || y.rate - x.rate; });
+  return out;
+}
+function posTokens(name) {
+  const p = PROFILES.get(name) || {};
+  return p.position ? String(p.position).split('/').filter(Boolean) : [];
+}
+function posSummary(names) {
+  const cnt = {};
+  POS_ORDER.forEach(function (p) { cnt[p] = 0; });
+  let unk = 0, multi = 0;
+  (names || []).forEach(function (n) {
+    const t = posTokens(n);
+    if (!t.length) { unk++; return; }
+    if (t.length > 1) multi++;
+    /* 복수 포지션(PG/SG 등)은 가능한 포지션마다 집계합니다. */
+    t.forEach(function (p) { if (p in cnt) cnt[p]++; });
+  });
+  return {
+    line: POS_ORDER.map(function (p) { return p + ' ' + (cnt[p] ? cnt[p] : '없음'); }).join(' · '),
+    unk: unk, multi: multi, cnt: cnt,
+    guards: cnt.PG + cnt.SG,
+    bigs: cnt.SF + cnt.PF + cnt.C
+  };
+}
+function posGuides(ps) {
+  const out = [];
+  if (!ps.guards) out.push('가드 없음');
+  if (!ps.bigs) out.push('빅맨 없음');
+  if (!ps.cnt.C) out.push('센터 없음');
+  if (ps.unk) out.push('포지션 미등록 ' + ps.unk + '명');
+  return out;
+}
+/* 포지션 균형(자동 랭킹 전용) — 가드(PG+SG) 2~3명 · 포워드(SF+PF) 2~3명.
+   복수 포지션 등록자(PG/SG, PF/SF 등)는 조건을 만족하도록 유연하게 배정합니다.
+   C·미등록은 어느 쪽에도 세지 않습니다(센터는 현재 0명이라 조건 없음). */
+function posBalanced(names) {
+  let g = 0, f = 0, flex = 0;
+  (names || []).forEach(function (n) {
+    const t = posTokens(n);
+    const isG = t.indexOf('PG') >= 0 || t.indexOf('SG') >= 0;
+    const isF = t.indexOf('SF') >= 0 || t.indexOf('PF') >= 0;
+    if (isG && isF) flex++;
+    else if (isG) g++;
+    else if (isF) f++;
+  });
+  for (let x = 0; x <= flex; x++) {
+    const gg = g + x, ff = f + (flex - x);
+    if (gg >= 2 && gg <= 3 && ff >= 2 && ff <= 3) return true;
+  }
+  return false;
+}
+function pct1(v) { return (Math.round(v * 10) / 10).toFixed(1) + '%'; }
+function recentGames(names) {
+  const set = {};
+  names.forEach(function (n) { set[n] = 1; });
+  const out = [];
+  CHRONO.forEach(function (w) {
+    const st = {};
+    (w.standings || []).forEach(function (s) { st[s.team] = s; });
+    Object.keys(w.rosters || {}).forEach(function (t) {
+      const inT = (w.rosters[t] || []).filter(function (n) { return set[n]; });
+      if (inT.length >= 2) {
+        const s = st[t] || { w: 0, l: 0 };
+        out.push({ date: w.date, team: t, w: s.w, l: s.l, n: inT.length });
+      }
+    });
+  });
+  return out.slice(-3).reverse();
+}
+function pairChipsHtml() {
+  const ms = (DATA && DATA.members) ? DATA.members : [];
+  const list = ms.filter(function (m) { return !PFILTER || posTokens(m.name).indexOf(PFILTER) >= 0; });
+  if (!list.length) return '<div class="pempty" style="grid-column:1/-1">해당 포지션에 등록된 정회원이 없습니다.</div>';
+  return list.map(function (m) {
+    const t = posTokens(m.name), on = PSEL.indexOf(m.name) >= 0;
+    const full = PSEL.length >= MAX_PICK && !on;
+    return '<button type="button" class="pchip' + (full ? ' off' : '') + '" data-pick2="' + esc(m.name) + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+      + '<span class="pn">' + esc(m.name) + '</span>'
+      + (t.length ? '<span class="pb">' + esc(t.join('/')) + '</span>' : '<span class="pb nb">미등록</span>')
+      + '</button>';
+  }).join('');
+}
+function pairResultHtml() {
+  if (!DATA) return '';
+  if (!PSEL.length) return '<div class="pempty">정회원을 1~7명 선택해 주세요.<br><span>선택하면 함께 출전한 경기 기록으로 예상 승률을 계산합니다.</span></div>';
+  const s = comboSums(PSEL, true), ps = posSummary(PSEL);
+  const posLine = '<div class="ppos">' + esc(ps.line)
+    + (ps.unk ? ' · 미등록 ' + ps.unk + '명' : '') + (ps.multi ? ' · 복수 포지션 ' + ps.multi + '명' : '') + '</div>';
+  const guides = posGuides(ps);
+  const guidesHtml = guides.length ? '<div class="pguides">' + guides.map(function (g) { return '<span>' + esc(g) + '</span>'; }).join('') + '</div>' : '';
+  if (PSEL.length === 1) {
+    const rate = s.g ? (s.w / s.g * 100) : null;
+    return '<div class="pcard">'
+      + '<div class="prow1"><span class="plabel">누적 승률</span><b class="pval' + (rate === null ? ' none' : '') + '">' + (rate === null ? '기록 없음' : pct1(rate)) + '</b></div>'
+      + '<div class="pmeta">8주 · <b>' + s.g + '경기</b> (' + s.w + '승 ' + (s.g - s.w) + '패)</div>'
+      + (rate === null ? '' : '<div class="pbar"><i style="width:' + Math.max(2, Math.min(100, rate)) + '%"></i></div>')
+      + posLine + '</div>';
+  }
+  if (!s.g) {
+    let aw = 0, ag = 0;   /* 개별 누적 승률의 단순 평균(참고값) */
+    PSEL.forEach(function (n) {
+      const p = personTotals(n);
+      if (p.g) { aw += p.w / p.g * 100; ag++; }
+    });
+    const avg = ag ? aw / ag : null;
+    return '<div class="pcard warn">'
+      + '<div class="prow1"><span class="plabel">예상 승률</span><b class="pval none">표본 없음</b></div>'
+      + '<div class="pmeta">선택한 선수들이 같은 팀으로 함께 출전한 경기가 없습니다.' + (s.none.length ? ' (동반 기록 없는 짝 ' + s.none.length + '쌍)' : '') + '</div>'
+      + (avg === null ? '' : '<div class="pmeta">참고값 · 개별 누적 승률 평균 <b>' + pct1(avg) + '</b> (예측이 아닙니다)</div>')
+      + posLine + guidesHtml + '</div>';
+  }
+  const rate = s.w / s.g * 100;
+  const low = s.sample < RANK_MIN_PAIRS;
+  const pairLines = s.list.slice(0, 4).map(function (p) {
+    return '<div>' + esc(p.a) + '·' + esc(p.b) + ' <b>' + pct1(p.rate) + '</b> · ' + p.g + '경기</div>';
+  }).join('');
+  const recent = recentGames(PSEL).map(function (g) {
+    return '<div>' + g.date.slice(5).replace('-', '/') + ' ' + esc(g.team) + ' <b>' + g.w + '승 ' + g.l + '패</b> · 동반 ' + g.n + '명</div>';
+  }).join('');
+  return '<div class="pcard">'
+    + '<div class="prow1"><span class="plabel">예상 승률</span><b class="pval">' + pct1(rate) + '</b>'
+    + '<span class="pbadge ' + (low ? 'low' : 'ok') + '">' + (low ? '표본 적음' : '표본 충분') + '</span></div>'
+    + '<div class="pmeta">동반 출전 <b>' + s.g + '경기</b> · 짝 ' + s.pairs + '쌍 중 ' + s.sample + '쌍 표본</div>'
+    + '<div class="pbar"><i style="width:' + Math.max(2, Math.min(100, rate)) + '%"></i></div>'
+    + posLine + guidesHtml
+    + (pairLines ? '<div class="ppairs"><div style="color:var(--tx3)">짝별 동반 승률 (많이 뛴 순)</div>' + pairLines + '</div>' : '')
+    + (recent ? '<div class="ppairs"><div style="color:var(--tx3)">최근 동반 경기</div>' + recent + '</div>' : '')
+    + '</div>';
+}
+function paintPair() {
+  const cnt = $('#pCount');
+  if (cnt) cnt.textContent = String(PSEL.length);
+  const rst = $('#pReset');
+  if (rst) rst.hidden = !PSEL.length;
+  const chips = $('#pChips');
+  if (chips) chips.innerHTML = pairChipsHtml();
+  const res = $('#pResult');
+  if (res) res.innerHTML = pairResultHtml();
+  const fixWrap = $('#pFixWrap');
+  if (fixWrap) {
+    fixWrap.hidden = !(PSEL.length === 1 || PSEL.length === 2);
+    if (fixWrap.hidden) { const c = $('#pFix'); if (c) c.checked = false; }
+  }
+}
+/* 5인 조합 전수(C(15,5)=3,003) — pair 표를 미리 만들어 합산만 합니다.
+   opts = { relaxed: 표본 필터 완화, balance: 포지션 균형 조건, must: 포함할 선수 } */
+function scanCombos(opts) {
+  const relaxed = !!opts.relaxed, balance = !!opts.balance, must = opts.must || [];
+  const key = (relaxed ? 'r' : 'd') + (balance ? 'B' : '-') + '|' + must.join(',');
+  if (RANK_CACHE && RANK_CACHE.key === key) return RANK_CACHE;
+  const pool = ((DATA && DATA.members) || []).map(function (m) { return m.name; });
+  const minPg = relaxed ? 1 : RANK_MIN_PG;
+  const minPairs = relaxed ? 0 : RANK_MIN_PAIRS;
+  const rows = [], idx = [];
+  (function rec(start, depth) {
+    if (depth === RANK_SIZE) {
+      const names = idx.map(function (i) { return pool[i]; });
+      if (must.length && !must.every(function (n) { return names.indexOf(n) >= 0; })) return;
+      if (balance && !posBalanced(names)) return;
+      const s = comboSums(names);
+      if (!s.g || s.g < minPg || s.sample < minPairs) return;
+      rows.push({ names: names, g: s.g, sample: s.sample, rate: s.w / s.g * 100 });
+      return;
+    }
+    for (let i = start; i <= pool.length - (RANK_SIZE - depth); i++) { idx[depth] = i; rec(i + 1, depth + 1); }
+  })(0, 0);
+  const top = rows.slice().sort(function (a, b) { return b.rate - a.rate || b.g - a.g; }).slice(0, 5);
+  const bot = rows.slice().sort(function (a, b) { return a.rate - b.rate || b.g - a.g; }).slice(0, 5);
+  RANK_CACHE = { key: key, total: rows.length, top: top, bot: bot };
+  return RANK_CACHE;
+}
+function rankRowHtml(rk, row, okSample, balanced) {
+  const ps = posSummary(row.names);
+  const pairsN = row.names.length * (row.names.length - 1) / 2;
+  const posTight = POS_ORDER.filter(function (p) { return ps.cnt[p]; })
+    .map(function (p) { return p + ps.cnt[p]; }).join(' · ');
+  return '<button type="button" class="prrow" data-combo="' + esc(row.names.join('|')) + '">'
+    + '<span class="prk">' + rk + '</span>'
+    + '<span class="prmain">'
+    + '<span class="pnames">' + row.names.map(esc).join(' · ') + '</span>'
+    + '<span class="pmeta2">동반 ' + row.g + '경기 · 짝 ' + row.sample + '/' + pairsN + ' '
+    + '<span class="pbadge ' + (okSample ? 'ok' : 'low') + '">' + (okSample ? '표본 충분' : '표본 적음') + '</span>'
+    + (balanced ? ' <span class="pbadge bal">균형</span>' : '') + '</span>'
+    + '<span class="ppos2">' + esc(posTight) + (ps.multi ? ' · 복수 ' + ps.multi + '명' : '') + '</span>'
+    + '</span>'
+    + '<span class="prate2">' + pct1(row.rate) + '</span>'
+    + '</button>';
+}
+function paintRank() {
+  if (!DATA) return;
+  const lowEl = $('#pLowSample'), balEl = $('#pBal');
+  const fixEl = $('#pFix'), fixOn = !!(fixEl && fixEl.checked && (PSEL.length === 1 || PSEL.length === 2));
+  const must = fixOn ? PSEL.slice() : [];
+  let relaxed = !!(lowEl && lowEl.checked);
+  let balance = !(balEl && !balEl.checked);
+  let r = scanCombos({ relaxed: relaxed, balance: balance, must: must });
+  let auto = '';
+  if (!r.total && !relaxed) {                 /* 표본 조건으로 후보가 없으면 표본 필터 완화 */
+    relaxed = true;
+    if (lowEl) lowEl.checked = true;
+    r = scanCombos({ relaxed: relaxed, balance: balance, must: must });
+    auto = '표본 조건에 맞는 조합이 없어 표본 필터를 완화했습니다.';
+  }
+  if (!r.total && balance) {                  /* 그래도 없으면 포지션 균형 조건 해제 */
+    balance = false;
+    if (balEl) balEl.checked = false;
+    r = scanCombos({ relaxed: relaxed, balance: balance, must: must });
+    auto += (auto ? ' ' : '') + '포지션 균형 조건에 맞는 조합이 없어 균형 조건을 해제했습니다.';
+  }
+  const cond = $('#pRankCond');
+  if (cond) cond.textContent = balance ? '5인 · 가드 2~3 · 포워드 2~3' : '5인 · 포지션 조건 없음';
+  const note = $('#pRankNote');
+  if (note) {
+    note.textContent = (balance ? '포지션 균형 조건 적용(복수 포지션은 유연 배정)' : '포지션 조건 없음 — 전체 5인 조합 기준')
+      + ' · ' + (relaxed
+        ? '표본 적은 조합 포함(동반 경기 1경기 이상이면 모두 후보)'
+        : '조합 내 동반 경기 합 ' + RANK_MIN_PG + '경기 이상 · 짝 10쌍 중 ' + RANK_MIN_PAIRS + '쌍 이상 표본')
+      + ' · 후보 ' + r.total.toLocaleString() + '개'
+      + (auto ? ' · ' + auto : '')
+      + (must.length ? ' · 선택한 ' + must.length + '명을 포함한 조합만' : '');
+  }
+  const top = $('#pRankTop'), bot = $('#pRankBot');
+  const rowHtml = function (row, i) {
+    return rankRowHtml(i + 1, row, row.sample >= RANK_MIN_PAIRS, balance && posBalanced(row.names));
+  };
+  if (top) top.innerHTML = r.top.length
+    ? r.top.map(rowHtml).join('')
+    : '<div class="pempty">조건을 만족하는 조합이 없습니다.</div>';
+  if (bot) bot.innerHTML = r.bot.length
+    ? r.bot.map(rowHtml).join('')
+    : '<div class="pempty">조건을 만족하는 조합이 없습니다.</div>';
+}
+function togglePick(name) {
+  const i = PSEL.indexOf(name);
+  const msg = $('#pMsg');
+  if (i >= 0) PSEL.splice(i, 1);
+  else if (PSEL.length >= MAX_PICK) {
+    if (msg) { msg.textContent = '최대 7명까지 선택할 수 있습니다.'; msg.hidden = false; setTimeout(function () { msg.hidden = true; }, 2200); }
+    return;
+  } else PSEL.push(name);
+  if (msg) msg.hidden = true;
+  paintPair();
+  paintRank();
+}
+
+(function () {
+  const modal = $('#pairModal'), btn = $('#pairBtn');
+  if (!modal || !btn) return;
+  let lastFocus = null, ready = false;
+  function paintPosWarn() {
+    const el = $('#pPosWarn');
+    if (!el || !DATA) return;
+    const ms = DATA.members || [];
+    const unk = ms.filter(function (m) { return !posTokens(m.name).length; }).length;
+    if (unk) { el.textContent = '포지션 미등록 ' + unk + '명 · 등록되면 구성 안내가 정확해집니다'; el.hidden = false; }
+    else { el.hidden = true; }
+  }
+  function openPair() {
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    paintPosWarn();
+    paintPair();
+    paintRank();
+    ready = true;
+    const x = modal.querySelector('.x');
+    if (x) x.focus();
+  }
+  function closePair() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function setFilter(v) {
+    PFILTER = v || '';
+    $$('#pPosFilter [data-posf]').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-posf') === PFILTER ? 'true' : 'false');
+    });
+    paintPair();
+  }
+  btn.addEventListener('click', openPair);
+  document.addEventListener('click', function (e) {
+    if (modal.hidden) return;
+    if (e.target.closest('[data-pclose2]')) { closePair(); return; }
+    const chip = e.target.closest('[data-pick2]');
+    if (chip) { togglePick(chip.getAttribute('data-pick2')); return; }
+    const row = e.target.closest('[data-combo]');
+    if (row) {
+      PSEL = row.getAttribute('data-combo').split('|').slice(0, MAX_PICK);
+      const fix = $('#pFix'); if (fix) fix.checked = false;
+      paintPair(); paintRank();
+      const res = $('#pResult');
+      if (res && res.scrollIntoView) res.scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    const f = e.target.closest('[data-posf]');
+    if (f) { setFilter(f.getAttribute('data-posf')); return; }
+    if (e.target.closest('#pReset')) {
+      PSEL = [];
+      const fix = $('#pFix'); if (fix) fix.checked = false;
+      paintPair(); paintRank();
+    }
+  });
+  document.addEventListener('change', function (e) {
+    if (modal.hidden) return;
+    if (e.target && (e.target.id === 'pLowSample' || e.target.id === 'pFix' || e.target.id === 'pBal')) paintRank();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closePair();
   });
 })();
 
