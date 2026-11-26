@@ -118,13 +118,35 @@ def main():
     assert "/*__DATA__*/" not in out
     io.open(os.path.join(SITE, "index.html"), "w", encoding="utf-8").write(out)
 
+    # 4) 유출 점검: 데이터가 들어가는 자리를 뺀 템플릿(페이지 코드)에
+    #    선수 이름과 입장 코드가 평문으로 남아 있지 않은지 확인합니다.
+    names = set()
+    for key in ("members", "outsiders", "guests", "roster"):
+        for p in (data.get(key) or []):
+            n = p.get("name") if isinstance(p, dict) else p
+            if n and len(str(n)) >= 2:
+                names.add(str(n))
+    for n in (data.get("absent") or []):
+        if n and len(str(n)) >= 2:
+            names.add(str(n))
+    name_leaks = sorted(n for n in names if n in tpl)
+    code_leak = bool(code) and code in tpl
+    if name_leaks or code_leak:
+        print("✗ 평문 유출 — 이름 %d건 %s / 코드 노출 %s" % (len(name_leaks), name_leaks[:5], code_leak))
+        sys.exit(1)
+    print("평문 이름 노출 0건(%d명 검사) · 코드 미노출 통과" % len(names))
+
     weeks = [w for w in data.get("weeks", []) if w.get("date")]
     period = data.get("period", {})
     pv = data.get("preview")
-    print("index.html %d bytes  |  %d주 · 정규 %d명 · 게스트 %d명 · 기간 %s~%s%s"
-          % (len(out), len(weeks), len(data.get("members", [])), len(data.get("guests", [])),
-             period.get("start", "?"), period.get("end", "?"),
-             "  |  예정 프리뷰 %s (%d팀)" % (pv.get("date"), len(pv.get("teams", []))) if pv else ""))
+    pv_hist = [w.get("date") for w in weeks if w.get("preview")]
+    rm = data.get("rosterMeta") or {}
+    reg = rm.get("regular") or (len(data.get("members", [])) + len(data.get("outsiders", [])) + len(data.get("absent", [])))
+    print("index.html %d bytes  |  %d주 · 정규 %d명 · 정회원 %d명 · 로스터 %d명 · 게스트 %d명 · 기간 %s~%s%s%s"
+          % (len(out), len(weeks), len(data.get("members", [])), reg, len(data.get("roster", [])),
+             len(data.get("guests", [])), period.get("start", "?"), period.get("end", "?"),
+             "  |  예정 프리뷰 %s (%d팀)" % (pv.get("date"), len(pv.get("teams", []))) if pv else "",
+             "  |  프리뷰 이력 %s" % ", ".join(pv_hist) if pv_hist else ""))
 
 
 if __name__ == "__main__":

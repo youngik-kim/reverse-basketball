@@ -102,6 +102,7 @@ def col_index(header, *keys):
     return None
 
 roster = {}
+roster_list = []          # reverse-roster.md 표 순서 그대로 (로스터 탭 표기용 — 정보가 비어 있어도 포함)
 if os.path.isfile(ROSTER_PATH):
     rrows = rows(io.open(ROSTER_PATH, encoding="utf-8").read())
     cols = {"name": 0, "height": 1, "number": 2, "position": 3,
@@ -120,13 +121,17 @@ if os.path.isfile(ROSTER_PATH):
             }
             data_rows = rrows[i + 1:]
             break
+    seen = set()
     for r in data_rows:
-        if len(r) < 3:
+        if len(r) < 2:
             continue
         def cell(key):
             i = cols.get(key)
             return clean(r[i]) if i is not None and i < len(r) else ""
         name = cell("name")
+        if not name or name in seen:
+            continue
+        seen.add(name)
         hm = re.search(r"(\d+(?:\.\d+)?)", cell("height"))
         nm = re.search(r"(\d+)", cell("number"))
         info = {}
@@ -143,10 +148,22 @@ if os.path.isfile(ROSTER_PATH):
             v = cell(key)
             if v not in EMPTY_VALS:
                 info[key] = v
-        if name and info:
+        if info:
             roster[name] = info
+        # 로스터 탭에는 표에 있는 선수를 빠짐없이 싣습니다(키·번호·포지션이 비어 있어도).
+        roster_list.append(dict(name=name, **info))
 for p in members + outsiders + guests:
     p.update(roster.get(p["name"], {}))
+
+# 로스터 구분(정규 / 순위 외 / 미출전) — 기록지 기준으로 붙입니다.
+_reg = {p["name"] for p in members}
+_out = {p["name"] for p in outsiders}
+_abs = set(absent)
+for r in roster_list:
+    n = r["name"]
+    r["group"] = "정규" if n in _reg else ("순위 외" if n in _out else ("미출전" if n in _abs else "정회원"))
+    r["role"] = "member"
+REGULAR_TOTAL = len(members) + len(outsiders) + len(absent)
 print("로스터 등록", len(roster), "명:", ", ".join(
     f"{n} #{v.get('number', '-')} {v.get('height', '-')}cm {v.get('position', '-')}"
     for n, v in roster.items()) or "없음")
@@ -226,9 +243,13 @@ print("검증 오류:", errors if errors else "없음")
 sorted_check = sorted(members, key=lambda p: (-p["rate"], -p["w"]))
 print("순위 일치:", [p["rank"] for p in sorted_check] == list(range(1, len(members) + 1)))
 
-# 예정 경기 프리뷰 — 다음 주차 명단이 확정되면 이 블록만 고칩니다(주차별로 교체).
+# 예정 경기 프리뷰 — 주차별로 하나씩 쌓아 두는 목록입니다(PREVIEWS).
+#  · 결과지가 없는(=아직 치르지 않은) 가장 마지막 날짜 → data.preview 로 화면 '경기 결과' 자리에 표시
+#  · 결과지가 들어온 날짜 → 그 주차 카드에 preview 로 붙어 '주간 결과 이력'에 경기 전 예상이 보존됩니다.
+#  다음 주차 프리뷰가 확정되면 이 목록에 새 항목을 추가하고, 지난 항목은 지우지 마세요(비교 이력).
 #  이 값은 누적 승률·순위(PERIOD/members/outsiders/guests)에 포함되지 않습니다.
-PREVIEW = dict(
+PREVIEWS = [
+ dict(
     date="2026-11-28",
     label="2026-11-28 (예정 · 9주차 프리뷰)",
     title="매치 프리뷰 & 승률 예상",
@@ -242,11 +263,33 @@ PREVIEW = dict(
         dict(team="블랙", cap="고건우", avg=41.3, expected="0승 2패", note="이변 시 1승",
              roster=["정민규", "고건우", "조성현", "김재호", "김영수"]),
     ],
-)
+ ),
+]
+
+# 프리뷰를 '경기 전 예상' 순위와 함께 고정(이력으로 남을 때 그대로 보존)
+for _pv in PREVIEWS:
+    _pv["teams"].sort(key=lambda t: -t["avg"])
+    for _i, _t in enumerate(_pv["teams"], 1):
+        _t["predPos"] = _i
+
+weeks_by_date = {w["date"]: w for w in weeks}
+PENDING = None
+for _pv in sorted(PREVIEWS, key=lambda x: x["date"]):
+    if _pv["date"] in weeks_by_date:
+        _pv["archived"] = True
+        weeks_by_date[_pv["date"]]["preview"] = _pv
+    else:
+        PENDING = _pv
+
+print("프리뷰:", [(p["date"], "이력" if p.get("archived") else "예정") for p in PREVIEWS],
+      "· 정회원 총", REGULAR_TOTAL, "명 · 로스터", len(roster_list), "명")
 
 data = dict(
     team="리버스", teamEn="REVERSE", venue="부천JW스포츠센터",
-    preview=PREVIEW,
+    preview=PENDING,
+    roster=roster_list,
+    rosterMeta=dict(total=len(roster_list), regular=REGULAR_TOTAL,
+                    ranked=len(members), outsiders=len(outsiders), absent=len(absent)),
     period=dict(start="2026-10-03", end="2026-11-21", weeks=8),
     criteria=dict(minRate=40, minWeeks=4, totalWeeks=8,
                   tiebreak=["다승", "팀장 승률", "가나다 순"],
