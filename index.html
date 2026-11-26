@@ -717,7 +717,6 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
   .bar{margin:-4px 14px 9px}
   .nm .nn{font-size:15px}
   .rt{font-size:14.5px}
-  .leaders{grid-template-columns:repeat(2,1fr)}
   .rostergrid{grid-template-columns:repeat(3,1fr)}
   .rcell .nmn b{font-size:13.5px}
   .lhead,.leadrow{grid-template-columns:30px minmax(0,1fr) 52px 86px 68px;padding:6px 13px}
@@ -1329,7 +1328,6 @@ function renderHero() {
   const games = (st.n * 3);
   $('#periodLine').innerHTML = `<b>${p.start.replace(/-/g, '.')} – ${p.end.slice(5).replace('-', '.')}</b> · ${p.weeks}주 · 3파전`;
   const best = st.regular[0];
-  const isLast = bd === LATEST.date;
   const regN = regularTotal();
   const card = (k, v, o = {}) => `<button type="button" class="stat${o.hi ? ' hi' : ''}"`
     + (o.person ? ` data-person="${esc(o.person)}"` : ` data-jump="${o.jump}"`)
