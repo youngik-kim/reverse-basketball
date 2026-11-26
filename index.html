@@ -309,6 +309,41 @@ details.box>summary .cnt{font-size:11px;font-weight:700;color:var(--tx3)}
 .sheet .grab{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.22);margin:6px auto 4px}
 .sheet .x{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
   background:rgba(255,255,255,.06);color:var(--tx2);font-size:14px;cursor:pointer}
+
+/* ---------- 구장 배지 · 길찾기 시트 ---------- */
+.eyebrow.vbtn{cursor:pointer;transition:border-color .16s,background .16s,transform .1s,box-shadow .16s}
+.eyebrow.vbtn:hover{border-color:rgba(255,122,24,.6);background:rgba(255,122,24,.16);box-shadow:0 0 0 3px rgba(255,122,24,.10)}
+.eyebrow.vbtn:active{transform:scale(.98)}
+.eyebrow.vbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(255,122,24,.35)}
+.eyebrow.vbtn .vtap{font-size:9px;letter-spacing:.02em;padding:2px 6px;border-radius:999px;
+  background:rgba(255,122,24,.24);color:var(--amber);font-weight:900}
+.vname{font-size:19px;font-weight:900;margin:12px 0 2px;letter-spacing:-.02em;padding-right:34px}
+.vsub{font-size:11px;color:var(--tx3);font-weight:800;margin:0 0 12px}
+.vaddr{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:12px;padding:10px 11px}
+.vaddr .vtxt{flex:1 1 auto;font-size:12px;font-weight:800;line-height:1.45;color:var(--tx);word-break:keep-all}
+.vcopy{flex:0 0 auto;border:1px solid rgba(255,122,24,.45);background:rgba(255,122,24,.12);color:var(--amber);
+  border-radius:9px;padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
+.vcopy:active{background:rgba(255,122,24,.24)}
+.vstat{font-size:10.5px;font-weight:800;color:var(--green);margin:6px 0 0;min-height:1px;line-height:1.4}
+.vstat.wr{color:var(--amber)}
+.vhint{font-size:10.5px;letter-spacing:.07em;color:var(--tx3);font-weight:800;margin:14px 0 7px}
+.vnavs{display:grid;gap:7px}
+.vnav{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;text-decoration:none;
+  border:1px solid var(--line2);background:rgba(255,255,255,.05);color:var(--tx);font-size:13px;font-weight:900;cursor:pointer}
+.vnav:hover{background:rgba(255,255,255,.09)}
+.vnav:active{transform:scale(.995)}
+.vnav .vico{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;font-size:11.5px;font-weight:900;color:#0b0f14}
+.vnav.na .vico{background:#03c75a}
+.vnav.ka .vico{background:#fee500}
+.vnav.tm .vico{background:#1a6dff;color:#fff}
+.vnav .vsub2{font-size:10px;font-weight:800;color:var(--tx3)}
+.vnav .arw2{margin-left:auto;color:var(--tx3);font-weight:900}
+.vnotice{margin-top:10px;border:1px solid rgba(255,122,24,.4);background:rgba(255,122,24,.10);border-radius:12px;
+  padding:10px 11px;font-size:11.5px;font-weight:800;color:var(--amber);line-height:1.55}
+.vnotice[hidden]{display:none}
+.vnotice a{color:var(--amber);font-weight:900}
+.vnote{font-size:10.5px;color:var(--tx3);font-weight:700;line-height:1.5;margin:11px 0 0}
 .mname{font-size:23px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:7px;margin:8px 0 2px}
 .mrank{font-size:11.5px;color:var(--amber);font-weight:800;letter-spacing:.02em}
 .mrate{display:flex;align-items:baseline;gap:8px;margin:12px 0 4px}
@@ -441,6 +476,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 
 /* ---------- 입장 코드 잠금 화면 ---------- */
 body.locked .wrap,body.locked #modal{display:none}
+body.locked #venueModal{display:none}
 .gate{display:none}
 body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;
   padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
@@ -463,11 +499,13 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .gmsg{min-height:18px;margin:12px 0 0;font-size:12.5px;color:var(--red);font-weight:700}
 .gmsg.ok{color:var(--green)}
 .gfoot{margin:16px 0 0;font-size:11.5px;color:var(--tx3);line-height:1.55}
+.gsec{margin:15px 0 0;padding:11px 0 0;border-top:1px solid var(--line);list-style:none;text-align:left}
+.gsec li{position:relative;padding-left:11px;font-size:10.5px;line-height:1.5;color:var(--tx3);font-weight:600;word-break:keep-all}
+.gsec li+li{margin-top:5px}
+.gsec li::before{content:'·';position:absolute;left:2px;top:-1px;color:var(--amber);font-weight:900;font-size:12px}
+.gsec b{color:var(--tx2);font-weight:800;margin-right:4px}
 .shake{animation:shake .38s}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.lockbtn{margin:14px auto 0;display:block;padding:8px 16px;border-radius:10px;border:1px solid var(--line2);
-  background:var(--card);color:var(--tx2);font-size:12px;font-weight:700;cursor:pointer}
-.lockbtn:active{background:var(--card2)}
 @media (max-width:420px){.gateform{padding:26px 18px 18px}.gateform h1{font-size:19.5px}}
 </style>
 </head>
@@ -484,6 +522,11 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <button class="ggo" id="gateBtn" type="submit">입장하기</button>
     <p class="gmsg" id="gateMsg" role="status" aria-live="polite"></p>
     <p class="gfoot">팀원에게 받은 코드를 입력하세요<br>이 기기에서는 다음부터 자동으로 열립니다</p>
+    <ul class="gsec" aria-label="보안 안내">
+      <li><b>검색 차단</b>구글·네이버 등 검색엔진에 조회되지 않습니다.</li>
+      <li><b>암호화 보호</b>팀 기록과 이름은 입장 코드로 암호화되어 안전하게 보호됩니다.</li>
+      <li><b>관리자 반영</b>접속자가 바꾼 내용은 본인 기기에만 임시 적용되며, 관리자를 통해서만 전체 페이지에 반영됩니다.</li>
+    </ul>
     <noscript><p class="gmsg">이 페이지를 열려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
   </form>
 </div>
@@ -493,7 +536,7 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   <header class="hero">
     <div class="heroTop">
       <div class="heroId">
-        <span class="eyebrow">🏀 Saturday · 부천JW스포츠센터</span>
+        <button class="eyebrow vbtn" id="venueBtn" type="button" aria-haspopup="dialog" aria-controls="venueModal" title="구장 위치 · 길찾기 열기">🏀 Saturday · 부천JW스포츠센터 <span class="vtap" aria-hidden="true">길찾기</span></button>
         <h1>리버스 <span class="en">REVERSE</span></h1>
         <p class="period" id="periodLine"></p>
       </div>
@@ -565,10 +608,9 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   <footer>
     <b>리버스 (REVERSE)</b> · 매주 토요일 · 부천JW스포츠센터<br>
     집계 기간 <span id="fPeriod"></span> · 3파전 라운드로빈(팀당 2경기)<br>
-    위 주차 선택에서 과거 날짜를 고르면 <b>그 주차까지의 누적 승률</b>로 화면이 바뀝니다.<br>
-    정규 순위 커트라인은 그때까지 진행된 주차의 40%(올림)이며, 최종 주차(8주)에서는 4주가 됩니다.<br>
+    주차 선택에서 과거 날짜를 고르면 그 주차까지의 누적 승률로 화면이 바뀝니다.<br>
+    정규 순위 커트라인은 진행 주차의 40%(올림) — 최종 8주 기준 4주.<br>
     <span id="fNote"></span>
-    <button class="lockbtn" id="lockBtn" type="button">🔒 잠금</button>
   </footer>
 </div>
 
@@ -578,6 +620,32 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <div class="grab"></div>
     <button class="x" data-close aria-label="닫기">✕</button>
     <div id="mBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="venueModal" hidden>
+  <div class="bd" data-vclose></div>
+  <div class="sheet vsheet" role="dialog" aria-modal="true" aria-labelledby="vName">
+    <div class="grab"></div>
+    <button class="x" data-vclose aria-label="닫기">✕</button>
+    <h3 class="vname" id="vName">🏀 부천JW스포츠센터</h3>
+    <p class="vsub">매주 토요일 · 리버스 3파전 라운드로빈</p>
+    <div class="vaddr">
+      <span class="vtxt" id="vAddr">경기 부천시 오정구 석천로442번길 19</span>
+      <button type="button" class="vcopy" data-vcopy>주소 복사</button>
+    </div>
+    <p class="vstat" id="vCopyStat" role="status" aria-live="polite"></p>
+    <p class="vhint">길찾기 앱 선택</p>
+    <div class="vnavs">
+      <a class="vnav na" data-nav="naver" href="https://map.naver.com/p/search/%EB%B6%80%EC%B2%9CJW%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0" target="_blank" rel="noopener noreferrer">
+        <span class="vico" aria-hidden="true">N</span><span class="vlab">네이버지도</span><span class="vsub2">길찾기</span><span class="arw2" aria-hidden="true">→</span></a>
+      <a class="vnav ka" data-nav="kakao" href="https://map.kakao.com/link/to/%EB%B6%80%EC%B2%9CJW%EC%8A%A4%ED%8F%AC%EC%B8%A0%EC%84%BC%ED%84%B0,37.5265541,126.7706772" target="_blank" rel="noopener noreferrer">
+        <span class="vico" aria-hidden="true">K</span><span class="vlab">카카오맵</span><span class="vsub2">길찾기</span><span class="arw2" aria-hidden="true">→</span></a>
+      <a class="vnav tm" data-nav="tmap" href="#" role="button">
+        <span class="vico" aria-hidden="true">T</span><span class="vlab">티맵</span><span class="vsub2">TMAP</span><span class="arw2" aria-hidden="true">→</span></a>
+    </div>
+    <div class="vnotice" id="vNotice" hidden></div>
+    <p class="vnote">앱이 설치되어 있지 않으면 웹 지도로 열립니다. 티맵은 앱 설치가 필요합니다.</p>
   </div>
 </div>
 
@@ -1445,9 +1513,136 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
   });
 })();
 
+/* ---------- 구장 길찾기 시트 (지도 · 내버) ---------- */
+(function () {
+  const VENUE = { name: '부천JW스포츠센터', address: '경기 부천시 오정구 석천로442번길 19', lat: 37.5265541, lng: 126.7706772 };
+  const enc = encodeURIComponent;
+  const NAME = enc(VENUE.name), LL = VENUE.lat + ',' + VENUE.lng;
+  const WEB = {
+    naver: 'https://map.naver.com/p/search/' + NAME,
+    kakao: 'https://map.kakao.com/link/to/' + NAME + ',' + LL,
+    tmapPlay: 'https://play.google.com/store/apps/details?id=com.skt.tmap.ku',
+    tmapApp: 'https://apps.apple.com/kr/app/id431589174'
+  };
+  const PATH = {
+    naver: 'route/car?dlat=' + VENUE.lat + '&dlng=' + VENUE.lng + '&dname=' + NAME + '&appname=reverse-basketball',
+    kakao: 'route?ep=' + LL + '&by=CAR',
+    tmap: 'route?goalname=' + NAME + '&goalx=' + VENUE.lng + '&goaly=' + VENUE.lat
+  };
+  const DEEP = { naver: 'nmap://' + PATH.naver, kakao: 'kakaomap://' + PATH.kakao, tmap: 'tmap://' + PATH.tmap };
+  function androidIntent(scheme, pkg, path, fallback) {
+    return 'intent://' + path + '#Intent;scheme=' + scheme + ';package=' + pkg
+      + ';S.browser_fallback_url=' + enc(fallback) + ';end';
+  }
+  const INTENT = {
+    naver: androidIntent('nmap', 'com.nhn.android.nmap', PATH.naver, WEB.naver),
+    kakao: androidIntent('kakaomap', 'net.daum.android.map', PATH.kakao, WEB.kakao),
+    tmap: androidIntent('tmap', 'com.skt.tmap.ku', PATH.tmap, WEB.tmapPlay)
+  };
+
+  const modal = $('#venueModal'), stat = $('#vCopyStat'), notice = $('#vNotice');
+  const ua = navigator.userAgent || '';
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPad|iPhone|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  const isMobile = isAndroid || isIOS;
+  let focusBack = null;
+
+  function say(html) { if (notice) { notice.innerHTML = html || ''; notice.hidden = !html; } }
+  function storeLinks() {
+    return '<a href="' + WEB.tmapPlay + '" target="_blank" rel="noopener noreferrer">Play Store</a> · '
+      + '<a href="' + WEB.tmapApp + '" target="_blank" rel="noopener noreferrer">App Store</a>';
+  }
+  function tmapHelp() {
+    say('티맵 앱이 설치되어 있지 않은 것 같습니다.<br>' + storeLinks() + '에서 설치해 주세요.');
+  }
+  /* 앱으로 넘어가면 취소, 페이지에 그대로 있으면 웹/스토어로 fallback */
+  function armFallback(act, ms) {
+    let done = false;
+    const t = setTimeout(function () {
+      if (done) return;
+      if (document.hidden || document.visibilityState === 'hidden') return;
+      if (typeof act === 'function') act();
+      else { try { location.href = act; } catch (e) { } }
+    }, ms || 1400);
+    const cancel = function () { done = true; clearTimeout(t); };
+    document.addEventListener('visibilitychange', function () { if (document.hidden) cancel(); }, { once: true });
+    window.addEventListener('pagehide', cancel, { once: true });
+  }
+  function openVenue() {
+    if (!modal) return;
+    focusBack = document.activeElement;
+    say('');
+    if (stat) { stat.textContent = ''; stat.className = 'vstat'; }
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    const x = $('#venueModal .x');
+    if (x) x.focus();
+  }
+  function closeVenue() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    if ($('#modal').hidden) document.body.style.overflow = '';
+    if (focusBack) focusBack.focus();
+  }
+  function copyAddress() {
+    copyText(VENUE.address).then(function (ok) {
+      if (!stat) return;
+      stat.className = ok ? 'vstat' : 'vstat wr';
+      stat.textContent = ok ? '주소가 복사되었습니다.' : '복사가 막혔습니다. 주소를 길게 눌러 직접 복사해 주세요.';
+    });
+  }
+  function route(a, e) {
+    const kind = a.getAttribute('data-nav');
+    say('');
+    if (!isMobile) {                              /* PC: 네이버·카카오는 웹 지도(새 탭) */
+      if (kind === 'tmap') {
+        e.preventDefault();
+        say('티맵은 모바일 앱에서만 길찾기를 지원합니다.<br>' + storeLinks() + '에서 설치해 주세요.');
+      }
+      return;
+    }
+    e.preventDefault();
+    if (isAndroid) {                              /* 안드로이드: intent:// + 설치 안됐을 때 fallback */
+      armFallback(kind === 'tmap' ? WEB.tmapPlay : WEB[kind], 1600);
+      try { location.href = INTENT[kind]; } catch (err) { }
+      return;
+    }
+    if (kind === 'tmap') {                       /* iOS 티맵: 앱 없으면 스토어 안내 */
+      armFallback(tmapHelp, 1000);
+      try { location.href = DEEP.tmap; } catch (err) { }
+      return;
+    }
+    armFallback(WEB[kind], 900);                  /* iOS 네이버·카카오 */
+    try { location.href = DEEP[kind]; } catch (err) { }
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#venueBtn')) { e.preventDefault(); openVenue(); return; }
+    if (e.target.closest('[data-vclose]')) { closeVenue(); return; }
+    if (e.target.closest('[data-vcopy]')) { copyAddress(); return; }
+    const a = e.target.closest('[data-nav]');
+    if (a) route(a, e);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal && !modal.hidden) closeVenue();
+  });
+})();
+
 const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
 function gateSay(t, ok) { gateMsg.textContent = t || ''; gateMsg.classList.toggle('ok', !!ok); }
 let gateBusy = false;
+/* 입장 코드 오입력 횟수 — 2번째부터는 제한 문구로 안내 (탭 세션 동안 유지) */
+let gateFail = 0;
+try { gateFail = Number(sessionStorage.getItem('reverse-gate-fail') || 0) || 0; } catch (e) { }
+function gateFailAdd() {
+  gateFail++;
+  try { sessionStorage.setItem('reverse-gate-fail', String(gateFail)); } catch (e) { }
+  return gateFail;
+}
+function gateFailClear() {
+  gateFail = 0;
+  try { sessionStorage.removeItem('reverse-gate-fail'); } catch (e) { }
+}
 gateForm.addEventListener('submit', async e => {
   e.preventDefault();
   if (gateBusy) return;
@@ -1457,10 +1652,12 @@ gateForm.addEventListener('submit', async e => {
   try {
     const bits = await deriveBits(code);
     if (await openWith(bits)) {
-      saveBits(bits); gateSay('', true);
+      saveBits(bits); gateFailClear(); gateSay('', true);
       if (document.activeElement) document.activeElement.blur();
     } else {
-      gateSay('입장 코드가 올바르지 않습니다.');
+      gateSay(gateFailAdd() >= 2
+        ? '제한된 공간입니다. 관리자에게 입장코드를 문의해 주세요.'
+        : '입장 코드가 올바르지 않습니다.');
       gateForm.classList.add('shake');
       setTimeout(() => gateForm.classList.remove('shake'), 420);
       gateInput.select();
@@ -1470,7 +1667,7 @@ gateForm.addEventListener('submit', async e => {
   }
   gateBtn.disabled = false; gateBusy = false;
 });
-$('#lockBtn').addEventListener('click', () => { clearBits(); location.reload(); });
+
 (async function boot() {
   const bits = loadBits();
   if (bits) {
