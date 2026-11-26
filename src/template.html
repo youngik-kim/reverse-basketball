@@ -34,7 +34,7 @@ button,select{font-family:inherit;color:inherit}
 /* ---------- hero (compact) ---------- */
 .hero{padding:18px 0 8px}
 .eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--amber);font-weight:800;
+  text-transform:uppercase;color:var(--amber);font-weight:800;word-break:keep-all;
   background:rgba(255,122,24,.10);border:1px solid rgba(255,122,24,.28);
   padding:4px 9px;border-radius:999px}
 .hero h1{margin:10px 0 4px;font-size:27px;line-height:1.05;letter-spacing:-.02em;font-weight:900;
@@ -65,6 +65,15 @@ button,select{font-family:inherit;color:inherit}
 }
 .ytlink:active{transform:scale(.97)}
 .ytlink:focus-visible{outline:none;border-color:rgba(255,45,45,.7);box-shadow:0 0 0 3px rgba(255,45,45,.35)}
+/* 좀은 화면: 로고 버튼을 줄이고 상단 캡션을 한 줄에 맞춤 */
+@media (max-width:520px){
+  .heroTop{gap:8px}
+  .eyebrow{font-size:9.5px;letter-spacing:.05em;padding:3px 7px;gap:5px}
+  .ytlink{padding:3px 9px 3px 3px;gap:7px}
+  .ytlink .ytlogo{width:36px;height:36px}
+  .ytbadge{font-size:10px;gap:4px}
+  .ytbadge .ytplay{width:15px;height:10px}
+}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 2px}
 .stat{display:block;width:100%;font:inherit;color:inherit;text-align:center;cursor:pointer;
   -webkit-tap-highlight-color:transparent;appearance:none;-webkit-appearance:none;
