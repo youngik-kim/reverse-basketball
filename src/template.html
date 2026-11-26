@@ -310,9 +310,56 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
   #secResult .rcard{max-width:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 입장 코드 잠금 화면 ---------- */
+body.locked .wrap,body.locked #modal{display:none}
+.gate{display:none}
+body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
+  background:radial-gradient(900px 420px at 50% -160px,rgba(255,122,24,.26),transparent 70%),
+    radial-gradient(600px 300px at 110% 10%,rgba(74,210,255,.10),transparent 70%),var(--bg)}
+.gateform{width:100%;max-width:352px;background:linear-gradient(165deg,var(--card2),var(--card));
+  border:1px solid var(--line2);border-radius:22px;padding:30px 22px 22px;text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.gball{font-size:44px;line-height:1;filter:drop-shadow(0 8px 16px rgba(255,122,24,.35))}
+.gateform h1{margin:12px 0 2px;font-size:21px;font-weight:900;letter-spacing:-.02em}
+.gsub{margin:0 0 20px;font-size:10.5px;letter-spacing:.26em;color:var(--tx3);font-weight:800;text-transform:uppercase}
+#gateCode{width:100%;height:54px;border-radius:14px;border:1px solid var(--line2);background:#0b1119;color:var(--tx);
+  font-size:22px;font-weight:800;letter-spacing:.42em;text-align:center;padding:0 10px 0 20px;outline:none;
+  transition:border-color .15s,box-shadow .15s}
+#gateCode::placeholder{letter-spacing:.02em;font-size:14px;font-weight:600;color:var(--tx3)}
+#gateCode:focus{border-color:rgba(255,122,24,.7);box-shadow:0 0 0 3px rgba(255,122,24,.16)}
+.ggo{width:100%;height:50px;margin-top:10px;border-radius:14px;border:0;cursor:pointer;
+  background:linear-gradient(96deg,var(--amber),var(--orange));color:#170d04;font-size:15.5px;font-weight:900;letter-spacing:.02em}
+.ggo:disabled{opacity:.55;cursor:default}
+.gmsg{min-height:18px;margin:12px 0 0;font-size:12.5px;color:var(--red);font-weight:700}
+.gmsg.ok{color:var(--green)}
+.gfoot{margin:16px 0 0;font-size:11.5px;color:var(--tx3);line-height:1.55}
+.shake{animation:shake .38s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.lockbtn{margin:14px auto 0;display:block;padding:8px 16px;border-radius:10px;border:1px solid var(--line2);
+  background:var(--card);color:var(--tx2);font-size:12px;font-weight:700;cursor:pointer}
+.lockbtn:active{background:var(--card2)}
+@media (max-width:420px){.gateform{padding:26px 18px 18px}.gateform h1{font-size:19.5px}}
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="gate" id="gate">
+  <form class="gateform" id="gateForm" autocomplete="off" novalidate>
+    <div class="gball" aria-hidden="true">🏀</div>
+    <h1 id="gateTitle">리버스 팀원 전용</h1>
+    <p class="gsub">REVERSE · 승률 &amp; 주간 결과</p>
+    <label class="sr" for="gateCode">입장 코드</label>
+    <input id="gateCode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12"
+           placeholder="입장 코드" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+    <button class="ggo" id="gateBtn" type="submit">입장하기</button>
+    <p class="gmsg" id="gateMsg" role="status" aria-live="polite"></p>
+    <p class="gfoot">팀원에게 받은 코드를 입력하세요<br>이 기기에서는 다음부터 자동으로 열립니다</p>
+    <noscript><p class="gmsg">이 페이지를 열려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+  </form>
+</div>
+
 <div class="wrap">
 
   <header class="hero">
@@ -384,6 +431,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
     위 주차 선택에서 과거 날짜를 고르면 <b>그 주차까지의 누적 승률</b>로 화면이 바뀝니다.<br>
     정규 순위 커트라인은 그때까지 진행된 주차의 40%(올림)이며, 최종 주차(8주)에서는 4주가 됩니다.<br>
     <span id="fNote"></span>
+    <button class="lockbtn" id="lockBtn" type="button">🔒 잠금</button>
   </footer>
 </div>
 
@@ -398,16 +446,13 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 
 <script>
 /* ============================================================================
-   [DATA] — 매주 토요일 결과지를 받으면 이 객체만 고치면 페이지에 바로 반영됩니다.
-   1) weeks 배열에 새 주차를 추가 (date, title, venue, standings, games, rosters, note)
-      · standings:[{pos,team,w,l,cap}] / games:[{a,as_,b,bs}] / rosters:{팀:[이름,...]}
-      · 결과지가 아직 없는 주차는 { date:"2026-00-00", noSheet:true } 로 넣으면
-        화면에 "원본 결과지 보완 예정"으로 표시됩니다.
-   2) members(정규)·outsiders(순위 외)·guests(게스트)는 '최종 주차' 공식 기록입니다.
-      (과거 주차 화면은 weeks 로스터에서 자동 재계산)
-   3) criteria.totalWeeks(총 주차), period(기간) 갱신
+   [LOCK] 팀 데이터는 이 파일에 평문으로 들어 있지 않습니다.
+   ENC_DATA = 암호문(AES-256-CTR + HMAC-SHA256, 키는 입장 코드에서 PBKDF2-SHA256 으로 유도).
+   입장 코드가 맞을 때만 브라우저에서 복호화되어 화면이 그려집니다.
+   데이터를 갱신할 때는 src/data.json 을 고친 뒤 build_site.py 로 다시 암호화해 배포하세요.
+   (index.html 직접 수정 금지 — 다음 빌드에서 덮어써집니다)
    ============================================================================ */
-const DATA = /*__DATA__*/;
+const ENC_DATA = /*__ENC__*/;
 
 /* ---------------- helpers ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -419,13 +464,179 @@ const rateClass = r => r >= 60 ? 'hi' : r >= 40 ? 'mid' : 'lo';
 const WEEKDAY = ['일','월','화','수','목','금','토'];
 const wd = d => WEEKDAY[new Date(d + 'T00:00:00').getDay()];
 
-const CHRONO = DATA.weeks.filter(w => w.date).slice().sort((a, b) => a.date.localeCompare(b.date));
-const LATEST = CHRONO.filter(w => !w.noSheet).slice(-1)[0];
-let curDate = LATEST.date;
+/* ---------------- crypto: PBKDF2-SHA256 → AES-256-CTR + HMAC-SHA256 ----------------
+   crypto.subtle 이 있는 환경(https·http://localhost)에서는 Web Crypto 를 쓰고,
+   없는 인앱 브라우저·구형 웹뷰에서는 아래 순수 JS 구현이 같은 결과를 냅니다. */
+const b64d = s => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
+const b64e = u => { let s = ''; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+const cat = (...a) => { let n = 0; for (const x of a) n += x.length; const o = new Uint8Array(n); let p = 0; for (const x of a) { o.set(x, p); p += x.length; } return o; };
+const eqBytes = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a[i] ^ b[i]; return d === 0; };
 
-const REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
-const GUEST = new Set(DATA.guests.map(p => p.name));
+const SHA_K = new Uint32Array([
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]);
+function sha256(msg) {
+  const l = msg.length, pad = new Uint8Array(Math.ceil((l + 9) / 64) * 64);
+  pad.set(msg); pad[l] = 0x80;
+  const dv = new DataView(pad.buffer), bitLen = l * 8;
+  dv.setUint32(pad.length - 8, Math.floor(bitLen / 4294967296));
+  dv.setUint32(pad.length - 4, bitLen >>> 0);
+  const H = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]);
+  const w = new Uint32Array(64);
+  for (let off = 0; off < pad.length; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const x = w[i - 15], y = w[i - 2];
+      const s0 = ((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3);
+      const s1 = ((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10);
+      w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+    }
+    let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + SHA_K[i] + w[i]) >>> 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+      const mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  const out = new Uint8Array(32), odv = new DataView(out.buffer);
+  for (let i = 0; i < 8; i++) odv.setUint32(i * 4, H[i]);
+  return out;
+}
+function hmac(key, msg) {
+  let k = key; if (k.length > 64) k = sha256(k);
+  const p = new Uint8Array(64); p.set(k);
+  const ip = new Uint8Array(64), op = new Uint8Array(64);
+  for (let i = 0; i < 64; i++) { ip[i] = p[i] ^ 0x36; op[i] = p[i] ^ 0x5c; }
+  return sha256(cat(op, sha256(cat(ip, msg))));
+}
+function pbkdf2(pw, salt, iter, dkLen) {
+  const H = 32, blocks = Math.ceil(dkLen / H), out = new Uint8Array(blocks * H);
+  for (let b = 1; b <= blocks; b++) {
+    const si = new Uint8Array(salt.length + 4); si.set(salt);
+    si[salt.length] = (b >>> 24) & 255; si[salt.length + 1] = (b >>> 16) & 255;
+    si[salt.length + 2] = (b >>> 8) & 255; si[salt.length + 3] = b & 255;
+    let u = hmac(pw, si); const t = u.slice();
+    for (let i = 1; i < iter; i++) { u = hmac(pw, u); for (let j = 0; j < H; j++) t[j] ^= u[j]; }
+    out.set(t, (b - 1) * H);
+  }
+  return out.subarray(0, dkLen);
+}
+const SB = (() => {
+  const s = new Uint8Array(256), rot = (v, n) => ((v << n) | (v >>> (8 - n))) & 0xff;
+  let p = 1, q = 1;
+  do {
+    p = (p ^ ((p << 1) & 0xff) ^ ((p & 0x80) ? 0x1b : 0)) & 0xff;
+    q = (q ^ (q << 1)) & 0xff; q = (q ^ (q << 2)) & 0xff; q = (q ^ (q << 4)) & 0xff;
+    if (q & 0x80) q ^= 0x09;
+    s[p] = (q ^ rot(q, 1) ^ rot(q, 2) ^ rot(q, 3) ^ rot(q, 4) ^ 0x63) & 0xff;
+  } while (p !== 1);
+  s[0] = 0x63; return s;
+})();
+const xt = b => ((b << 1) ^ ((b & 0x80) ? 0x1b : 0)) & 0xff;
+function aesExpand(key) {
+  const Nk = key.length / 4, Nr = Nk + 6, w = new Uint32Array(4 * (Nr + 1));
+  for (let i = 0; i < Nk; i++) w[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3];
+  let rc = 1;
+  for (let i = Nk; i < 4 * (Nr + 1); i++) {
+    let t = w[i - 1];
+    if (i % Nk === 0) {
+      t = ((t << 8) | (t >>> 24)) >>> 0;
+      t = ((SB[(t >>> 24) & 255] << 24) | (SB[(t >>> 16) & 255] << 16) | (SB[(t >>> 8) & 255] << 8) | SB[t & 255]) >>> 0;
+      t = (t ^ (rc << 24)) >>> 0;
+      rc = xt(rc);
+    } else if (Nk > 6 && i % Nk === 4) {
+      t = ((SB[(t >>> 24) & 255] << 24) | (SB[(t >>> 16) & 255] << 16) | (SB[(t >>> 8) & 255] << 8) | SB[t & 255]) >>> 0;
+    }
+    w[i] = (w[i - Nk] ^ t) >>> 0;
+  }
+  return { w, Nr };
+}
+function aesBlock(ks, inp) {
+  const { w, Nr } = ks, s = new Uint8Array(inp);
+  const ark = r => { for (let c = 0; c < 4; c++) { const k = w[r * 4 + c]; s[c * 4] ^= k >>> 24; s[c * 4 + 1] ^= (k >>> 16) & 255; s[c * 4 + 2] ^= (k >>> 8) & 255; s[c * 4 + 3] ^= k & 255; } };
+  ark(0);
+  for (let r = 1; r <= Nr; r++) {
+    for (let i = 0; i < 16; i++) s[i] = SB[s[i]];
+    let t = s[1]; s[1] = s[5]; s[5] = s[9]; s[9] = s[13]; s[13] = t;
+    t = s[2]; s[2] = s[10]; s[10] = t; t = s[6]; s[6] = s[14]; s[14] = t;
+    t = s[3]; s[3] = s[15]; s[15] = s[11]; s[11] = s[7]; s[7] = t;
+    if (r !== Nr) for (let c = 0; c < 4; c++) {
+      const i = c * 4, a = s[i], b = s[i + 1], d = s[i + 2], e = s[i + 3];
+      const a2 = xt(a), b2 = xt(b), d2 = xt(d), e2 = xt(e);
+      s[i] = a2 ^ (b2 ^ b) ^ d ^ e; s[i + 1] = a ^ b2 ^ (d2 ^ d) ^ e;
+      s[i + 2] = a ^ b ^ d2 ^ (e2 ^ e); s[i + 3] = (a2 ^ a) ^ b ^ d ^ e2;
+    }
+    ark(r);
+  }
+  return s;
+}
+function ctrXor(key, iv, data) {
+  const ks = aesExpand(key), out = new Uint8Array(data.length), ctr = new Uint8Array(iv);
+  for (let off = 0; off < data.length; off += 16) {
+    const k = aesBlock(ks, ctr);
+    for (let i = 0; i < 16 && off + i < data.length; i++) out[off + i] = data[off + i] ^ k[i];
+    for (let i = 15; i >= 0; i--) { ctr[i] = (ctr[i] + 1) & 255; if (ctr[i] !== 0) break; }
+  }
+  return out;
+}
+
+const SALT = b64d(ENC_DATA.salt), IV = b64d(ENC_DATA.iv), CT = b64d(ENC_DATA.ct), MAC = b64d(ENC_DATA.mac);
+const HDR = new TextEncoder().encode('reverse-basketball|' + ENC_DATA.v + '|' + ENC_DATA.kdf + '|' + ENC_DATA.iter + '|');
+const HAS_SUBTLE = !!(window.crypto && window.crypto.subtle);
+
+async function deriveBits(code) {
+  const pw = new TextEncoder().encode(code), it = ENC_DATA.iter;
+  if (HAS_SUBTLE) {
+    const km = await crypto.subtle.importKey('raw', pw, 'PBKDF2', false, ['deriveBits']);
+    const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: SALT, iterations: it, hash: 'SHA-256' }, km, 512);
+    return new Uint8Array(b);
+  }
+  return Uint8Array.from(pbkdf2(pw, SALT, it, 64));
+}
+async function decryptBits(bits) {
+  if (!bits || bits.length < 64) return null;
+  const encKey = bits.slice(0, 32), macKey = bits.slice(32, 64), msg = cat(HDR, SALT, IV, CT);
+  let ok;
+  if (HAS_SUBTLE) {
+    const hk = await crypto.subtle.importKey('raw', macKey, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    ok = eqBytes(new Uint8Array(await crypto.subtle.sign('HMAC', hk, msg)), MAC);
+  } else {
+    ok = eqBytes(hmac(macKey, msg), MAC);
+  }
+  if (!ok) return null;
+  let pt;
+  if (HAS_SUBTLE) {
+    const k = await crypto.subtle.importKey('raw', encKey, 'AES-CTR', false, ['decrypt']);
+    pt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CTR', counter: IV, length: 32 }, k, CT));
+  } else {
+    pt = ctrXor(encKey, IV, CT);
+  }
+  return new TextDecoder().decode(pt);
+}
+
+/* ---------------- 상태 ---------------- */
+let DATA = null, CHRONO = [], LATEST = null, curDate = null, REGULAR = new Set(), GUEST = new Set();
 const NAME_ORDER = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+function bindData(d) {
+  DATA = d;
+  CHRONO = DATA.weeks.filter(w => w.date).slice().sort((a, b) => a.date.localeCompare(b.date));
+  LATEST = CHRONO.filter(w => !w.noSheet).slice(-1)[0];
+  curDate = LATEST.date;
+  REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
+  GUEST = new Set(DATA.guests.map(p => p.name));
+}
 
 /* 그 주차까지의 누적 기록 계산 (weeks 로스터 기반) */
 function computeAsOf(date) {
@@ -769,7 +980,62 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && e.altKey) $('#prevBtn').click();
   if (e.key === 'ArrowRight' && e.altKey) $('#nextBtn').click();
 });
-renderAll();
+/* ---------------- gate (입장 코드) ---------------- */
+const LSKEY = 'reverse-unlock-v1';
+let started = false;
+function showApp() {
+  document.body.classList.remove('locked');
+  if (!started) { started = true; renderAll(); }
+}
+async function openWith(bits) {
+  const text = await decryptBits(bits);
+  if (text === null) return false;
+  let d;
+  try { d = JSON.parse(text); } catch (e) { return false; }
+  if (!d || !d.weeks) return false;
+  bindData(d);
+  showApp();
+  return true;
+}
+function saveBits(bits) { try { localStorage.setItem(LSKEY, b64e(bits)); } catch (e) { } }
+function loadBits() { try { const s = localStorage.getItem(LSKEY); return s ? b64d(s) : null; } catch (e) { return null; } }
+function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
+
+const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
+function gateSay(t, ok) { gateMsg.textContent = t || ''; gateMsg.classList.toggle('ok', !!ok); }
+let gateBusy = false;
+gateForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (gateBusy) return;
+  const code = gateInput.value.trim();
+  if (!code) { gateSay('입장 코드를 입력해 주세요.'); gateInput.focus(); return; }
+  gateBusy = true; gateBtn.disabled = true; gateSay('확인 중…', true);
+  try {
+    const bits = await deriveBits(code);
+    if (await openWith(bits)) {
+      saveBits(bits); gateSay('', true);
+      if (document.activeElement) document.activeElement.blur();
+    } else {
+      gateSay('입장 코드가 올바르지 않습니다.');
+      gateForm.classList.add('shake');
+      setTimeout(() => gateForm.classList.remove('shake'), 420);
+      gateInput.select();
+    }
+  } catch (err) {
+    gateSay('이 브라우저에서는 열 수 없습니다. Chrome·Safari로 열어 주세요.');
+  }
+  gateBtn.disabled = false; gateBusy = false;
+});
+$('#lockBtn').addEventListener('click', () => { clearBits(); location.reload(); });
+(async function boot() {
+  const bits = loadBits();
+  if (bits) {
+    try { if (await openWith(bits)) return; } catch (e) { }
+    clearBits();
+  }
+  gateSay('');
+  gateInput.focus();
+})();
 </script>
 </body>
 </html>

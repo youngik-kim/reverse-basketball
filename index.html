@@ -310,9 +310,56 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
   #secResult .rcard{max-width:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 입장 코드 잠금 화면 ---------- */
+body.locked .wrap,body.locked #modal{display:none}
+.gate{display:none}
+body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
+  background:radial-gradient(900px 420px at 50% -160px,rgba(255,122,24,.26),transparent 70%),
+    radial-gradient(600px 300px at 110% 10%,rgba(74,210,255,.10),transparent 70%),var(--bg)}
+.gateform{width:100%;max-width:352px;background:linear-gradient(165deg,var(--card2),var(--card));
+  border:1px solid var(--line2);border-radius:22px;padding:30px 22px 22px;text-align:center;
+  box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.gball{font-size:44px;line-height:1;filter:drop-shadow(0 8px 16px rgba(255,122,24,.35))}
+.gateform h1{margin:12px 0 2px;font-size:21px;font-weight:900;letter-spacing:-.02em}
+.gsub{margin:0 0 20px;font-size:10.5px;letter-spacing:.26em;color:var(--tx3);font-weight:800;text-transform:uppercase}
+#gateCode{width:100%;height:54px;border-radius:14px;border:1px solid var(--line2);background:#0b1119;color:var(--tx);
+  font-size:22px;font-weight:800;letter-spacing:.42em;text-align:center;padding:0 10px 0 20px;outline:none;
+  transition:border-color .15s,box-shadow .15s}
+#gateCode::placeholder{letter-spacing:.02em;font-size:14px;font-weight:600;color:var(--tx3)}
+#gateCode:focus{border-color:rgba(255,122,24,.7);box-shadow:0 0 0 3px rgba(255,122,24,.16)}
+.ggo{width:100%;height:50px;margin-top:10px;border-radius:14px;border:0;cursor:pointer;
+  background:linear-gradient(96deg,var(--amber),var(--orange));color:#170d04;font-size:15.5px;font-weight:900;letter-spacing:.02em}
+.ggo:disabled{opacity:.55;cursor:default}
+.gmsg{min-height:18px;margin:12px 0 0;font-size:12.5px;color:var(--red);font-weight:700}
+.gmsg.ok{color:var(--green)}
+.gfoot{margin:16px 0 0;font-size:11.5px;color:var(--tx3);line-height:1.55}
+.shake{animation:shake .38s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.lockbtn{margin:14px auto 0;display:block;padding:8px 16px;border-radius:10px;border:1px solid var(--line2);
+  background:var(--card);color:var(--tx2);font-size:12px;font-weight:700;cursor:pointer}
+.lockbtn:active{background:var(--card2)}
+@media (max-width:420px){.gateform{padding:26px 18px 18px}.gateform h1{font-size:19.5px}}
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div class="gate" id="gate">
+  <form class="gateform" id="gateForm" autocomplete="off" novalidate>
+    <div class="gball" aria-hidden="true">🏀</div>
+    <h1 id="gateTitle">리버스 팀원 전용</h1>
+    <p class="gsub">REVERSE · 승률 &amp; 주간 결과</p>
+    <label class="sr" for="gateCode">입장 코드</label>
+    <input id="gateCode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12"
+           placeholder="입장 코드" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+    <button class="ggo" id="gateBtn" type="submit">입장하기</button>
+    <p class="gmsg" id="gateMsg" role="status" aria-live="polite"></p>
+    <p class="gfoot">팀원에게 받은 코드를 입력하세요<br>이 기기에서는 다음부터 자동으로 열립니다</p>
+    <noscript><p class="gmsg">이 페이지를 열려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+  </form>
+</div>
+
 <div class="wrap">
 
   <header class="hero">
@@ -384,6 +431,7 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
     위 주차 선택에서 과거 날짜를 고르면 <b>그 주차까지의 누적 승률</b>로 화면이 바뀝니다.<br>
     정규 순위 커트라인은 그때까지 진행된 주차의 40%(올림)이며, 최종 주차(8주)에서는 4주가 됩니다.<br>
     <span id="fNote"></span>
+    <button class="lockbtn" id="lockBtn" type="button">🔒 잠금</button>
   </footer>
 </div>
 
@@ -398,1260 +446,13 @@ mark{background:rgba(255,122,24,.28);color:#fff;border-radius:3px;padding:0 1px}
 
 <script>
 /* ============================================================================
-   [DATA] — 매주 토요일 결과지를 받으면 이 객체만 고치면 페이지에 바로 반영됩니다.
-   1) weeks 배열에 새 주차를 추가 (date, title, venue, standings, games, rosters, note)
-      · standings:[{pos,team,w,l,cap}] / games:[{a,as_,b,bs}] / rosters:{팀:[이름,...]}
-      · 결과지가 아직 없는 주차는 { date:"2026-00-00", noSheet:true } 로 넣으면
-        화면에 "원본 결과지 보완 예정"으로 표시됩니다.
-   2) members(정규)·outsiders(순위 외)·guests(게스트)는 '최종 주차' 공식 기록입니다.
-      (과거 주차 화면은 weeks 로스터에서 자동 재계산)
-   3) criteria.totalWeeks(총 주차), period(기간) 갱신
+   [LOCK] 팀 데이터는 이 파일에 평문으로 들어 있지 않습니다.
+   ENC_DATA = 암호문(AES-256-CTR + HMAC-SHA256, 키는 입장 코드에서 PBKDF2-SHA256 으로 유도).
+   입장 코드가 맞을 때만 브라우저에서 복호화되어 화면이 그려집니다.
+   데이터를 갱신할 때는 src/data.json 을 고친 뒤 build_site.py 로 다시 암호화해 배포하세요.
+   (index.html 직접 수정 금지 — 다음 빌드에서 덮어써집니다)
    ============================================================================ */
-const DATA = {
- "team": "리버스",
- "teamEn": "REVERSE",
- "venue": "부천JW스포츠센터",
- "period": {
-  "start": "2026-10-03",
-  "end": "2026-11-21",
-  "weeks": 8
- },
- "criteria": {
-  "minRate": 40,
-  "minWeeks": 4,
-  "totalWeeks": 8,
-  "tiebreak": [
-   "다승",
-   "팀장 승률",
-   "가나다 순"
-  ],
-  "text": "전체 경기 수 40% 이상 참여자 정규 순위 집계 (8주 중 4주 이상)"
- },
- "members": [
-  {
-   "rank": 1,
-   "name": "나윤",
-   "weeks": 7,
-   "att": 88.0,
-   "w": 11,
-   "l": 3,
-   "rate": 78.6,
-   "lead": {
-    "w": 3,
-    "l": 1,
-    "rate": 75.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 2,
-   "name": "고건우",
-   "weeks": 4,
-   "att": 50.0,
-   "w": 6,
-   "l": 2,
-   "rate": 75.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false
-  },
-  {
-   "rank": 3,
-   "name": "박광현",
-   "weeks": 8,
-   "att": 100.0,
-   "w": 11,
-   "l": 5,
-   "rate": 68.8,
-   "lead": null,
-   "captain": false,
-   "perfect": true
-  },
-  {
-   "rank": 4,
-   "name": "이승훈",
-   "weeks": 7,
-   "att": 88.0,
-   "w": 9,
-   "l": 5,
-   "rate": 64.3,
-   "lead": {
-    "w": 1,
-    "l": 1,
-    "rate": 50.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 5,
-   "name": "이정태",
-   "weeks": 8,
-   "att": 100.0,
-   "w": 10,
-   "l": 6,
-   "rate": 62.5,
-   "lead": {
-    "w": 3,
-    "l": 1,
-    "rate": 75.0
-   },
-   "captain": true,
-   "perfect": true
-  },
-  {
-   "rank": 6,
-   "name": "심호길",
-   "weeks": 4,
-   "att": 50.0,
-   "w": 5,
-   "l": 3,
-   "rate": 62.5,
-   "lead": {
-    "w": 5,
-    "l": 1,
-    "rate": 83.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 7,
-   "name": "변정훈",
-   "weeks": 7,
-   "att": 88.0,
-   "w": 8,
-   "l": 6,
-   "rate": 57.1,
-   "lead": {
-    "w": 3,
-    "l": 3,
-    "rate": 50.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 8,
-   "name": "변동훈",
-   "weeks": 6,
-   "att": 75.0,
-   "w": 6,
-   "l": 6,
-   "rate": 50.0,
-   "lead": {
-    "w": 2,
-    "l": 0,
-    "rate": 100.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 9,
-   "name": "유진수",
-   "weeks": 5,
-   "att": 63.0,
-   "w": 5,
-   "l": 5,
-   "rate": 50.0,
-   "lead": {
-    "w": 0,
-    "l": 2,
-    "rate": 0.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 10,
-   "name": "김도현",
-   "weeks": 4,
-   "att": 50.0,
-   "w": 4,
-   "l": 4,
-   "rate": 50.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false
-  },
-  {
-   "rank": 11,
-   "name": "유동훈",
-   "weeks": 4,
-   "att": 50.0,
-   "w": 4,
-   "l": 4,
-   "rate": 50.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false
-  },
-  {
-   "rank": 12,
-   "name": "정돈욱",
-   "weeks": 6,
-   "att": 75.0,
-   "w": 5,
-   "l": 7,
-   "rate": 41.7,
-   "lead": {
-    "w": 1,
-    "l": 1,
-    "rate": 50.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 13,
-   "name": "조성현",
-   "weeks": 5,
-   "att": 63.0,
-   "w": 4,
-   "l": 6,
-   "rate": 40.0,
-   "lead": {
-    "w": 2,
-    "l": 0,
-    "rate": 100.0
-   },
-   "captain": true,
-   "perfect": false
-  },
-  {
-   "rank": 14,
-   "name": "김영익",
-   "weeks": 8,
-   "att": 100.0,
-   "w": 6,
-   "l": 10,
-   "rate": 37.5,
-   "lead": {
-    "w": 0,
-    "l": 2,
-    "rate": 0.0
-   },
-   "captain": true,
-   "perfect": true
-  },
-  {
-   "rank": 15,
-   "name": "정민규",
-   "weeks": 6,
-   "att": 75.0,
-   "w": 2,
-   "l": 10,
-   "rate": 16.7,
-   "lead": {
-    "w": 0,
-    "l": 4,
-    "rate": 0.0
-   },
-   "captain": true,
-   "perfect": false
-  }
- ],
- "outsiders": [
-  {
-   "rank": "외1",
-   "name": "김준성",
-   "weeks": 3,
-   "att": 38.0,
-   "w": 3,
-   "l": 3,
-   "rate": 50.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false,
-   "note": "⚡ +1주 시 바로 진입!"
-  },
-  {
-   "rank": "외2",
-   "name": "김영수",
-   "weeks": 2,
-   "att": 25.0,
-   "w": 2,
-   "l": 2,
-   "rate": 50.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false,
-   "note": "+2주 더 나오면 정규!"
-  },
-  {
-   "rank": "외3",
-   "name": "정승혁",
-   "weeks": 3,
-   "att": 38.0,
-   "w": 2,
-   "l": 4,
-   "rate": 33.3,
-   "lead": {
-    "w": 1,
-    "l": 1,
-    "rate": 50.0
-   },
-   "captain": true,
-   "perfect": false,
-   "note": "⚡ +1주 시 바로 진입!"
-  },
-  {
-   "rank": "외4",
-   "name": "김재호",
-   "weeks": 2,
-   "att": 25.0,
-   "w": 1,
-   "l": 3,
-   "rate": 25.0,
-   "lead": {
-    "w": 0,
-    "l": 2,
-    "rate": 0.0
-   },
-   "captain": true,
-   "perfect": false,
-   "note": "+2주 더 나오면 정규!"
-  },
-  {
-   "rank": "외5",
-   "name": "신지우",
-   "weeks": 2,
-   "att": 25.0,
-   "w": 1,
-   "l": 3,
-   "rate": 25.0,
-   "lead": {
-    "w": 0,
-    "l": 2,
-    "rate": 0.0
-   },
-   "captain": true,
-   "perfect": false,
-   "note": "+2주 더 나오면 정규!"
-  },
-  {
-   "rank": "외6",
-   "name": "김현민",
-   "weeks": 1,
-   "att": 13.0,
-   "w": 0,
-   "l": 2,
-   "rate": 0.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false,
-   "note": "+3주 더 나오면 정규!"
-  },
-  {
-   "rank": "외7",
-   "name": "유근우",
-   "weeks": 1,
-   "att": 13.0,
-   "w": 0,
-   "l": 2,
-   "rate": 0.0,
-   "lead": null,
-   "captain": false,
-   "perfect": false,
-   "note": "+3주 더 나오면 정규!"
-  }
- ],
- "absent": [
-  "김재민",
-  "전규민"
- ],
- "guests": [
-  {
-   "rank": 1,
-   "name": "김동찬",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "rank": 1,
-   "name": "박종한",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "rank": 1,
-   "name": "선무환",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "rank": 1,
-   "name": "조형우",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "rank": 1,
-   "name": "지호",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "rank": 6,
-   "name": "심준형",
-   "weeks": 2,
-   "dates": [
-    "10/17",
-    "10/24"
-   ],
-   "w": 3,
-   "l": 1,
-   "rate": 75.0
-  },
-  {
-   "rank": 7,
-   "name": "박승철",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "rank": 7,
-   "name": "서태웅",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "rank": 7,
-   "name": "전은성",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "rank": 10,
-   "name": "김현준",
-   "weeks": 3,
-   "dates": [
-    "10/17",
-    "10/24",
-    "10/31"
-   ],
-   "w": 2,
-   "l": 4,
-   "rate": 33.3
-  },
-  {
-   "rank": 11,
-   "name": "이준평",
-   "weeks": 4,
-   "dates": [
-    "10/17",
-    "10/24",
-    "11/07",
-    "11/14"
-   ],
-   "w": 2,
-   "l": 6,
-   "rate": 25.0
-  },
-  {
-   "rank": 12,
-   "name": "권태욱",
-   "weeks": 3,
-   "dates": [
-    "10/10",
-    "10/17",
-    "11/14"
-   ],
-   "w": 1,
-   "l": 5,
-   "rate": 16.7
-  },
-  {
-   "rank": 13,
-   "name": "김익희",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "rank": 13,
-   "name": "김인호",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "rank": 13,
-   "name": "김학현",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "rank": 13,
-   "name": "박덕원",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "rank": 13,
-   "name": "설규호",
-   "weeks": 1,
-   "dates": [
-    "10/10"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "rank": 13,
-   "name": "이형인",
-   "weeks": 1,
-   "dates": [
-    "10/03"
-   ],
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  }
- ],
- "weeks": [
-  {
-   "date": "2026-11-21",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "형광",
-     "w": 2,
-     "l": 0,
-     "cap": "나윤"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "정돈욱"
-    },
-    {
-     "pos": 3,
-     "team": "블랙",
-     "w": 0,
-     "l": 2,
-     "cap": "신지우"
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 44,
-     "b": "형광",
-     "bs": 48
-    },
-    {
-     "a": "형광",
-     "as_": 41,
-     "b": "화이트",
-     "bs": 25
-    },
-    {
-     "a": "화이트",
-     "as_": 46,
-     "b": "블랙",
-     "bs": 36
-    }
-   ],
-   "rosters": {
-    "형광": [
-     "박광현",
-     "유동훈",
-     "김영익",
-     "나윤",
-     "이승훈"
-    ],
-    "화이트": [
-     "변정훈",
-     "고건우",
-     "정돈욱",
-     "이정태",
-     "조성현"
-    ],
-    "블랙": [
-     "정민규",
-     "신지우",
-     "심호길",
-     "변동훈",
-     "김영수"
-    ]
-   },
-   "note": "전원 정회원 15명(게스트 없음). 형광 vs 화이트 쿼터 흐름 1Q 13:2 · 2Q 33:8 · 3Q 41:25."
-  },
-  {
-   "date": "2026-11-14",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "블랙",
-     "w": 2,
-     "l": 0,
-     "cap": "변동훈"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "변정훈"
-    },
-    {
-     "pos": 3,
-     "team": "형광",
-     "w": 0,
-     "l": 2,
-     "cap": "정민규"
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 44,
-     "b": "형광",
-     "bs": 33
-    },
-    {
-     "a": "화이트",
-     "as_": 38,
-     "b": "형광",
-     "bs": 31
-    },
-    {
-     "a": "블랙",
-     "as_": 45,
-     "b": "화이트",
-     "bs": 43
-    }
-   ],
-   "rosters": {
-    "블랙": [
-     "이준평",
-     "김준성",
-     "변동훈",
-     "김영익",
-     "나윤",
-     "김영수"
-    ],
-    "화이트": [
-     "변정훈",
-     "박광현",
-     "이정태",
-     "조성현",
-     "정승혁",
-     "권태욱"
-    ],
-    "형광": [
-     "정민규",
-     "김현민",
-     "김도현",
-     "유동훈",
-     "유근우"
-    ]
-   },
-   "note": "블랙 vs 화이트 1Q 2:35."
-  },
-  {
-   "date": "2026-11-07",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "형광",
-     "w": 2,
-     "l": 0,
-     "cap": "이정태"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "이승훈"
-    },
-    {
-     "pos": 3,
-     "team": "블랙",
-     "w": 0,
-     "l": 2,
-     "cap": "변정훈"
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 37,
-     "b": "형광",
-     "bs": 46
-    },
-    {
-     "a": "형광",
-     "as_": 24,
-     "b": "화이트",
-     "bs": 21
-    },
-    {
-     "a": "화이트",
-     "as_": 41,
-     "b": "블랙",
-     "bs": 39
-    }
-   ],
-   "rosters": {
-    "형광": [
-     "정돈욱",
-     "고건우",
-     "이정태",
-     "김도현",
-     "변동훈"
-    ],
-    "화이트": [
-     "정민규",
-     "유진수",
-     "박광현",
-     "김준성",
-     "이승훈",
-     "김재호"
-    ],
-    "블랙": [
-     "이준평",
-     "변정훈",
-     "정승혁",
-     "유동훈",
-     "김영익",
-     "나윤"
-    ]
-   },
-   "note": ""
-  },
-  {
-   "date": "2026-10-31",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "블랙",
-     "w": 2,
-     "l": 0,
-     "cap": "변정훈"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "정승혁"
-    },
-    {
-     "pos": 3,
-     "team": "형광",
-     "w": 0,
-     "l": 2,
-     "cap": "유진수"
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 40,
-     "b": "형광",
-     "bs": 39
-    },
-    {
-     "a": "형광",
-     "as_": 28,
-     "b": "화이트",
-     "bs": 35
-    },
-    {
-     "a": "화이트",
-     "as_": 41,
-     "b": "블랙",
-     "bs": 64
-    }
-   ],
-   "rosters": {
-    "블랙": [
-     "변정훈",
-     "고건우",
-     "이정태",
-     "김영익",
-     "나윤"
-    ],
-    "화이트": [
-     "정민규",
-     "정돈욱",
-     "박광현",
-     "정승혁",
-     "김현준"
-    ],
-    "형광": [
-     "유진수",
-     "김도현",
-     "조성현",
-     "변동훈",
-     "이승훈"
-    ]
-   },
-   "note": ""
-  },
-  {
-   "date": "2026-10-24",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "형광",
-     "w": 2,
-     "l": 0,
-     "cap": "심호길"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "나윤"
-    },
-    {
-     "pos": 3,
-     "team": "블랙",
-     "w": 0,
-     "l": 2,
-     "cap": "정민규"
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 31,
-     "b": "화이트",
-     "bs": 35
-    },
-    {
-     "a": "화이트",
-     "as_": 27,
-     "b": "형광",
-     "bs": 28
-    },
-    {
-     "a": "형광",
-     "as_": 61,
-     "b": "블랙",
-     "bs": 46
-    }
-   ],
-   "rosters": {
-    "형광": [
-     "박광현",
-     "김도현",
-     "심호길",
-     "심준형",
-     "이승훈"
-    ],
-    "화이트": [
-     "변정훈",
-     "정돈욱",
-     "변동훈",
-     "김현준",
-     "나윤"
-    ],
-    "블랙": [
-     "정민규",
-     "이준평",
-     "이정태",
-     "김준성",
-     "조성현",
-     "김영익"
-    ]
-   },
-   "note": ""
-  },
-  {
-   "date": "2026-10-17",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "형광",
-     "w": 2,
-     "l": 0,
-     "cap": "조성현"
-    },
-    {
-     "pos": 2,
-     "team": "블랙",
-     "w": 1,
-     "l": 1,
-     "cap": "심호길"
-    },
-    {
-     "pos": 3,
-     "team": "화이트",
-     "w": 0,
-     "l": 2,
-     "cap": "김재호"
-    }
-   ],
-   "games": [
-    {
-     "a": "화이트",
-     "as_": 37,
-     "b": "형광",
-     "bs": 48
-    },
-    {
-     "a": "형광",
-     "as_": 52,
-     "b": "블랙",
-     "bs": 33
-    },
-    {
-     "a": "화이트",
-     "as_": 41,
-     "b": "블랙",
-     "bs": 44
-    }
-   ],
-   "rosters": {
-    "형광": [
-     "변정훈",
-     "이정태",
-     "조성현",
-     "유동훈",
-     "나윤"
-    ],
-    "블랙": [
-     "유진수",
-     "고건우",
-     "박광현",
-     "심호길",
-     "심준형",
-     "이승훈"
-    ],
-    "화이트": [
-     "정민규",
-     "이준평",
-     "김영익",
-     "김현준",
-     "권태욱",
-     "김재호"
-    ]
-   },
-   "note": ""
-  },
-  {
-   "date": "2026-10-10",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터 (팀장 없음)",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "블랙",
-     "w": 2,
-     "l": 0,
-     "cap": ""
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": ""
-    },
-    {
-     "pos": 3,
-     "team": "형광",
-     "w": 0,
-     "l": 2,
-     "cap": ""
-    }
-   ],
-   "games": [
-    {
-     "a": "블랙",
-     "as_": 46,
-     "b": "형광",
-     "bs": 29
-    },
-    {
-     "a": "형광",
-     "as_": 28,
-     "b": "화이트",
-     "bs": 37
-    },
-    {
-     "a": "화이트",
-     "as_": 28,
-     "b": "블랙",
-     "bs": 42
-    }
-   ],
-   "rosters": {
-    "블랙": [
-     "김동찬",
-     "선무환",
-     "지호",
-     "박종한",
-     "조형우"
-    ],
-    "화이트": [
-     "신지우",
-     "박광현",
-     "유진수",
-     "이정태",
-     "이승훈"
-    ],
-    "형광": [
-     "박덕원",
-     "정돈욱",
-     "김영익",
-     "권태욱",
-     "설규호"
-    ]
-   },
-   "note": ""
-  },
-  {
-   "date": "2026-10-03",
-   "title": "리버스 3파전",
-   "venue": "부천JW스포츠센터",
-   "noLeader": false,
-   "standings": [
-    {
-     "pos": 1,
-     "team": "형광",
-     "w": 2,
-     "l": 0,
-     "cap": "심호길"
-    },
-    {
-     "pos": 2,
-     "team": "화이트",
-     "w": 1,
-     "l": 1,
-     "cap": "이정태"
-    },
-    {
-     "pos": 3,
-     "team": "블랙",
-     "w": 0,
-     "l": 2,
-     "cap": "김영익"
-    }
-   ],
-   "games": [
-    {
-     "a": "화이트",
-     "as_": 26,
-     "b": "형광",
-     "bs": 32
-    },
-    {
-     "a": "형광",
-     "as_": 37,
-     "b": "블랙",
-     "bs": 34
-    },
-    {
-     "a": "블랙",
-     "as_": 28,
-     "b": "화이트",
-     "bs": 37
-    }
-   ],
-   "rosters": {
-    "형광": [
-     "유진수",
-     "박광현",
-     "심호길",
-     "나윤",
-     "이승훈"
-    ],
-    "화이트": [
-     "변정훈",
-     "박승철",
-     "서태웅",
-     "이정태",
-     "변동훈",
-     "전은성"
-    ],
-    "블랙": [
-     "정돈욱",
-     "이형인",
-     "김익희",
-     "김학현",
-     "김인호",
-     "김영익"
-    ]
-   },
-   "note": ""
-  }
- ],
- "leaders": [
-  {
-   "name": "나윤",
-   "w": 3,
-   "l": 1,
-   "rate": 75.0
-  },
-  {
-   "name": "이승훈",
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "name": "이정태",
-   "w": 3,
-   "l": 1,
-   "rate": 75.0
-  },
-  {
-   "name": "심호길",
-   "w": 5,
-   "l": 1,
-   "rate": 83.0
-  },
-  {
-   "name": "변정훈",
-   "w": 3,
-   "l": 3,
-   "rate": 50.0
-  },
-  {
-   "name": "변동훈",
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "name": "유진수",
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "name": "정돈욱",
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "name": "조성현",
-   "w": 2,
-   "l": 0,
-   "rate": 100.0
-  },
-  {
-   "name": "김영익",
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "name": "정민규",
-   "w": 0,
-   "l": 4,
-   "rate": 0.0
-  },
-  {
-   "name": "정승혁",
-   "w": 1,
-   "l": 1,
-   "rate": 50.0
-  },
-  {
-   "name": "김재호",
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  },
-  {
-   "name": "신지우",
-   "w": 0,
-   "l": 2,
-   "rate": 0.0
-  }
- ]
-};
+const ENC_DATA = {"v":1,"kdf":"PBKDF2-SHA256","iter":100000,"salt":"yvzYqVzaS2VpCh1MLM9Mvg==","iv":"8z98MuPHlEMhW+utr71vJA==","ct":"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","mac":"c0Ru+8TtdUP0EVJxsIFw0usJFTcDsIdDFfWmN2fAcb4="};
 
 /* ---------------- helpers ---------------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -1663,13 +464,179 @@ const rateClass = r => r >= 60 ? 'hi' : r >= 40 ? 'mid' : 'lo';
 const WEEKDAY = ['일','월','화','수','목','금','토'];
 const wd = d => WEEKDAY[new Date(d + 'T00:00:00').getDay()];
 
-const CHRONO = DATA.weeks.filter(w => w.date).slice().sort((a, b) => a.date.localeCompare(b.date));
-const LATEST = CHRONO.filter(w => !w.noSheet).slice(-1)[0];
-let curDate = LATEST.date;
+/* ---------------- crypto: PBKDF2-SHA256 → AES-256-CTR + HMAC-SHA256 ----------------
+   crypto.subtle 이 있는 환경(https·http://localhost)에서는 Web Crypto 를 쓰고,
+   없는 인앱 브라우저·구형 웹뷰에서는 아래 순수 JS 구현이 같은 결과를 냅니다. */
+const b64d = s => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
+const b64e = u => { let s = ''; for (let i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); };
+const cat = (...a) => { let n = 0; for (const x of a) n += x.length; const o = new Uint8Array(n); let p = 0; for (const x of a) { o.set(x, p); p += x.length; } return o; };
+const eqBytes = (a, b) => { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a[i] ^ b[i]; return d === 0; };
 
-const REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
-const GUEST = new Set(DATA.guests.map(p => p.name));
+const SHA_K = new Uint32Array([
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]);
+function sha256(msg) {
+  const l = msg.length, pad = new Uint8Array(Math.ceil((l + 9) / 64) * 64);
+  pad.set(msg); pad[l] = 0x80;
+  const dv = new DataView(pad.buffer), bitLen = l * 8;
+  dv.setUint32(pad.length - 8, Math.floor(bitLen / 4294967296));
+  dv.setUint32(pad.length - 4, bitLen >>> 0);
+  const H = new Uint32Array([0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]);
+  const w = new Uint32Array(64);
+  for (let off = 0; off < pad.length; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const x = w[i - 15], y = w[i - 2];
+      const s0 = ((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3);
+      const s1 = ((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10);
+      w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+    }
+    let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + SHA_K[i] + w[i]) >>> 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+      const mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  const out = new Uint8Array(32), odv = new DataView(out.buffer);
+  for (let i = 0; i < 8; i++) odv.setUint32(i * 4, H[i]);
+  return out;
+}
+function hmac(key, msg) {
+  let k = key; if (k.length > 64) k = sha256(k);
+  const p = new Uint8Array(64); p.set(k);
+  const ip = new Uint8Array(64), op = new Uint8Array(64);
+  for (let i = 0; i < 64; i++) { ip[i] = p[i] ^ 0x36; op[i] = p[i] ^ 0x5c; }
+  return sha256(cat(op, sha256(cat(ip, msg))));
+}
+function pbkdf2(pw, salt, iter, dkLen) {
+  const H = 32, blocks = Math.ceil(dkLen / H), out = new Uint8Array(blocks * H);
+  for (let b = 1; b <= blocks; b++) {
+    const si = new Uint8Array(salt.length + 4); si.set(salt);
+    si[salt.length] = (b >>> 24) & 255; si[salt.length + 1] = (b >>> 16) & 255;
+    si[salt.length + 2] = (b >>> 8) & 255; si[salt.length + 3] = b & 255;
+    let u = hmac(pw, si); const t = u.slice();
+    for (let i = 1; i < iter; i++) { u = hmac(pw, u); for (let j = 0; j < H; j++) t[j] ^= u[j]; }
+    out.set(t, (b - 1) * H);
+  }
+  return out.subarray(0, dkLen);
+}
+const SB = (() => {
+  const s = new Uint8Array(256), rot = (v, n) => ((v << n) | (v >>> (8 - n))) & 0xff;
+  let p = 1, q = 1;
+  do {
+    p = (p ^ ((p << 1) & 0xff) ^ ((p & 0x80) ? 0x1b : 0)) & 0xff;
+    q = (q ^ (q << 1)) & 0xff; q = (q ^ (q << 2)) & 0xff; q = (q ^ (q << 4)) & 0xff;
+    if (q & 0x80) q ^= 0x09;
+    s[p] = (q ^ rot(q, 1) ^ rot(q, 2) ^ rot(q, 3) ^ rot(q, 4) ^ 0x63) & 0xff;
+  } while (p !== 1);
+  s[0] = 0x63; return s;
+})();
+const xt = b => ((b << 1) ^ ((b & 0x80) ? 0x1b : 0)) & 0xff;
+function aesExpand(key) {
+  const Nk = key.length / 4, Nr = Nk + 6, w = new Uint32Array(4 * (Nr + 1));
+  for (let i = 0; i < Nk; i++) w[i] = (key[4 * i] << 24) | (key[4 * i + 1] << 16) | (key[4 * i + 2] << 8) | key[4 * i + 3];
+  let rc = 1;
+  for (let i = Nk; i < 4 * (Nr + 1); i++) {
+    let t = w[i - 1];
+    if (i % Nk === 0) {
+      t = ((t << 8) | (t >>> 24)) >>> 0;
+      t = ((SB[(t >>> 24) & 255] << 24) | (SB[(t >>> 16) & 255] << 16) | (SB[(t >>> 8) & 255] << 8) | SB[t & 255]) >>> 0;
+      t = (t ^ (rc << 24)) >>> 0;
+      rc = xt(rc);
+    } else if (Nk > 6 && i % Nk === 4) {
+      t = ((SB[(t >>> 24) & 255] << 24) | (SB[(t >>> 16) & 255] << 16) | (SB[(t >>> 8) & 255] << 8) | SB[t & 255]) >>> 0;
+    }
+    w[i] = (w[i - Nk] ^ t) >>> 0;
+  }
+  return { w, Nr };
+}
+function aesBlock(ks, inp) {
+  const { w, Nr } = ks, s = new Uint8Array(inp);
+  const ark = r => { for (let c = 0; c < 4; c++) { const k = w[r * 4 + c]; s[c * 4] ^= k >>> 24; s[c * 4 + 1] ^= (k >>> 16) & 255; s[c * 4 + 2] ^= (k >>> 8) & 255; s[c * 4 + 3] ^= k & 255; } };
+  ark(0);
+  for (let r = 1; r <= Nr; r++) {
+    for (let i = 0; i < 16; i++) s[i] = SB[s[i]];
+    let t = s[1]; s[1] = s[5]; s[5] = s[9]; s[9] = s[13]; s[13] = t;
+    t = s[2]; s[2] = s[10]; s[10] = t; t = s[6]; s[6] = s[14]; s[14] = t;
+    t = s[3]; s[3] = s[15]; s[15] = s[11]; s[11] = s[7]; s[7] = t;
+    if (r !== Nr) for (let c = 0; c < 4; c++) {
+      const i = c * 4, a = s[i], b = s[i + 1], d = s[i + 2], e = s[i + 3];
+      const a2 = xt(a), b2 = xt(b), d2 = xt(d), e2 = xt(e);
+      s[i] = a2 ^ (b2 ^ b) ^ d ^ e; s[i + 1] = a ^ b2 ^ (d2 ^ d) ^ e;
+      s[i + 2] = a ^ b ^ d2 ^ (e2 ^ e); s[i + 3] = (a2 ^ a) ^ b ^ d ^ e2;
+    }
+    ark(r);
+  }
+  return s;
+}
+function ctrXor(key, iv, data) {
+  const ks = aesExpand(key), out = new Uint8Array(data.length), ctr = new Uint8Array(iv);
+  for (let off = 0; off < data.length; off += 16) {
+    const k = aesBlock(ks, ctr);
+    for (let i = 0; i < 16 && off + i < data.length; i++) out[off + i] = data[off + i] ^ k[i];
+    for (let i = 15; i >= 0; i--) { ctr[i] = (ctr[i] + 1) & 255; if (ctr[i] !== 0) break; }
+  }
+  return out;
+}
+
+const SALT = b64d(ENC_DATA.salt), IV = b64d(ENC_DATA.iv), CT = b64d(ENC_DATA.ct), MAC = b64d(ENC_DATA.mac);
+const HDR = new TextEncoder().encode('reverse-basketball|' + ENC_DATA.v + '|' + ENC_DATA.kdf + '|' + ENC_DATA.iter + '|');
+const HAS_SUBTLE = !!(window.crypto && window.crypto.subtle);
+
+async function deriveBits(code) {
+  const pw = new TextEncoder().encode(code), it = ENC_DATA.iter;
+  if (HAS_SUBTLE) {
+    const km = await crypto.subtle.importKey('raw', pw, 'PBKDF2', false, ['deriveBits']);
+    const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: SALT, iterations: it, hash: 'SHA-256' }, km, 512);
+    return new Uint8Array(b);
+  }
+  return Uint8Array.from(pbkdf2(pw, SALT, it, 64));
+}
+async function decryptBits(bits) {
+  if (!bits || bits.length < 64) return null;
+  const encKey = bits.slice(0, 32), macKey = bits.slice(32, 64), msg = cat(HDR, SALT, IV, CT);
+  let ok;
+  if (HAS_SUBTLE) {
+    const hk = await crypto.subtle.importKey('raw', macKey, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    ok = eqBytes(new Uint8Array(await crypto.subtle.sign('HMAC', hk, msg)), MAC);
+  } else {
+    ok = eqBytes(hmac(macKey, msg), MAC);
+  }
+  if (!ok) return null;
+  let pt;
+  if (HAS_SUBTLE) {
+    const k = await crypto.subtle.importKey('raw', encKey, 'AES-CTR', false, ['decrypt']);
+    pt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CTR', counter: IV, length: 32 }, k, CT));
+  } else {
+    pt = ctrXor(encKey, IV, CT);
+  }
+  return new TextDecoder().decode(pt);
+}
+
+/* ---------------- 상태 ---------------- */
+let DATA = null, CHRONO = [], LATEST = null, curDate = null, REGULAR = new Set(), GUEST = new Set();
 const NAME_ORDER = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+function bindData(d) {
+  DATA = d;
+  CHRONO = DATA.weeks.filter(w => w.date).slice().sort((a, b) => a.date.localeCompare(b.date));
+  LATEST = CHRONO.filter(w => !w.noSheet).slice(-1)[0];
+  curDate = LATEST.date;
+  REGULAR = new Set([].concat(DATA.members.map(p => p.name), DATA.outsiders.map(p => p.name), DATA.absent));
+  GUEST = new Set(DATA.guests.map(p => p.name));
+}
 
 /* 그 주차까지의 누적 기록 계산 (weeks 로스터 기반) */
 function computeAsOf(date) {
@@ -2013,7 +980,62 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && e.altKey) $('#prevBtn').click();
   if (e.key === 'ArrowRight' && e.altKey) $('#nextBtn').click();
 });
-renderAll();
+/* ---------------- gate (입장 코드) ---------------- */
+const LSKEY = 'reverse-unlock-v1';
+let started = false;
+function showApp() {
+  document.body.classList.remove('locked');
+  if (!started) { started = true; renderAll(); }
+}
+async function openWith(bits) {
+  const text = await decryptBits(bits);
+  if (text === null) return false;
+  let d;
+  try { d = JSON.parse(text); } catch (e) { return false; }
+  if (!d || !d.weeks) return false;
+  bindData(d);
+  showApp();
+  return true;
+}
+function saveBits(bits) { try { localStorage.setItem(LSKEY, b64e(bits)); } catch (e) { } }
+function loadBits() { try { const s = localStorage.getItem(LSKEY); return s ? b64d(s) : null; } catch (e) { return null; } }
+function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
+
+const gateForm = $('#gateForm'), gateInput = $('#gateCode'), gateMsg = $('#gateMsg'), gateBtn = $('#gateBtn');
+function gateSay(t, ok) { gateMsg.textContent = t || ''; gateMsg.classList.toggle('ok', !!ok); }
+let gateBusy = false;
+gateForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (gateBusy) return;
+  const code = gateInput.value.trim();
+  if (!code) { gateSay('입장 코드를 입력해 주세요.'); gateInput.focus(); return; }
+  gateBusy = true; gateBtn.disabled = true; gateSay('확인 중…', true);
+  try {
+    const bits = await deriveBits(code);
+    if (await openWith(bits)) {
+      saveBits(bits); gateSay('', true);
+      if (document.activeElement) document.activeElement.blur();
+    } else {
+      gateSay('입장 코드가 올바르지 않습니다.');
+      gateForm.classList.add('shake');
+      setTimeout(() => gateForm.classList.remove('shake'), 420);
+      gateInput.select();
+    }
+  } catch (err) {
+    gateSay('이 브라우저에서는 열 수 없습니다. Chrome·Safari로 열어 주세요.');
+  }
+  gateBtn.disabled = false; gateBusy = false;
+});
+$('#lockBtn').addEventListener('click', () => { clearBits(); location.reload(); });
+(async function boot() {
+  const bits = loadBits();
+  if (bits) {
+    try { if (await openWith(bits)) return; } catch (e) { }
+    clearBits();
+  }
+  gateSay('');
+  gateInput.focus();
+})();
 </script>
 </body>
 </html>

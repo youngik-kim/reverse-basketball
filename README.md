@@ -6,6 +6,18 @@
 - 🏟 구장: 부천JW스포츠센터 · 매주 토요일 3파전(팀당 2경기)
 - 📅 집계 기간: 2026-10-03 ~ 2026-11-21 (8주 · 24경기)
 
+## 🔒 팀원 전용 (입장 코드)
+
+이 페이지는 **입장 코드로 잠겨** 있습니다. 코드를 넣어야만 화면이 열립니다.
+
+- 팀 데이터(선수 이름·전적)는 `index.html` 안에 **암호문(`ENC_DATA`)으로만** 들어 있습니다.
+  입장 코드로만 풀리는 **AES-256-CTR + HMAC-SHA256** 암호문이며, 키는 코드에서 **PBKDF2-SHA256**(10만 회)으로 유도합니다.
+  → 저장소 소스를 봐도 선수 이름·전적은 평문으로 보이지 않습니다.
+- 한 번 입장한 브라우저는 `localStorage`에 기억되어 다음 접속부터 자동으로 열립니다.
+  공용 PC 등에서 잠그려면 페이지 맨 아래 **🔒 잠금** 버튼을 누르세요.
+- 검색엔진 차단: 루트 `robots.txt`(`Disallow: /`) + `<meta name="robots" content="noindex, nofollow">`.
+- `crypto.subtle`(Web Crypto)을 못 쓰는 인앱 브라우저에서도 열리도록, 같은 결과를 내는 순수 JS 복호화 구현이 페이지 안에 함께 들어 있습니다.
+
 ## 화면 구성
 
 첫 화면에서 **최근 경기 결과**와 **최종 승률(정규 순위)** 을 함께 볼 수 있습니다.
@@ -16,37 +28,44 @@
 4. **주간 결과 전체** — 최신 주차부터 8주 아코디언
 
 선수 이름을 검색하거나 누르면 개인 전적 카드(승률·출전·전적·팀장 전적·주차별 상대/스코어)가 뜹니다.
-`<meta name="robots" content="noindex, nofollow">` 로 검색엔진 노출은 차단되어 있습니다.
 
 정규 순위 커트라인은 그때까지 진행된 주차의 40%(올림)이며, 최종 8주에서는 기록지 기준과 같은 **4주**가 됩니다. 최종 주차 화면의 값은 기록지 표와 전건 일치합니다.
 
 ## 매주 갱신 방법
 
-`index.html` 상단의 `const DATA = { … }` **한 곳만** 고치면 화면에 바로 반영됩니다.
+데이터 원본은 **`src/data.json`**(평문, 저장소에는 올리지 않음 — `.gitignore`)이고, 빌드하면 암호화되어 `index.html` 에 들어갑니다.
+`index.html` 은 빌드 산출물이므로 **직접 고치지 마세요**(다음 빌드에서 덮어써집니다).
 
-1. `weeks` 배열에 새 주차 추가 — `date`, `title`, `venue`, `standings`, `games`, `rosters`, `note`
+1. `src/data.json` 의 `weeks` 배열에 새 주차 추가 — `date`, `title`, `venue`, `standings`, `games`, `rosters`, `note`
    - 결과지가 아직 없는 주차는 `{ "date": "2026-09-26", "noSheet": true }` 로 넣으면 화면에 **"원본 결과지 보완 예정"** 으로 표시됩니다.
 2. `members`(정규)·`outsiders`(순위 외)·`guests`(게스트)는 **최종 주차 공식 기록** — `weeks`·`att`·`w`·`l`·`rate` 갱신 (`att` = `weeks / criteria.totalWeeks * 100`)
 3. `criteria.totalWeeks`, `period` 갱신
-
-과거 주차 화면은 `weeks` 의 로스터·스코어에서 자동 재계산되므로 위 1번만 채우면 됩니다.
-
-`src/` 에는 결과지 마크다운에서 DATA를 만드는 도구가 있습니다(선택).
+4. **암호화 빌드** — 입장 코드를 넣어 실행하면 `src/data.enc.json` 갱신 + `index.html` 재생성
 
 ```bash
-# basketball/reverse-records.md · reverse-guests.md 를 읽어 src/data.json 재생성 + 검증
+# 결과지 마크다운(basketball/reverse-records.md, reverse-guests.md)에서 src/data.json 재생성 + 검증 (선택)
 python3 src/build_data.py
-# template.html + data.json -> index.html
+
+# data.json -> 암호화 -> index.html  (입장 코드는 프롬프트로 입력)
 python3 src/build_site.py
+#   또는:  python3 src/build_site.py --code ****   /  REVERSE_CODE=**** python3 src/build_site.py
+#   data.json 이 바뀌면 자동 재암호화, 강제로 하려면 --reencrypt
 ```
+
+`build_site.py` 는 빌드 전에 **그 코드로 복호화되는지 검증**하고 주차·인원 요약을 출력합니다. 코드가 틀리면 `입장 코드가 데이터와 맞지 않습니다` 로 멈춥니다.
 
 `build_data.py` 는 주차별 로스터로 개인 전적을 다시 계산해 기록지 표와 대조합니다(불일치 시 출력).
 
 ## 구조
 
 ```
-index.html        배포 페이지 (단일 파일, DATA 내장)
-src/template.html 페이지 템플릿
-src/data.json     DATA 원본 (기록지에서 자동 추출)
-src/build_*.py    데이터 추출·검증 및 빌드 스크립트
+index.html         배포 페이지 (단일 파일 · 잠금 화면 + ENC_DATA 암호문)
+robots.txt         검색엔진 전체 차단
+src/template.html  페이지 템플릿 (잠금·복호화 코드 포함)
+src/data.json      DATA 평문 원본 (git 제외 — 로컬 전용)
+src/data.enc.json  DATA 암호문 (index.html 에 들어가는 값)
+src/build_*.py     데이터 추출·검증 및 암호화 빌드 스크립트
 ```
+
+> ⚠️ 암호문은 공개 저장소에 있으므로, 코드를 아는 사람은 누구나 열 수 있습니다. 코드는 팀 내부에서만 공유하세요.
+> 저장소의 **과거 커밋**에는 예전 평문 데이터가 남아 있을 수 있습니다(이력 재작성 전까지).
