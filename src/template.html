@@ -5632,6 +5632,11 @@ function mpTabFit(pg, body, s) {
       v.sum = Math.max(6, v.sum * 0.95);
       v.meta = Math.max(6, v.meta * 0.95);
     }
+    /* 점수 칸(타일)이 높이를 잡아먹으면 타일부터 낮춥니다 — 경기 수가 많은 2파전·작은 폰 */
+    if (bad.tbl || bad.rows) {
+      const hs = parseFloat(pg.style.getPropertyValue('--pg-h-score')) || 0;
+      if (hs > 30) pg.style.setProperty('--pg-h-score', Math.max(30, Math.round(hs - 6)) + 'px');
+    }
     mpFsApply(pg, v);
     mpHeaderFit(pg);
   }
