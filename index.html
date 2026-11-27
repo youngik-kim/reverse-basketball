@@ -5996,7 +5996,7 @@ function tacSaveBoard() {
 /* 이번 경기의 팀 조합 — 등록된 매치 프리뷰(없으면 정본)를 따릅니다. */
 function tacMatchups() {
   let m = null;
-  try { m = mpCurrentItem(); } catch (e) { m = MPS || null; }
+  try { m = MPS || mpCurrentItem(); } catch (e) { m = MPS || null; }
   let mode = 3, mus = [];
   if (m && m.teams && m.teams.length >= 2) {
     mode = m.mode === 2 ? 2 : 3;
