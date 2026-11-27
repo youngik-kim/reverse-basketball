@@ -1254,6 +1254,13 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   background:rgba(8,12,18,.94);border:1px solid rgba(74,210,255,.45);color:#dff5ff;border-radius:11px;
   padding:9px 14px;font-size:12px;font-weight:800;text-align:center;box-shadow:0 10px 28px rgba(0,0,0,.5)}
 #mpToastEl[hidden]{display:none}
+/* 📱 세로 모드 안내 토스트 — 3.5초 뒤 자동 사라짐 · 가로로 돌리면 즉시 숨김 · 화면 높이를 차지하지 않음 */
+#mpRotToastEl{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));z-index:401;transform:translateX(-50%);
+  max-width:90vw;background:rgba(10,14,20,.95);border:1px solid rgba(255,179,71,.62);color:#ffe9c9;border-radius:14px;
+  padding:9px 15px;font-size:12px;font-weight:800;text-align:center;line-height:1.45;word-break:keep-all;
+  box-shadow:0 10px 28px rgba(0,0,0,.5);pointer-events:none;animation:mpRotIn .18s ease-out}
+#mpRotToastEl[hidden]{display:none}
+@keyframes mpRotIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* ---------- A4 인쇄 (고대비 흑백) ---------- */
 @media print{
@@ -1630,6 +1637,7 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 
 <div id="pg" hidden aria-label="경기 진행"></div>
 <div id="mpToastEl" hidden role="status" aria-live="polite"></div>
+<div id="mpRotToastEl" hidden role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================================
@@ -2904,6 +2912,11 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
    kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
    선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
 const UPDATES = [
+  { date: '2026-11-27', kind: '기능', title: '경기 진행 — 세로 모드 안내 토스트(📱 가로 모드 권장)',
+    items: [
+      '🏀 경기 진행 화면을 세로로 열거나 세로로 돌리면 [📱 가로 모드에 최적화되어 있습니다 (화면을 가로로 돌려 보세요)] 안내가 토스트로 3.5초간 뜨고 자동으로 사라집니다',
+      '가로로 돌리면 토스트가 남은 시간을 기다리지 않고 즉시 사라지며, 화면 높이를 차지하지 않아 점수표·명단을 가리지 않습니다'
+    ] },
   { date: '2026-11-27', kind: '기능', title: '매치 프리뷰 등록·편집 창 하단 — 🏀 경기 진행하기 · 🧩 매치 프리뷰 초기화',
     items: [
       '📝 매치 프리뷰 등록·편집 창 하단에 [🏀 경기 진행하기] — 구성한 인원이 유효하면 등록 후 바로 경기 진행 화면으로 이동, 인원이 미달·초과면 안내 문구',
@@ -4313,6 +4326,34 @@ function mpToast(msg) {
   clearTimeout(mpToast._t);
   if (msg) mpToast._t = setTimeout(function () { el.hidden = true; }, 2400);
 }
+/* 📱 세로 모드 안내 — 경기 진행 화면이 세로(innerHeight > innerWidth)일 때만 토스트로 3.5초 알립니다.
+   가로로 돌리면 남은 시간을 기다리지 않고 즉시 숨기고, 다시 세로로 돌리면 한 번 더 띄웁니다. */
+const MP_ROT_MSG = '📱 가로 모드에 최적화되어 있습니다 (화면을 가로로 돌려 보세요)';
+let mpRotTimer = 0, mpRotIn = null;
+function mpRotPortrait() { return window.innerWidth > 0 && window.innerHeight > window.innerWidth; }
+function mpRotHide() {
+  const el = document.getElementById('mpRotToastEl');
+  if (el) el.hidden = true;
+  clearTimeout(mpRotTimer); mpRotTimer = 0;
+}
+function mpRotShow() {
+  const el = document.getElementById('mpRotToastEl');
+  if (!el) return;
+  el.textContent = MP_ROT_MSG;
+  el.hidden = false;
+  clearTimeout(mpRotTimer);
+  mpRotTimer = setTimeout(mpRotHide, 3500);
+}
+function mpRotSync(force) {
+  const pg = document.getElementById('pg');
+  if (!pg || pg.hidden || !PGS) { mpRotIn = null; mpRotHide(); return; }
+  if (!mpRotPortrait()) { mpRotIn = false; mpRotHide(); return; }
+  if (force === true || mpRotIn !== true) { mpRotIn = true; mpRotShow(); return; }
+  mpRotIn = true;
+}
+window.addEventListener('resize', function () { mpRotSync(); });
+window.addEventListener('orientationchange', function () { mpRotSync(); });
+document.addEventListener('fullscreenchange', function () { mpRotSync(); });
 
 /* ---------------- 매치 프리뷰 분석 ---------------- */
 function mpTeamStat(t) {
@@ -5337,12 +5378,14 @@ function mpOpenProgress() {
   mpPaintProgress(false);
   document.body.classList.add('pg-open');
   document.body.style.overflow = 'hidden';
+  mpRotSync(true);
   mpWake(true);
 }
 function mpCloseProgress() {
   const pg = $('#pg');
   if (pg) { pg.hidden = true; pg.className = ''; pg.innerHTML = ''; }
   mpSettingsOpen = false;
+  mpRotHide(); mpRotIn = null;
   document.body.classList.remove('pg-open');
   document.body.style.overflow = '';
   mpWake(false);
