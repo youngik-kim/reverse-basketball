@@ -1233,7 +1233,9 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 #pg.pg-full .pgtbl .qh .ql{font-size:var(--pg-fs-q)}
 #pg.pg-full .pgtbl .qbtns button,#pg.pg-full .pgtbl .mbtns button,#pg.pg-full .pgtbl .gbtns button{width:1.5em;height:1.15em;font-size:calc(var(--pg-fs-q)*.72)}
 #pg.pg-full .pgtbl .pgcell{padding:2px 3px}
-#pg.pg-full .pgtbl .sci{width:1.86em;height:auto;min-height:1.95em;font-size:var(--pg-fs-score);padding:0;border-radius:.24em}
+#pg.pg-full .pgtbl .scin{width:100%;gap:.12em}
+#pg.pg-full .pgtbl .sci{flex:1 1 auto;width:auto;min-width:2.1em;max-width:4.6em;height:auto;min-height:var(--pg-h-score,1.95em);
+  font-size:var(--pg-fs-score);padding:0;border-radius:.24em}
 #pg.pg-full .pgtbl .scc{font-size:calc(var(--pg-fs-score)*.72)}
 #pg.pg-full .pgtbl .cum{font-size:var(--pg-fs-meta);min-height:1.15em}
 #pg.pg-full .pgtbl .restl{font-size:var(--pg-fs-meta)}
@@ -5559,6 +5561,7 @@ function mpTabFit(pg, body, s) {
   /* 3) '크게'일 때의 최대 크기 — 이름은 행 높이·가로 폭, 점수는 칸 높이·가로 폭이 한계 */
   const nameCap = Math.max(9, Math.min(rh ? rh * 0.34 : 999, wFit, 64));
   const scoreCap = Math.max(9, Math.min(ch ? ch * 0.40 : 999, cw ? cw * 0.92 / 4.4 : 999, 72));
+  pg.style.setProperty('--pg-h-score', Math.round(ch ? Math.max(30, Math.min(ch * 0.55, 140)) : 0) + 'px');
   const cap = {
     name: nameCap,
     score: scoreCap,
