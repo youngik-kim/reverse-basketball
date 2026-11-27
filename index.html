@@ -986,6 +986,26 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   color:var(--tx2);font-size:12px;font-weight:900;font-family:inherit;cursor:pointer}
 .mpeDel{height:34px;border-radius:10px;border:1px solid rgba(255,92,92,.4);background:rgba(255,92,92,.1);
   color:#ff9a9a;font-size:11.5px;font-weight:900;font-family:inherit;cursor:pointer}
+.mpeGo{height:46px;border:0;border-radius:12px;background:linear-gradient(96deg,#38e08b,#8bf3bd);
+  color:#031a10;font-size:14px;font-weight:900;font-family:inherit;cursor:pointer}
+.mpeCanon{height:36px;border-radius:10px;border:1px dashed rgba(255,179,71,.5);background:rgba(255,179,71,.09);
+  color:#ffcf8a;font-size:11.5px;font-weight:900;font-family:inherit;cursor:pointer}
+.mpeCanon:active,.mpeGo:active{filter:brightness(1.08)}
+.mpenote{margin:10px 0 0;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,179,71,.4);
+  background:rgba(255,179,71,.1);color:#ffcf8a;font-size:11px;line-height:1.5;font-weight:800;word-break:keep-all}
+/* 등록·편집 창 안 확인 팝업(모달 위에 뜨도록 z-index 를 모달(100)보다 높게) */
+.mpconfirm{position:fixed;inset:0;z-index:340;display:flex;align-items:center;justify-content:center;padding:18px}
+.mpconfirm[hidden]{display:none}
+.mpcfbd{position:absolute;inset:0;background:rgba(3,6,10,.74)}
+.mpcfbox{position:relative;width:100%;max-width:330px;background:var(--card);border:1px solid var(--line2);
+  border-radius:16px;padding:16px 15px 13px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.mpcfbox b{font-size:15px;font-weight:900;color:var(--tx)}
+.mpcfbox p{margin:7px 0 13px;font-size:12px;line-height:1.55;color:var(--tx2);font-weight:700;word-break:keep-all}
+.mpcfbox p.mpcfnote{margin:-6px 0 12px;font-size:10.5px;color:var(--tx3);font-weight:800}
+.mpcfb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mpcfb button{height:38px;border-radius:10px;border:1px solid var(--line2);background:transparent;
+  color:var(--tx);font-size:12.5px;font-weight:900;font-family:inherit;cursor:pointer}
+.mpcfb button.danger{background:rgba(255,92,92,.16);border-color:rgba(255,92,92,.55);color:#ff9a9a}
 .pchip.on{border-color:rgba(255,179,71,.75);background:rgba(255,179,71,.16)}
 
 /* ---------- 🏀 경기 진행 (전체 화면) ---------- */
@@ -1050,15 +1070,28 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pgtbl th,.pgtbl td{vertical-align:middle;text-align:center}
 .pgtbl .qh{width:42px;font-size:9.5px;font-weight:900;color:var(--pg-tx3);background:var(--pg-card2);
   border:1px solid var(--pg-line);border-radius:6px;padding:2px 1px}
+.pgtbl .qh.qfix,.pgtbl .qh.corner{width:30px;padding:2px 0;text-align:center}
+.pgtbl .qh.corner .ql{font-size:9px}
+.pgtbl .qh.totqh{width:30px;font-size:9px}
+#pg.pg-v .pgtbl .qh.qfix,#pg.pg-v .pgtbl .qh.corner{width:32px}
+/* 쿼터 칸이 좁아진 만큼 점수 입력칸을 넓게 */
+.pgtbl .sci{width:2.7em}
+/* 합계 행·팀 순위 카드 — 가운데 정렬 */
+.pgtot{text-align:center}
+.pgsums .pgs{text-align:center}
+.pgsums .pgs1,.pgsums .pgs2{justify-content:center}
 .pgtbl .qh .ql{display:block;font-size:11px;color:var(--pg-tx);font-weight:900}
 .pgtbl .qbtns,.mbtns,.gbtns{display:flex;gap:2px;justify-content:center;margin-top:1px}
 .pgtbl .qbtns button,.mbtns button,.gbtns button{width:16px;height:14px;border-radius:3px;border:1px solid var(--pg-line);
   background:transparent;color:var(--pg-tx3);font-size:7px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
 .pgtbl .mh{background:var(--pg-card2);border:1px solid var(--pg-line2);border-radius:7px;padding:3px 2px}
 .pgtbl .mh[draggable="true"]{cursor:grab}
-.pgtbl .mpair{font-size:10px;font-weight:900;color:var(--pg-tx);line-height:1.2;word-break:keep-all}
-.pgtbl .mpair i{font-style:normal;color:var(--pg-tx3);font-size:8.5px;font-weight:800}
+.pgtbl .mpair{font-size:13px;font-weight:900;color:var(--pg-tx);line-height:1.2;word-break:keep-all}
+.pgtbl .mpair i{font-style:normal;color:var(--pg-tx3);font-size:9.5px;font-weight:800}
 .pgtbl .mpair .dot{display:inline-block;width:6px;height:6px;border-radius:50%;vertical-align:1px}
+#pg.pg-h .pgtbl .mpair{font-size:14px}
+#pg.pg-h .pgtbl .mpair i{font-size:10px}
+@media (max-width:420px){.pgtbl .mpair{font-size:11.5px}.pgtbl .mpair i{font-size:8.5px}}
 .pgtbl .pgcell{background:var(--pg-card);border:1px solid var(--pg-line);border-radius:8px;padding:3px 2px}
 .scin{display:flex;align-items:center;justify-content:center;gap:1px}
 .sci{width:2.5em;height:30px;border-radius:6px;border:1px solid var(--pg-line2);background:var(--pg-in);
@@ -1102,6 +1135,40 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pgsrec{color:var(--pg-tx2)}
 .pgsd{font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
 .pgsd.up{color:var(--pg-hi)} .pgsd.dn{color:var(--pg-red)}
+/* 팀 색상 가독성 — 점·컬러 상단선·배지 (어두운/중간/밝은 테마 공통, 화이트도 선명하게) */
+#pg{--c-white:#eef3fa;--c-black:#6f7f96;--c-lime:#c8ff3d}
+#pg.pg-mid{--c-white:#7e8da1;--c-black:#334155;--c-lime:#588800}
+#pg.pg-light{--c-white:#7b8b9f;--c-black:#1f2937;--c-lime:#4b7400}
+#pg .dot.t-white{background:#f7faff;box-shadow:0 0 0 1.5px rgba(6,12,22,.9),inset 0 0 0 1px rgba(255,255,255,.65)}
+#pg .dot.t-black{background:#63738c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+#pg .dot.t-lime{background:#c8ff3d;box-shadow:0 0 0 1px rgba(70,105,0,.55),0 0 7px rgba(200,255,61,.5)}
+#pg.pg-mid .dot.t-white,#pg.pg-light .dot.t-white{background:#fff;box-shadow:0 0 0 1.5px rgba(15,23,42,.8)}
+#pg.pg-mid .dot.t-black,#pg.pg-light .dot.t-black{background:#334155;box-shadow:0 0 0 1px rgba(15,23,42,.45)}
+#pg.pg-mid .dot.t-lime,#pg.pg-light .dot.t-lime{background:#c8ff3d;box-shadow:0 0 0 1.5px rgba(60,92,0,.85)}
+/* 팀 이름 배지 — 색 테두리를 두른 작은 칩 */
+#pg .tm{display:inline-flex;align-items:center;gap:3px;padding:0 4px;border-radius:6px;
+  background:var(--pg-card);box-shadow:inset 0 0 0 1px var(--c,var(--pg-line2));white-space:nowrap}
+/* 매치업 헤더 — 두 팀 색 2색 상단선 + 배지 점 */
+#pg .pgtbl th.mh{position:relative;border-top:0;padding-top:6px}
+#pg .pgtbl th.mh::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;border-radius:7px 7px 0 0;
+  background:linear-gradient(90deg,var(--ca,var(--pg-line2)) 0 50%,var(--cb,var(--pg-line2)) 50% 100%)}
+#pg .pgtbl .mpair{display:flex;align-items:center;justify-content:center;gap:3px;flex-wrap:wrap}
+#pg .pgtbl .mpair .tm{padding:0 4px}
+#pg .pgtbl .mpair .dot{width:8px;height:8px;flex:0 0 auto}
+#pg.pg-h .pgtbl .mpair .dot{width:9px;height:9px}
+/* 좁은 화면 — 팀명을 위아래로 세우고 VS 를 사이에 */
+@media (max-width:560px){
+  #pg .pgtbl .mpair{flex-direction:column;gap:0}
+  #pg .pgtbl .mpair i{font-size:8px;opacity:.8;line-height:1}
+}
+/* 하단 팀 순위 요약 — 팀 색 상단선 + 순위 배지 */
+#pg .pgs{border-top:3px solid var(--c,var(--pg-line));position:relative}
+#pg .pgs .pgsr,#pg .pgs .pgsrank{padding:0 5px;border-radius:5px;background:var(--pg-card2);
+  box-shadow:inset 0 0 0 1px var(--c,var(--pg-line2));font-size:9px;line-height:14px}
+#pg .pgs .dot{width:8px;height:8px;flex:0 0 auto}
+#pg .pgs .pgsn{font-size:1.18em;font-weight:900;letter-spacing:-.01em}
+#pg .pgs .pgsr,#pg .pgs .pgsrank{font-size:.92em;font-weight:900}
+#pg .pggh2 .tm{padding:0 4px;margin:0 1px;font-size:11.5px;font-weight:900}
 /* 명단 — 종이 기록지형 표 (번호 열 + 팀 열) */
 .pgrosters{display:flex;flex-direction:column;gap:3px;min-height:0}
 .pgrshead,.pgrsbody{display:grid;grid-template-columns:var(--pgnr) repeat(var(--nt),minmax(0,1fr));gap:3px}
@@ -1218,6 +1285,12 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   #pg .pgth{height:auto!important;border-top:2px solid #000!important}
   #pg .pgsums{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(90pt,1fr))!important;gap:4pt!important;margin:4pt 0 0!important}
   #pg .pgs{border:1px solid #000!important;border-radius:0!important;padding:2pt 4pt!important}
+  /* 잉크 절약 인쇄 — 새 팀 색 표시도 모두 검정/흰색으로 */
+  #pg .pgtbl th.mh::before{background:#000!important;border-radius:0!important}
+  #pg .tm{background:transparent!important;box-shadow:none!important;border:1px solid #000!important}
+  #pg .pgs{border-top:1px solid #000!important}
+  #pg .pgs .pgsr,#pg .pgs .pgsrank{background:transparent!important;box-shadow:none!important}
+  #pg .dot{background:#fff!important;box-shadow:none!important;outline:1px solid #000!important;outline-offset:-1px!important}
   #pg.pg-light,#pg.pg-mid,#pg.pg-dark{background:#fff!important}
 }
 
@@ -1542,6 +1615,16 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
     <div class="grab"></div>
     <button class="x" data-mpclose="1" aria-label="닫기">✕</button>
     <div id="mpBody"></div>
+  </div>
+  <div class="mpconfirm" id="mpCanonEd" hidden>
+    <div class="mpcfbd" data-mpcanon="cancel"></div>
+    <div class="mpcfbox" role="dialog" aria-modal="true" aria-label="매치 프리뷰 초기화">
+      <b>🧩 매치 프리뷰 초기화 (서버 정본)</b>
+      <p>기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?</p>
+      <p class="mpcfnote">서버 정본이 없는 날짜는 기기 등록분만 지우고 빈칸(0명)으로 비웁니다.</p>
+      <div class="mpcfb"><button type="button" data-mpcanon="cancel">취소</button>
+      <button type="button" class="danger" data-mpcanon="ok">정본으로 복원</button></div>
+    </div>
   </div>
 </div>
 
@@ -2821,6 +2904,17 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
    kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
    선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
 const UPDATES = [
+  { date: '2026-11-27', kind: '기능', title: '매치 프리뷰 등록·편집 창 하단 — 🏀 경기 진행하기 · 🧩 매치 프리뷰 초기화',
+    items: [
+      '📝 매치 프리뷰 등록·편집 창 하단에 [🏀 경기 진행하기] — 구성한 인원이 유효하면 등록 후 바로 경기 진행 화면으로 이동, 인원이 미달·초과면 안내 문구',
+      '같은 자리에 [🧩 매치 프리뷰 초기화 (서버 정본)] — 확인 팝업 후 기기 임시 저장분을 지우고 정본 인원(예: 11/28 15명)으로 편집창·메인 프리뷰를 즉시 복원(⚙️ 설정과 같은 동작)',
+      '서버 정본 매치 프리뷰가 없는 날짜는 기기 등록분만 지우고 빈칸(0명)으로 비웁니다 — 안내 토스트 표시',
+      '경기 진행 왼쪽 화면 — 매치업 헤더에 팀 색 두 점·2색 상단선·팀명 배지, 하단 팀 순위 카드에 팀 색 상단선·순위 배지, 매치업 팀명을 크고 굵게(어두운·중간·밝은 테마 모두 화이트까지 선명)',
+      '🖨️ A4 인쇄 — 어느 테마든 완전 흰 배경·검정 글씨/테두리로 출력(잉크 절약)',
+      '📸 사진 저장 — 현재 테마 원본 PNG와 잉크절약 흑백 PNG 2장을 함께 저장(예: 리버스_3파전_경기기록_2026-11-28.png · ..._잉크절약.png)',
+      '점수표 쿼터 행의 ▲▼ 화살표를 없애 쿼터 순서를 고정하고(매치업 열 ◀▶만 유지) 쿼터 칸을 좁혀 점수 입력칸을 넓힘 — 합계 행·팀 순위 카드 글자를 가운데 정렬',
+      '등록·편집 창 하단에 “등록·수정한 내용은 현재 기기(브라우저)에만 임시 저장” 안내 문구 추가'
+    ] },
   { date: '2026-11-27', kind: '기능', title: '경기진행패치 — 매치 프리뷰 등록 · 🏀 경기 진행(실전 기록지)',
     items: [
       '짝꿍 승률·팀 구성 추천 결과에서 [매치 프리뷰 등록하기]로 구성된 팀·인원을 바로 등록, 상단 📝 매치 프리뷰에서 직접 등록·수정',
@@ -4200,6 +4294,12 @@ function mpPersist() { if (MPS) mpSaveItem(MPS); }
 function mpId(m) { return (m.date || '') + '|' + m.mode; }
 function mpToday() { return (PREVIEW && PREVIEW.date) || (LATEST && LATEST.date) || ''; }
 function mpCls(team) { return team === '화이트' ? 't-white' : team === '블랙' ? 't-black' : 't-lime'; }
+/* 테마별 팀 색 토큰 — 점·테두리·상단선에 함께 씁니다 */
+function mpTeamVar(team) { return team === '화이트' ? 'var(--c-white)' : team === '블랙' ? 'var(--c-black)' : 'var(--c-lime)'; }
+/* 팀 이름 배지 — 색 테두리를 두른 칩 */
+function mpTeamChip(team) {
+  return '<span class="tm" style="--c:' + mpTeamVar(team) + '"><span class="dot ' + mpCls(team) + '"></span>' + esc(team) + '</span>';
+}
 function mpRate(name) {
   const p = personTotals(name);
   return p && p.g ? p.w / p.g * 100 : null;
@@ -4345,6 +4445,7 @@ function mpOpenModal() {
   const modal = $('#mpModal');
   if (!modal) return;
   modal.hidden = false;
+  mpEditorCanonOpen(false);
   document.body.style.overflow = 'hidden';
   mpPaintModal();
   const x = modal.querySelector('.x');
@@ -4495,9 +4596,12 @@ function mpEditorBodyHtml() {
     '<div class="pfilter" id="mpPosf" role="group" aria-label="포지션 필터">' + posf + '</div>' +
     '<div class="tchipbox"><div class="pchips" id="mpChips">' + mpPickerChips() + '</div></div></div>' +
     '<p class="pmsg" id="mpMsg" role="status" aria-live="polite" hidden></p>' +
+    '<p class="mpenote">※ 등록·수정한 내용은 현재 기기(브라우저)에만 임시 저장되며, 서버나 다른 팀원 화면에는 반영되지 않습니다.</p>' +
     '<div class="mpeBtns"><button type="button" class="mpeSave" id="mpSave">📝 매치 프리뷰 등록 완료</button>' +
+    '<button type="button" class="mpeGo" id="mpSaveGo" title="지금 구성한 인원으로 저장하고 바로 경기 진행 화면을 엽니다">🏀 경기 진행하기</button>' +
     '<button type="button" class="mpeCancel" data-mpclose="1">취소</button>' +
     (mpItemFor(MPE.date || (MPS && MPS.date) || mpToday()) ? '<button type="button" class="mpeDel" id="mpDel">🗑 등록 삭제</button>' : '') +
+    '<button type="button" class="mpeCanon" id="mpCanonReset" title="기기에 저장한 프리뷰를 지우고 서버 정본 기준으로 되돌립니다(정본이 없으면 빈칸 0명)">🧩 매치 프리뷰 초기화 (서버 정본)</button>' +
     '</div>';
 }
 function mpRenderEditor() { MP_TAB = 'edit'; mpPaintModal(); }
@@ -4516,12 +4620,13 @@ function mpAddPlayer(name) {
   mpMsg('');
   mpRenderEditor();
 }
-function mpSaveEditor() {
+/* 인원 검증 후 등록 — 저장했으면 true (등록 완료·경기 진행 버튼이 함께 씁니다) */
+function mpCommitEditor() {
   const lim = MP_LIMIT[MPE.mode];
   const bad = MPE.teams.filter(function (t) { return t.roster.length < lim.min || t.roster.length > lim.max; });
   if (bad.length) {
     mpMsg(bad.map(function (t) { return t.team; }).join('·') + ' 인원을 ' + lim.min + '~' + lim.max + '명으로 맞춰 주세요.');
-    return;
+    return false;
   }
   const date = MPE.date || mpToday();
   const item = {
@@ -4530,6 +4635,10 @@ function mpSaveEditor() {
     savedAt: Date.now()
   };
   mpSaveItem(item);
+  return true;
+}
+function mpSaveEditor() {
+  if (!mpCommitEditor()) return;
   mpCloseEditor();
   const back = mpReturn;
   mpReturn = false;
@@ -4540,6 +4649,15 @@ function mpSaveEditor() {
   } catch (e) { }
   if (back) mpOpenProgress();
   mpToast('📝 매치 프리뷰를 등록했습니다');
+}
+/* 🏀 경기 진행하기 — 구성한 인원이 유효하면 등록 후 바로 경기 진행 화면으로 */
+function mpSaveAndGo() {
+  if (!mpCommitEditor()) return;
+  mpReturn = false;
+  mpCloseEditor();
+  try { renderResult(); } catch (e) { }
+  mpOpenProgress();
+  mpToast('📝 매치 프리뷰를 등록하고 경기 진행을 열었습니다');
 }
 function mpDeletePreview() {
   const date = MPS ? MPS.date : null;
@@ -4648,6 +4766,16 @@ function mpViewHtml(date) {
   if (!modal) return;
   modal.addEventListener('click', function (e) {
     const t = e.target;
+    /* 확인 팝업이 떠 있으면 그 안의 버튼만 동작합니다 */
+    const mc = t.closest('[data-mpcanon]');
+    if (mc) {
+      if (mc.getAttribute('data-mpcanon') === 'ok') mpEditorRestoreCanon();
+      else mpEditorCanonOpen(false);
+      return;
+    }
+    const cbox = $('#mpCanonEd');
+    if (cbox && !cbox.hidden) return;
+    if (t.closest('#mpCanonReset')) { mpEditorCanonOpen(true); return; }
     if (t.closest('[data-mpclose]')) { mpCloseEditor(); return; }
     const tab = t.closest('[data-mptab]');
     if (tab) {
@@ -4703,6 +4831,7 @@ function mpViewHtml(date) {
       return;
     }
     if (t.closest('#mpSave')) { mpSaveEditor(); return; }
+    if (t.closest('#mpSaveGo')) { mpSaveAndGo(); return; }
     if (t.closest('#mpDel')) {
       const b = $('#mpDel');
       if (b && b.getAttribute('data-armed') !== '1') {
@@ -4746,7 +4875,10 @@ function mpViewHtml(date) {
     }
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !modal.hidden) mpCloseEditor();
+    if (e.key !== 'Escape' || modal.hidden) return;
+    const cbox = $('#mpCanonEd');
+    if (cbox && !cbox.hidden) { mpEditorCanonOpen(false); return; }
+    mpCloseEditor();
   });
 })();
 
@@ -4937,7 +5069,7 @@ function mpSumInner(m, s) {
   const st = mpStandings(m, s);
   return st.map(function (r) {
     const top = r.rank === 1 && (r.w || r.d);
-    return '<div class="pgs ' + (top ? 'win' : '') + '">' +
+    return '<div class="pgs ' + (top ? 'win' : '') + '" style="--c:' + mpTeamVar(r.team) + '">' +
       '<div class="pgs1"><span class="dot ' + mpCls(r.team) + '"></span><span class="pgsn">' + esc(r.team) + '</span>' +
       (top ? '<span class="pgsrank">1위</span>' : '<span class="pgsr">' + r.rank + '위</span>') + '</div>' +
       '<div class="pgs2"><span class="pgsrec">' + r.w + '승 ' + r.d + '무 ' + r.l + '패</span>' +
@@ -4970,8 +5102,8 @@ function mpGrid3(m, s) {
   const mus = mpMatchups(m);
   const heads = s.mOrder.map(function (mi) {
     const A = mus[mi][0], B = mus[mi][1];
-    return '<th class="mh" data-mh="' + mi + '" draggable="true">' +
-      '<div class="mpair"><span class="dot ' + mpCls(A) + '"></span>' + esc(A) + ' <i>VS</i> <span class="dot ' + mpCls(B) + '"></span>' + esc(B) + '</div>' +
+    return '<th class="mh" data-mh="' + mi + '" draggable="true" style="--ca:' + mpTeamVar(A) + ';--cb:' + mpTeamVar(B) + '">' +
+      '<div class="mpair">' + mpTeamChip(A) + ' <i>VS</i> ' + mpTeamChip(B) + '</div>' +
       '<div class="mbtns"><button type="button" data-mmove="' + mi + '" data-dir="-1" aria-label="매치업 왼쪽">◀</button>' +
       '<button type="button" data-mmove="' + mi + '" data-dir="1" aria-label="매치업 오른쪽">▶</button></div></th>';
   }).join('');
@@ -4979,16 +5111,15 @@ function mpGrid3(m, s) {
     const cells = s.mOrder.map(function (mi) {
       return mpCellHtml(m, s, mus[mi][0], mus[mi][1], q, null);
     }).join('');
-    return '<tr><th class="qh" draggable="true" data-qd="' + q + '"><span class="ql">' + q + 'Q</span>' +
-      '<span class="qbtns"><button type="button" data-qmove="' + q + '" data-dir="-1" aria-label="쿼터 위로">▲</button>' +
-      '<button type="button" data-qmove="' + q + '" data-dir="1" aria-label="쿼터 아래로">▼</button></span></th>' + cells + '</tr>';
+    /* 쿼터 순서는 고정 — 화살표·드래그 없이 라벨만 (칸을 좁게) */
+    return '<tr><th class="qh qfix"><span class="ql">' + q + 'Q</span></th>' + cells + '</tr>';
   }).join('');
   const tots = s.mOrder.map(function (mi) {
     const A = mus[mi][0], B = mus[mi][1];
     return '<td class="pgtot" data-a="' + esc(A) + '" data-b="' + esc(B) + '">' + mpTotalHtml(mpTotals(s, A, B, null)) + '</td>';
   }).join('');
   return '<div class="pgtblwrap"><table class="pgtbl"><thead><tr><th class="qh corner">쿼터</th>' + heads + '</tr></thead>' +
-    '<tbody>' + rows + '<tr class="totrow"><th class="qh">합계</th>' + tots + '</tr></tbody></table></div>';
+    '<tbody>' + rows + '<tr class="totrow"><th class="qh qfix totqh">합계</th>' + tots + '</tr></tbody></table></div>';
 }
 function mpGrid2(m, s) {
   const A = m.teams[0].team, B = m.teams[1].team, Q = mpQOrder(s);
@@ -5003,7 +5134,7 @@ function mpGrid2(m, s) {
       cells +
       '<td class="pgtot" data-a="' + esc(A) + '" data-b="' + esc(B) + '" data-g="' + g + '">' + mpTotalHtml(mpTotals(s, A, B, g)) + '</td></tr>';
   }).join('');
-  return '<div class="pgtblwrap"><div class="pggh2">' + esc(A) + ' <span>vs</span> ' + esc(B) + ' <span>· ' + esc(Q.length + '쿼터') + '</span></div>' +
+  return '<div class="pgtblwrap"><div class="pggh2">' + mpTeamChip(A) + ' <span>vs</span> ' + mpTeamChip(B) + ' <span>· ' + esc(Q.length + '쿼터') + '</span></div>' +
     '<table class="pgtbl g2"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
 }
 /* 명단 — 종이 기록지형 표: 왼쪽 번호 열 + 팀별 열(3파전 3열 / 2파전 2열) */
@@ -5046,6 +5177,7 @@ function mpConfirmHtml() {
     '<div id="pgCanon" class="pgconfirm" hidden><div class="pgcfbd" data-pg="canoncancel"></div>' +
     '<div class="pgcf"><b>매치 프리뷰 초기화 (서버 정본 복원)</b>' +
     '<p>기기에 임시 저장된 매치 프리뷰를 지우고 서버 정본 기준으로 되돌릴까요?</p>' +
+    '<p style="margin-top:-6px;font-size:10.5px;color:var(--pg-tx3)">서버 정본이 없는 날짜는 기기 등록분만 지우고 빈칸(0명)으로 비웁니다.</p>' +
     '<div class="pgcfb"><button type="button" data-pg="canoncancel">취소</button>' +
     '<button type="button" class="danger" data-pg="canonok">정본으로 복원</button></div></div></div>';
 }
@@ -5091,7 +5223,7 @@ function mpSettingsHtml(m, s) {
       }).join('') + '</div></div>' : '') +
     '<div class="pgsrow"><span class="pgsl">내보내기</span><div class="pgsseg">' +
     '<button type="button" data-pg="print">🖨️ A4 인쇄</button>' +
-    '<button type="button" data-pg="png">📸 사진 저장</button>' +
+    '<button type="button" data-pg="png" title="원본(현재 테마) + 잉크절약 흑백 2장을 저장합니다">📸 사진 저장</button>' +
     '<button type="button" data-pg="edit">✏️ 매치 프리뷰 수정</button>' +
     '</div></div>' +
     '<div class="pgsrow"><span class="pgsl">기록</span><div class="pgsseg">' +
@@ -5268,28 +5400,74 @@ function mpCanonOpen(open) {
   const el = $('#pgCanon');
   if (el) el.hidden = !open;
 }
-/* 매치 프리뷰 초기화 — 기기(localStorage) 등록분을 지우고 서버 정본(data.json) 프리뷰로 되돌립니다 */
+/* 매치 프리뷰 초기화 — 기기(localStorage) 등록분을 지우고 서버 정본(data.json) 프리뷰로 되돌립니다.
+   서버 정본이 없는 날짜는 기기 등록분만 지우고 빈칸(0명)으로 됩니다. */
+
+/* 해당 날짜의 기기 등록분만 지웁니다. 지운 등록분이 있었는지 돌려줍니다. */
+function mpClearDeviceItem(date) {
+  const db = mpDB();
+  const had = !!db.items[date];
+  delete db.items[date];
+  try { localStorage.setItem(MPV_KEY, JSON.stringify(db)); } catch (e) { }
+  return had;
+}
+/* 정본도 기기 등록분도 없는 날짜의 빈 상태(0명) */
+function mpBlankItem(date) {
+  return {
+    v: 1, date: date, mode: 3, id: date + '|3', blank: true,
+    teams: MP_TEAMS[3].map(function (t) { return { team: t, roster: [], cap: '' }; })
+  };
+}
+function mpCanonToast(can, date, had) {
+  if (can) {
+    mpToast('🧩 매치 프리뷰를 서버 정본 기준으로 되돌렸습니다 — ' + can.mode + '파전 ' + mpTeamTotal(can) + '명' +
+      (had ? ' (기기 등록분 삭제)' : ''));
+  } else {
+    mpToast('🧩 ' + (had ? '기기 등록분을 지웠습니다' : '기기에 저장된 등록분이 없습니다') + ' — ' + date +
+      '은(는) 서버 정본 매치 프리뷰가 없어 빈칸(0명)으로 비웠습니다');
+  }
+}
+/* 등록·편집 창 — 확인 팝업을 엽니다 */
+function mpEditorCanonOpen(open) {
+  const el = $('#mpCanonEd');
+  if (!el) return;
+  el.hidden = !open;
+  if (open) {
+    const b = el.querySelector('[data-mpcanon="ok"]');
+    if (b) { try { b.focus(); } catch (e) { } }
+  }
+}
+/* 등록·편집 창에서 실행 — 기기 등록분을 지우고 편집창·메인 프리뷰를 정본(없으면 0명)으로 되돌립니다 */
+function mpEditorRestoreCanon() {
+  const date = (MPE && MPE.date) || mpToday();
+  mpEditorCanonOpen(false);
+  const had = mpClearDeviceItem(date);
+  const can = mpCanonItem(date);
+  if (can) {
+    MPE = mpEditFromMPS(can);
+  } else {
+    MPE = mpNewEditor();
+    MPE.date = date;
+  }
+  if (MPS && MPS.date === date) MPS = can || mpBlankItem(date);
+  mpRenderEditor();
+  try { renderResult(); } catch (e) { }
+  mpCanonToast(can, date, had);
+}
 function mpRestoreCanon() {
   const m = MPS;
   if (!m) { mpCanonOpen(false); return; }
-  const can = mpCanonItem(m.date);
-  if (!can) {
-    mpCanonOpen(false);
-    mpToast(m.date + ' — 서버 정본 매치 프리뷰가 없어 되돌릴 수 없습니다.');
-    return;
-  }
-  const db = mpDB();
-  const had = !!db.items[m.date];
-  delete db.items[m.date];
-  try { localStorage.setItem(MPV_KEY, JSON.stringify(db)); } catch (e) { }
+  const date = m.date;
+  const had = mpClearDeviceItem(date);
+  const can = mpCanonItem(date);
   mpCanonOpen(false);
-  MPS = can;
+  mpSettingsOpen = false;        /* 설정 시트를 닫고 복원된 화면을 바로 보게 합니다 */
+  MPS = can || mpBlankItem(date);
   mpPGSInit(MPS);
   mpAssign = { team: null, list: [] };
   mpPaintProgress(true);
   try { renderResult(); } catch (e) { }
-  mpToast('매치 프리뷰를 서버 정본 기준으로 되돌렸습니다 — ' + can.mode + '파전 ' + mpTeamTotal(can) + '명' +
-    (had ? ' (기기 등록분 삭제)' : ''));
+  mpCanonToast(can, date, had);
 }
 function mpResetAll() {
   PGS.scores = {};
@@ -5316,16 +5494,36 @@ function mpPrint() {
 }
 
 /* ---------------- 사진 저장 (PNG) ---------------- */
-function mpExportPNG() {
-  const m = MPS, s = PGS;
-  if (!m || !s) return;
-  const light = s.theme === 'light' ? 'light' : s.theme === 'mid' ? 'mid' : 'dark';
-  const C = light === 'light'
+/* 사진 저장 — ① 현재 테마 그대로(원본) ② 잉크절약 흑백(흰 배경·검정 글씨) 2장을 저장합니다.
+   브라우저의 연속 다운로드 차단을 피하려고 첫 저장 후 약 300ms 뒤 두 번째를 내립니다. */
+function mpPNGPalette(ink, theme) {
+  if (ink) return { bg: '#ffffff', card: '#ffffff', card2: '#ffffff', line: '#000000',
+    tx: '#000000', tx2: '#000000', tx3: '#000000', acc: '#000000', hi: '#000000', red: '#000000' };
+  return theme === 'light'
     ? { bg: '#f1f4f8', card: '#f9fafb', card2: '#eaf0f7', line: '#cbd5e1', tx: '#101820', tx2: '#40505f', tx3: '#6b7887', acc: '#b4540a', hi: '#0d7a45', red: '#c4242c' }
-    : light === 'mid'
+    : theme === 'mid'
     ? { bg: '#dce3ec', card: '#edf1f6', card2: '#e2e9f2', line: '#bcc8d8', tx: '#0f172a', tx2: '#33415a', tx3: '#5b6b80', acc: '#9a4a00', hi: '#0b7a45', red: '#b41f1f' }
     : { bg: '#0b1220', card: '#1b2534', card2: '#121b28', line: '#33415a', tx: '#f8fafc', tx2: '#a3b2c6', tx3: '#6b7c93', acc: '#fbbf24', hi: '#4ade80', red: '#f87171' };
-  const TEAM_COL = { '화이트': '#e8edf5', '블랙': '#8b98ad', '형광': '#c8ff3d' };
+}
+const MP_PNG_TEAM = { '화이트': '#e8edf5', '블랙': '#8b98ad', '형광': '#c8ff3d' };
+/* 팀 점 — 원본은 팀 색, 잉크절약은 빈 원/검은 원/이중 원으로 구분 */
+function mpPNGDot(g, x, y, r, team, ink, line) {
+  g.save();
+  g.beginPath(); g.arc(x, y, r, 0, 7);
+  if (!ink) {
+    g.fillStyle = MP_PNG_TEAM[team] || '#000'; g.fill();
+    g.strokeStyle = line; g.lineWidth = 1.2; g.stroke();
+  } else {
+    g.fillStyle = '#ffffff'; g.fill();
+    g.strokeStyle = '#000000'; g.lineWidth = 1.8; g.stroke();
+    if (team === '블랙') { g.beginPath(); g.arc(x, y, r, 0, 7); g.fillStyle = '#000000'; g.fill(); }
+    else if (team === '형광') { g.beginPath(); g.arc(x, y, r - 2.3, 0, 7); g.fillStyle = '#000000'; g.fill(); }
+  }
+  g.restore();
+}
+function mpPNGBuild(m, s, ink) {
+  const light = s.theme === 'light' ? 'light' : s.theme === 'mid' ? 'mid' : 'dark';
+  const C = mpPNGPalette(ink, light);
   const W = 1240, PAD = 36;
   const Q = s.quarters, mode = m.mode;
   const rosterMax = Math.max.apply(null, m.teams.map(function (t) { return t.roster.length; }));
@@ -5426,8 +5624,7 @@ function mpExportPNG() {
   st.forEach(function (r, i) {
     const x = PAD + i * cw2;
     rr(x + 3, y, cw2 - 6, 48, 10, C.card2, r.rank === 1 ? C.acc : C.line, r.rank === 1 ? 1.6 : 1);
-    g.fillStyle = TEAM_COL[r.team] || C.tx; g.beginPath(); g.arc(x + 22, y + 24, 6, 0, 7); g.fill();
-    if (light !== 'dark') { g.strokeStyle = C.line; g.lineWidth = 1; g.stroke(); }
+    mpPNGDot(g, x + 22, y + 24, 6, r.team, ink, C.line);
     tx(r.team + '  ' + r.rank + '위', x + 36, y + 18, 14, C.tx, 'left', 900);
     tx(r.w + '승 ' + r.d + '무 ' + r.l + '패 · 득실 ' + (r.diff > 0 ? '+' : '') + r.diff, x + 36, y + 36, 11, C.tx2, 'left', 700);
   });
@@ -5439,7 +5636,7 @@ function mpExportPNG() {
   m.teams.forEach(function (t, ti) {
     const x = PAD + ti * (colW + 8), tone = MP_TONE[t.team] || MP_TONE['블랙'];
     /* 밝은 배경(중간·밝은)에서는 '화이트' 팀 이름이 묻히지 않도록 진한 색으로 */
-    const tcol = (light !== 'dark' && t.team === '화이트') ? C.tx2 : tone[2];
+    const tcol = ink ? C.tx : ((light !== 'dark' && t.team === '화이트') ? C.tx2 : tone[2]);
     tx(t.team, x + 2, y + 14, 13, tcol, 'left', 900);
     tx(t.roster.length + '명', x + colW - 4, y + 14, 11, C.tx3, 'right', 700);
     let yy = y + 30;
@@ -5460,16 +5657,45 @@ function mpExportPNG() {
   out.width = cv.width;
   out.height = Math.round((endY + 26) * scale);
   out.getContext('2d').drawImage(cv, 0, 0);
-  const name = '리버스_' + mode + '파전_경기기록_' + (m.date || '') + '.png';
-  out.toBlob(function (blob) {
-    if (!blob) return;
+  return out;
+}
+/* PNG 한 장 내려받기 */
+function mpPNGSave(canvas, name, done) {
+  canvas.toBlob(function (blob) {
+    if (!blob) { if (done) done(false); return; }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name;
+    a.rel = 'noopener';
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    mpToast('📸 사진을 저장했습니다 (' + name + ')');
+    setTimeout(function () { URL.revokeObjectURL(url); }, 6000);
+    if (done) done(true);
   }, 'image/png');
+}
+function mpExportPNG() {
+  const m = MPS, s = PGS;
+  if (!m || !s) return;
+  const base = '리버스_' + m.mode + '파전_경기기록_' + (m.date || '');
+  const nameA = base + '.png', nameB = base + '_잉크절약.png';
+  let gotA = false, gotB = false;
+  try {
+    mpPNGSave(mpPNGBuild(m, s, false), nameA, function (okA) {
+      gotA = okA;
+      mpToast(gotA ? '📸 원본 사진 저장 중… (테마 반영)' : '📸 원본 사진 저장에 실패했습니다');
+    });
+  } catch (e) { mpToast('📸 사진 저장에 실패했습니다'); return; }
+  /* 다중 다운로드 차단을 피하려고 300ms 뒤 두 번째(잉크절약)를 내립니다 */
+  setTimeout(function () {
+    try {
+      mpPNGSave(mpPNGBuild(m, s, true), nameB, function (okB) {
+        gotB = okB;
+        mpToast(okB ? '📸 사진 2장을 저장했습니다 — 원본(테마) · 잉크절약(흑백)'
+          : '📸 잉크절약 사진 저장에 실패했습니다 (원본은 저장됨)');
+      });
+    } catch (e) {
+      mpToast('📸 잉크절약 사진 생성에 실패했습니다 (원본은 저장됨)');
+    }
+  }, 300);
 }
 
 /* ---------------- 경기 진행: 이벤트 ---------------- */
@@ -5496,10 +5722,7 @@ function mpExportPNG() {
       if (k === 'reset') { mpConfirmOpen(true); return; }
       if (k === 'resetcancel') { mpConfirmOpen(false); return; }
       if (k === 'resetok') { mpResetAll(); return; }
-      if (k === 'canon') {
-        if (!mpCanonItem(MPS.date)) { mpToast(MPS.date + ' — 서버 정본 매치 프리뷰가 없어 되돌릴 수 없습니다.'); return; }
-        mpCanonOpen(true); return;
-      }
+      if (k === 'canon') { mpCanonOpen(true); return; }
       if (k === 'canoncancel') { mpCanonOpen(false); return; }
       if (k === 'canonok') { mpRestoreCanon(); return; }
       if (k === 'edit') {
