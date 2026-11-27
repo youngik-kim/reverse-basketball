@@ -5027,7 +5027,7 @@ function mpExportPNG() {
   const Q = s.quarters, mode = m.mode;
   const rosterMax = Math.max.apply(null, m.teams.map(function (t) { return t.roster.length; }));
   const scoreH = mode === 3 ? 74 + Q * 62 + 56 : s.gameOrder.length * (58 + Q * 74 + 46) + 10;
-  const H = 96 + 40 + scoreH + 86 + 60 + (54 + rosterMax * 44) + 60;
+  const H = 96 + 40 + scoreH + 86 + 60 + (54 + rosterMax * 44) + 220;
   const cv = document.createElement('canvas');
   const scale = 2;
   cv.width = W * scale; cv.height = Math.round(H) * scale;
@@ -5056,7 +5056,8 @@ function mpExportPNG() {
     m.teams.map(function (t) { return t.team; }).join(' · '), PAD, 76, 14, C.tx2);
   const st = mpStandings(m, s);
   const champ = st.filter(function (r) { return r.rank === 1; })[0];
-  if (champ) {
+  const champOn = !!(champ && (champ.w || champ.d || champ.l));
+  if (champOn) {
     g.font = F(14, 900);
     const label = '1위 ' + champ.team + ' (' + champ.w + '승 ' + champ.d + '무 ' + champ.l + '패)';
     const tw = g.measureText(label).width + 34;
@@ -5091,7 +5092,9 @@ function mpExportPNG() {
       const x = PAD + ci * cw, A = mus[mi][0], B = mus[mi][1], T = mpTotals(s, A, B, null);
       rr(x + 3, y + 2, cw - 6, 38, 8, C.card2, C.line, 1);
       const x1 = T.a || 0, y1 = T.b || 0;
-      tx('합계  ' + x1 + ' : ' + y1 + (x1 === y1 ? '  무' : (x1 > y1 ? '  ' + A + ' 승' : '  ' + B + ' 승')), x + cw / 2, y + 22, 13, C.tx, 'center', 900);
+      const lab = (T.a == null && T.b == null) ? '합계  —' :
+        ('합계  ' + x1 + ' : ' + y1 + (x1 === y1 ? '  무' : (x1 > y1 ? '  ' + A + ' 승' : '  ' + B + ' 승')));
+      tx(lab, x + cw / 2, y + 22, 13, T.a == null && T.b == null ? C.tx3 : C.tx, 'center', 900);
     });
     y += 62;
   } else {
@@ -5111,7 +5114,7 @@ function mpExportPNG() {
       });
       y += 70;
       const T = mpTotals(s, A, B, gm);
-      tx('합계 ' + (T.a || 0) + ' : ' + (T.b || 0), PAD + 4, y + 6, 12, C.tx2, 'left', 800);
+      tx((T.a == null && T.b == null) ? '합계 —' : '합계 ' + (T.a || 0) + ' : ' + (T.b || 0), PAD + 4, y + 6, 12, C.tx2, 'left', 800);
       y += 22;
     });
   }
@@ -5144,10 +5147,15 @@ function mpExportPNG() {
       yy += 40;
     });
   });
-  /* 푸터 */
-  tx('REVERSE BASKETBALL · 리버스 홈페이지 경기 진행 · ' + new Date().toLocaleString('ko-KR'), PAD, H - 24, 10, C.tx3, 'left', 700);
+  /* 푸터 · 남는 여백은 잘라냅니다 */
+  const endY = y + 34 + rosterMax * 40 + 30;
+  tx('REVERSE BASKETBALL · 리버스 홈페이지 경기 진행 · ' + new Date().toLocaleString('ko-KR'), PAD, endY, 10, C.tx3, 'left', 700);
+  const out = document.createElement('canvas');
+  out.width = cv.width;
+  out.height = Math.round((endY + 26) * scale);
+  out.getContext('2d').drawImage(cv, 0, 0);
   const name = '리버스_' + mode + '파전_경기기록_' + (m.date || '') + '.png';
-  cv.toBlob(function (blob) {
+  out.toBlob(function (blob) {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
