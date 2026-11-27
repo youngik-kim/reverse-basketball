@@ -1207,6 +1207,15 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pgpick{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px dashed var(--pg-line2);
   display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:var(--pg-tx3)}
 .pgpick.on{background:var(--pg-acc);color:#20140a;border-style:solid;border-color:transparent}
+/* ---------- 📱 태블릿 확대 모드 (넓은 화면) ---------- */
+/* #pg 전체에 배율(zoom) 하나가 걸리므로 안쪽 .pgfit 에는 배율을 걸지 않습니다(이중 확대 방지).
+   배율로 키운 뒤 남는 세로 공간은 가운데 정렬 */
+#pg.pg-tab.pg-h .pgcol{display:flex;flex-direction:column;justify-content:center}
+#pg.pg-tab.pg-h .pgcol>.pgfit{flex:0 0 auto}
+/* 좁은 화면(폰)에는 배율 설정이 의미가 없어 숨깁니다 */
+#pg:not(.pg-tab) .pgz{display:none}
+/* 세로 배치 — zoom 상태에서 auto 행이 화면 높이에 맞춰 늘어나 겹치지 않도록 내용 높이로 고정 */
+#pg.pg-tab.pg-v .pgbody{grid-template-rows:max-content max-content}
 /* 설정 시트 */
 .pgset{position:fixed;inset:0;z-index:18;display:flex;align-items:flex-end;justify-content:center}
 .pgset[hidden]{display:none}
@@ -1268,7 +1277,7 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   body.pg-open > *:not(#pg){display:none!important}
   body.pg-open{background:#fff!important}
   body.pg-open #pg{position:static!important;display:block!important;height:auto!important;overflow:visible!important;
-    background:#fff!important;color:#000!important}
+    background:#fff!important;color:#000!important;zoom:1!important}
   #pg .pgbar{position:static!important;background:#fff!important;border-bottom:1.5px solid #000!important;padding:0 0 4pt!important}
   #pg .pgset,#pg .pgconfirm,#pg .pgbtn,#pg .pgx,#pg .pgnote,#pg .qbtns,#pg .mbtns,#pg .gbtns,
   #pg .pgasg,#pg .pgdrag,#pg .pgpick{display:none!important}
@@ -4238,6 +4247,15 @@ const MP_LIMIT = { 3: { min: 3, max: 6 }, 2: { min: 5, max: 8 } };
 const MP_FS = ['작게', '보통', '크게'];
 const MP_SCALE_DEF = 2;                 /* 글씨 크기 기본값 — 크게(가장 읽기 편한 단계) */
 const MP_THEMES = [['dark', '🌙', '어두운'], ['mid', '🌤', '중간'], ['light', '☀️', '밝은']];
+/* 태블릿 확대 — 넓은 화면에서 경기 진행 화면 전체를 화면에 맞춰 키우는 배율 (기기 전체 설정) */
+const MP_ZOOM_KEY = 'reverse-pgzoom-v1';
+const MP_ZOOM_MIN_W = 700;              /* 이 폭 이상 + 짧은 변 560px 이상(태블릿·PC)에서 확대 모드 */
+const MP_ZOOM_MIN_SIDE = 560;           /* 폰을 가로로 돌린 화면(짧은 변 ~390px)은 확대 모드를 타지 않습니다 — 기존 그대로 */
+const MP_ZOOM_STEPS = [
+  ['auto', '자동', '넓은 화면에서 선수 이름이 잘리지 않는 선까지 화면에 맞춰 자동으로 키웁니다 (100%)'],
+  ['1.25', '125%', '자동으로 맞춘 크기의 1.25배 — 코트 끝에서 보기 좋게 더 키웁니다'],
+  ['1.5', '150%', '자동으로 맞춘 크기의 1.5배 — 가장 크게 봅니다']
+];
 let MPS = null, MPE = null, PGS = null, MP_DB = null, mpReturn = false;
 let mpAssign = { team: null, list: [] };
 
@@ -5254,6 +5272,11 @@ function mpSettingsHtml(m, s) {
     '<button type="button" data-pg="font">🔎 글씨 ' + fs + '</button>' +
     '<button type="button" data-pg="wake" aria-pressed="' + (mpWakeOn ? 'true' : 'false') + '">🔆 화면꺼짐 방지 ' + (mpWakeOn ? 'ON' : 'OFF') + '</button>' +
     '</div></div>' +
+    '<div class="pgsrow pgz"><span class="pgsl">확대</span><div class="pgsseg">' +
+    MP_ZOOM_STEPS.map(function (it) {
+      return '<button type="button" data-pgzoom="' + it[0] + '" aria-pressed="' + (mpZoomPref() === it[0]) + '" title="' + it[2] + '">' + it[1] + '</button>';
+    }).join('') +
+    '</div></div>' +
     '<div class="pgsrow"><span class="pgsl">쿼터</span><div class="pgsseg">' +
     '<button type="button" data-pgq="3" aria-pressed="' + (s.quarters === 3) + '">1~3Q</button>' +
     '<button type="button" data-pgq="4" aria-pressed="' + (s.quarters === 4) + '">1~4Q</button>' +
@@ -5272,6 +5295,7 @@ function mpSettingsHtml(m, s) {
     '<button type="button" class="danger" data-pg="canon" title="기기에 저장한 프리뷰를 지우고 서버 정본 기준으로 되돌립니다">🧩 매치 프리뷰 초기화 (서버 정본 복원)</button>' +
     '</div></div>' +
     '<p class="pgnote">' + note + '</p>' +
+    '<p class="pgnote pgz">📱 <b>태블릿 확대</b> — 넓은 화면(태블릿·PC)에서는 경기 진행 화면 전체가 화면에 맞춰 커집니다. <b>자동(100%)</b>은 선수 이름이 잘리지 않는 선에서 가장 크게 맞추고, <b>125%·150%</b> 는 그 크기에서 더 키웁니다(스크롤이 생기지 않는 데까지 · 너무 키우면 선수 이름이 짧게 줄어들 수 있습니다). 고른 값은 이 기기에 기억됩니다.</p>' +
     '</div></div></div>';
 }
 /* 한 화면 수납 — 가로: 점수표 + 팀 순위 | 명단 / 세로: 위아래 */
@@ -5282,6 +5306,88 @@ function mpBoardHtml(m, s) {
     '<div class="pgcol pgr"><div class="pgfit">' + mpRostersHtml(m, s) + '</div></div>' +
     '</div>';
 }
+/* ---------------- 📱 태블릿 확대 모드 ----------------
+   넓은 화면(≥700px)에서는 경기 진행 화면(#pg) 전체를 배율(zoom) 하나로 키웁니다.
+   자동 배율은 (a) 선수 이름이 잘리지 않고 (b) 화면 밖으로 넘치지 않는 가장 큰 값이고,
+   설정의 125% · 150% 는 그 자동 배율을 기준으로 더 키운 값입니다(기기에 기억).
+   폰(≤699px)은 이 모드를 타지 않고 아래 기존 동작 그대로입니다. */
+let mpZoomCache = { key: '', base: 1, z: 1 };
+function mpZoomPref() {
+  const v = mpStore(MP_ZOOM_KEY);
+  const m = v && v.mode;
+  return (m === '1.25' || m === '1.5') ? m : 'auto';
+}
+function mpZoomSet(mode) {
+  const m = (mode === '1.25' || mode === '1.5') ? mode : 'auto';
+  mpSaveStore(MP_ZOOM_KEY, { v: 1, mode: m });
+  mpZoomCache = { key: '', base: 1, z: 1 };
+}
+function mpZoomCss(z) { return (!z || z === 1) ? '' : String(z); }
+/* 배율 적용 — #pg 의 100dvh 는 zoom 안에서 배율만큼 더 커지므로 높이를 뷰포트/배율로 직접 줍니다 */
+function mpZoomApply(pg, z) {
+  pg.style.zoom = mpZoomCss(z);
+  pg.style.height = (!z || z === 1) ? '' : (window.innerHeight / z) + 'px';
+}
+function mpZoomFit(pg, body, s) {
+  const key = [window.innerWidth, window.innerHeight, MPS && MPS.date, MPS && MPS.mode,
+    MPS ? mpTeamTotal(MPS) : 0, s.quarters, s.games, s.scale,
+    (s.mOrder || []).join(''), (s.gameOrder || []).join('')].join('|');
+  /* 이 배율이 화면에 들어오는지 — strict 면 선수 이름 말줄임(…)까지 봅니다 */
+  const ok = function (z, strict) {
+    mpZoomApply(pg, z);
+    if (strict) {
+      const nms = $$('#pg .pgnm');
+      for (let i = 0; i < nms.length; i++) {
+        const el = nms[i];
+        if (!el.clientWidth) continue;
+        const rg = document.createRange();
+        rg.selectNodeContents(el);
+        if (rg.getBoundingClientRect().width > el.clientWidth + 1) return false;
+      }
+    }
+    const tws = $$('#pg .pgtblwrap');
+    for (let i = 0; i < tws.length; i++) if (tws[i].scrollWidth > tws[i].clientWidth + 1) return false;
+    /* 세로·가로 넘침 — 보드를 담는 #pgBody 밖으로 나가는 조각이 있는지로 판단 */
+    const br = body.getBoundingClientRect();
+    const fs = $$('#pg .pgfit');
+    for (let i = 0; i < fs.length; i++) {
+      const r = fs[i].getBoundingClientRect();
+      if (!r.height) continue;
+      if (r.bottom > br.bottom + 1.5 || r.top < br.top - 1.5 || r.right > br.right + 1.5) return false;
+    }
+    return true;
+  };
+  const pref = mpZoomPref();
+  /* 자동 배율(기준 100%) — 화면 크기·경기 구성이 같으면 다시 계산하지 않습니다 */
+  if (mpZoomCache.key !== key) {
+    const cands = [2.4, 2.2, 2, 1.9, 1.8, 1.7, 1.6, 1.5, 1.45, 1.4, 1.35, 1.3, 1.25, 1.2, 1.15, 1.1, 1.05, 1];
+    let base = 1;
+    for (let i = 0; i < cands.length; i++) {
+      if (ok(cands[i], true)) { base = cands[i]; break; }
+    }
+    /* 찾은 값과 바로 위 후보 사이를 0.02 씩 좁혀 최댓값까지 올립니다 */
+    const higher = cands.filter(function (c) { return c > base; });
+    if (base > 1 && higher.length) {
+      const hi = higher[higher.length - 1];
+      for (let t = hi - 0.02; t > base + 0.001; t -= 0.02) {
+        const r = Math.round(t * 100) / 100;
+        if (ok(r, true)) { base = r; break; }
+      }
+    }
+    mpZoomCache = { key: key, base: base, z: base };
+  }
+  const base = mpZoomCache.base;
+  let z = base;
+  if (pref !== 'auto') {
+    /* 125% · 150% — 자동 배율 기준으로 더 키우되, 스크롤이 생길 만큼 넘치면 들어오는 데까지 낮춥니다 */
+    z = Math.round(base * Number(pref) * 100) / 100;
+    while (z > base + 0.011 && !ok(z, false)) z = Math.round((z - 0.02) * 100) / 100;
+    if (z < base) z = base;
+  }
+  mpZoomApply(pg, z);
+  mpZoomCache.z = z;
+  return z;
+}
 /* 화면 배율 — 들어오는 만큼(100dvh) 줄이거나 키워 한 화면에 맞춥니다 */
 function mpApplyFit() {
   const pg = $('#pg'), s = PGS, body = $('#pgBody');
@@ -5289,11 +5395,21 @@ function mpApplyFit() {
   const land = window.innerWidth > window.innerHeight;
   pg.classList.toggle('pg-h', land);
   pg.classList.toggle('pg-v', !land);
-  /* 글씨 크기 = 배율(작게 84% · 보통 꽉 채움 · 크게 꽉 채움+여유 있으면 1.7배까지 확대) */
-  const target = [0.84, 1, 1][s.scale == null ? MP_SCALE_DEF : s.scale] || 1;
   const els = $$('#pg .pgfit');
   if (!els.length) return;
-  els.forEach(function (el) { el.style.zoom = '1'; });
+  /* 태블릿 확대 모드 — 넓은 화면에서는 #pg 전체(상단 바·설정 시트 포함)에 같은 배율 */
+  const tab = window.innerWidth >= MP_ZOOM_MIN_W && Math.min(window.innerWidth, window.innerHeight) >= MP_ZOOM_MIN_SIDE;
+  pg.classList.toggle('pg-tab', tab);
+  els.forEach(function (el) {
+    el.style.zoom = tab ? '' : '1'; el.style.width = '';
+    if (el.parentNode) el.parentNode.style.overflowY = '';
+  });
+  body.style.overflowY = '';
+  if (tab) { mpZoomFit(pg, body, s); return; }
+  pg.style.zoom = '';
+  pg.style.height = '';
+  /* 글씨 크기 = 배율(작게 84% · 보통 꽉 채움 · 크게 꽉 채움+여유 있으면 1.7배까지 확대) */
+  const target = [0.84, 1, 1][s.scale == null ? MP_SCALE_DEF : s.scale] || 1;
   /* '크게'는 가로(전체화면)에서 자리가 남으면 최대 1.7배까지 키웁니다 — 세로 화면은 가로 여유가 없어 확대하지 않습니다 */
   const cap = (s.scale === 2 && land) ? 1.7 : 1;
   const clamp = function (z) { return Math.max(0.34, Math.min(cap, z)); };
@@ -5774,6 +5890,14 @@ function mpExportPNG() {
         mpOpenEditor(mpEditFromMPS(MPS));
         return;
       }
+    }
+    const zb = t.closest('[data-pgzoom]');
+    if (zb) {
+      const v = zb.getAttribute('data-pgzoom');
+      if (['auto', '1.25', '1.5'].indexOf(v) < 0) return;
+      mpZoomSet(v);
+      mpPaintProgress(true);
+      return;
     }
     const thb = t.closest('[data-pgtheme]');
     if (thb) {
