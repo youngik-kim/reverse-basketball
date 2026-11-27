@@ -3011,6 +3011,11 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
    kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
    선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
 const UPDATES = [
+  { date: '2026-11-27', kind: '기능', title: '경기 진행 점수 계산 개선 (입력=누적 · 보조=쿼터점수)',
+    items: [
+      '큰 점수 칸에 적는 값은 전광판 기준 누적 점수 — 칸 아래 보조 줄은 쿼터점수(현재 누적 - 직전 입력 쿼터 누적)로 표시',
+      '합계·팀 순위·승·무·패·득실차는 입력된 마지막 쿼터의 누적 점수를 경기 최종 점수로 계산(사진 저장 PNG·A4 인쇄도 동일)'
+    ] },
   { date: '2026-11-27', kind: '기능', title: '경기 진행 — 화면 꽉 채우기 · 글씨 크기 3단계(작게·보통·크게)',
     items: [
       '점수표와 명단이 화면 끝까지 꽉 차게 늘어납니다 — 위·아래 빈 공백 없이 쿼터 행(1Q~4Q·합계)과 선수 행(1~6번)이 남는 높이를 똑같이 나눠 가짐(태블릿 가로·세로, 폰 세로·가로 모두)',
@@ -5165,24 +5170,34 @@ function mpQOrder(s) {
   }
   return s.qOrder;
 }
+/* 큰 점수 칸에 적는 값은 '그 쿼터까지의 누적 점수'(전광판 기준)입니다.
+   → 합계(경기 최종 점수)는 쿼터 합이 아니라 '입력된 마지막 쿼터의 누적 점수'를 씁니다. */
 function mpTotals(s, a, b, g) {
   let ta = null, tb = null;
-  for (let q = 1; q <= s.quarters; q++) {
+  mpQOrder(s).forEach(function (q) {
     const v = mpGetScore(s, a, b, q, g);
-    if (v.a != null) ta = (ta || 0) + v.a;
-    if (v.b != null) tb = (tb || 0) + v.b;
-  }
+    if (v.a != null) ta = v.a;
+    if (v.b != null) tb = v.b;
+  });
   return { a: ta, b: tb };
 }
-function mpCum(s, a, b, q, g) {
+/* 보조 줄 = 그 쿼터의 쿼터점수 = 현재 쿼터 누적 - 직전에 입력된 쿼터 누적.
+   아직 입력되지 않은 칸은 null(보조 줄 비움), 오입력으로 음수가 나오면 그대로 표시합니다. */
+function mpQScore(s, a, b, q, g) {
+  const v = mpGetScore(s, a, b, q, g);
+  if (v.a == null && v.b == null) return null;
   const ord = mpQOrder(s), pos = ord.indexOf(q);
-  let ta = null, tb = null;
-  for (let i = 0; i <= pos; i++) {
-    const v = mpGetScore(s, a, b, ord[i], g);
-    if (v.a != null) ta = (ta || 0) + v.a;
-    if (v.b != null) tb = (tb || 0) + v.b;
+  let pa = null, pb = null;
+  for (let i = 0; i < pos; i++) {
+    const p = mpGetScore(s, a, b, ord[i], g);
+    if (p.a != null) pa = p.a;
+    if (p.b != null) pb = p.b;
   }
-  return (ta == null && tb == null) ? null : { a: ta || 0, b: tb || 0 };
+  return { a: v.a == null ? null : v.a - (pa || 0), b: v.b == null ? null : v.b - (pb || 0) };
+}
+function mpQScoreText(c) {
+  if (!c) return '';
+  return '쿼터점수 ' + (c.a == null ? '–' : c.a) + ' : ' + (c.b == null ? '–' : c.b);
 }
 function mpStandings(m, s) {
   const rows = m.teams.map(function (t) { return { team: t.team, w: 0, d: 0, l: 0, diff: 0 }; });
@@ -5246,13 +5261,13 @@ function mpScoreInput(a, b, q, g, team, val, label) {
 }
 function mpCellHtml(m, s, A, B, q, g) {
   const v = mpGetScore(s, A, B, q, g);
-  const c = mpCum(s, A, B, q, g);
+  const c = mpQScore(s, A, B, q, g);
   return '<td class="pgcell">' +
     (m.mode === 2 ? mpRestLine(m, s, (g || 1) - 1, mpQOrder(s).indexOf(q)) : '') +
-    '<div class="scin">' + mpScoreInput(A, B, q, g, A, v.a, A + ' ' + q + 'Q 점수') +
-    '<span class="scc">:</span>' + mpScoreInput(A, B, q, g, B, v.b, B + ' ' + q + 'Q 점수') + '</div>' +
+    '<div class="scin">' + mpScoreInput(A, B, q, g, A, v.a, A + ' ' + q + 'Q 누적 점수') +
+    '<span class="scc">:</span>' + mpScoreInput(A, B, q, g, B, v.b, B + ' ' + q + 'Q 누적 점수') + '</div>' +
     '<div class="cum" data-cum="1" data-a="' + esc(A) + '" data-b="' + esc(B) + '" data-q="' + q + '"' + (g ? ' data-g="' + g + '"' : '') + '>' +
-    (c ? '누적 ' + c.a + ' : ' + c.b : '') + '</div></td>';
+    mpQScoreText(c) + '</div></td>';
 }
 function mpTotalHtml(T) {
   if (T.a == null && T.b == null) return '<span class="totv none">—</span>';
@@ -5357,7 +5372,7 @@ function mpHeaderHtml(m, s) {
 function mpSettingsHtml(m, s) {
   const fsi = mpFsLevel(s);
   const th = s.theme === 'light' ? 'light' : s.theme === 'mid' ? 'mid' : 'dark';
-  const note = '점수 칸을 눌러 숫자를 입력하세요 · 인원 추가·삭제는 <b>매치 프리뷰 수정</b>에서만 가능합니다' +
+  const note = '점수 칸을 눌러 <b>누적 점수</b>를 입력하세요(칸 아래는 그 쿼터의 쿼터점수) · 인원 추가·삭제는 <b>매치 프리뷰 수정</b>에서만 가능합니다' +
     (m.mode === 2 ? ' · 쿼터 위 숫자는 그 쿼터에 <b>쉬는 번호</b>입니다' : ' · 오른쪽 숫자가 휴식 순번, <b>n회</b>를 누르면 누적 횟수가 0→1→2→3→0으로 바뀝니다') + '.';
   return '<div id="pgSettings" class="pgset" role="dialog" aria-label="경기 진행 설정" aria-modal="true"' + (mpSettingsOpen ? '' : ' hidden') + '>' +
     '<div class="pgsetbd" data-pg="setclose"></div>' +
@@ -5705,8 +5720,7 @@ function mpRefreshComputed() {
   if (!m || !s) return;
   $$('#pg [data-cum]').forEach(function (el) {
     const d = el.dataset, g = d.g ? Number(d.g) : null;
-    const c = mpCum(s, d.a, d.b, Number(d.q), g);
-    el.textContent = c ? '누적 ' + c.a + ' : ' + c.b : '';
+    el.textContent = mpQScoreText(mpQScore(s, d.a, d.b, Number(d.q), g));
   });
   $$('#pg .pgtot').forEach(function (el) {
     const d = el.dataset, g = d.g ? Number(d.g) : null;
@@ -5984,11 +5998,11 @@ function mpPNGBuild(m, s, ink) {
     mpQOrder(s).forEach(function (q) {
       RO.forEach(function (mi, ci) {
         const x = PAD + ci * cw, A = mus[mi][0], B = mus[mi][1];
-        const v = mpGetScore(s, A, B, q, null), c = mpCum(s, A, B, q, null);
+        const v = mpGetScore(s, A, B, q, null), c = mpQScore(s, A, B, q, null);
         rr(x + 3, y, cw - 6, 54, 8, C.card, C.line, 1);
         tx(q + 'Q', x + 16, y + 30, 12, C.tx3, 'left', 800);
         tx((v.a == null ? '–' : v.a) + ' : ' + (v.b == null ? '–' : v.b), x + cw / 2 + 6, y + 26, 22, C.tx, 'center', 900);
-        if (c) tx('누적 ' + c.a + ' : ' + c.b, x + cw / 2 + 6, y + 44, 10, C.tx3, 'center', 700);
+        if (c) tx(mpQScoreText(c), x + cw / 2 + 6, y + 44, 10, C.tx3, 'center', 700);
       });
       y += 62;
     });
@@ -6013,8 +6027,9 @@ function mpPNGBuild(m, s, ink) {
         rr(x + 3, y, cw - 6, 62, 8, C.card, C.line, 1);
         tx(gm + 'G' + q + 'Q', x + 14, y + 14, 10, C.tx3, 'left', 800);
         if (rest.length) tx('휴식 ' + rest.join('·'), x + cw / 2, y + 15, 10, C.acc, 'center', 900);
-        const v = mpGetScore(s, A, B, q, gm);
+        const v = mpGetScore(s, A, B, q, gm), c = mpQScore(s, A, B, q, gm);
         tx((v.a == null ? '–' : v.a) + ' : ' + (v.b == null ? '–' : v.b), x + cw / 2, y + 40, 20, C.tx, 'center', 900);
+        if (c) tx(mpQScoreText(c), x + cw / 2, y + 55, 9, C.tx3, 'center', 700);
       });
       y += 70;
       const T = mpTotals(s, A, B, gm);
