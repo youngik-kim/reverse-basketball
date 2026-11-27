@@ -15,12 +15,12 @@ SNAP = """() => {
   const pg = document.querySelector('#pg'), body = document.querySelector('#pgBody');
   const br = body.getBoundingClientRect();
   const fits = [...document.querySelectorAll('#pg .pgfit')].map(e => e.getBoundingClientRect());
-  const trunc = [...document.querySelectorAll('#pg .pgnm')].filter(n => {
-    const rg = document.createRange(); rg.selectNodeContents(n);
-    return rg.getBoundingClientRect().width > n.clientWidth + 1; }).length;
+  const trunc = [...document.querySelectorAll('#pg .pgnm')].filter(n =>
+    n.scrollWidth > n.clientWidth + 1 || mpTextW(n) > n.clientWidth + 1).length;
+  const badMp = [...document.querySelectorAll('#pg .pgtbl .mpair')].filter(m => mpPairSpare(m) < 0).length;
   const z = parseFloat(pg.style.zoom || '1');
   const f = s => { const e = document.querySelector(s); return e ? Math.round(parseFloat(getComputedStyle(e).fontSize) * z) : null; };
-  return {zoom: z, cls: pg.className, trunc,
+  return {zoom: z, cls: pg.className, trunc, badMp,
     inside: fits.every(b => b.top >= br.top - 1.5 && b.bottom <= br.bottom + 1.5 && b.right <= br.right + 1.5),
     sciPx: f('#pg .sci'), namePx: f('#pg .pgrow .pgnm'), teamPx: f('#pg .pgtbl .mpair')};
 }"""
