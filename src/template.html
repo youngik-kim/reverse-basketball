@@ -5070,8 +5070,8 @@ function mpApplyFit() {
   const els = $$('#pg .pgfit');
   if (!els.length) return;
   els.forEach(function (el) { el.style.zoom = '1'; });
-  /* '크게'는 자리가 남으면 최대 18%까지 키웁니다(가로 폭이 좁아져 이름이 잘리지 않는 선) */
-  const cap = target >= 1 ? 1.18 : 1;
+  /* '크게'는 자리가 남으면 최대 25%까지 키웁니다 — 세로 화면은 가로 여유가 없어 확대하지 않습니다 */
+  const cap = (s.scale === 2 && land) ? 1.25 : 1;
   const clamp = function (z) { return Math.max(0.34, Math.min(1.25, z)); };
   function fitOne(el, panel, avail) {
     panel.style.overflowY = 'hidden';
