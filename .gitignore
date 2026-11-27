@@ -4,3 +4,6 @@ src/data.json
 _build/
 __pycache__/
 *.pyc
+
+# 로컬 검증 산출물
+_verify*/
