@@ -912,6 +912,9 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .mptabs button{height:36px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,255,255,.05);
   color:var(--tx2);font-size:11.5px;font-weight:900;font-family:inherit;cursor:pointer}
 .mptabs button[aria-pressed="true"]{background:linear-gradient(96deg,#4ad2ff,#9ef0c8);color:#04222c;border-color:transparent}
+.mptn{display:inline-block;min-width:15px;padding:0 4px;margin-left:2px;border-radius:999px;
+  background:rgba(0,0,0,.18);font-size:9px;font-weight:900;line-height:15px;text-align:center}
+.mptabs button[aria-pressed="true"] .mptn{background:rgba(0,0,0,.22);color:#04222c}
 .mphist{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.02)}
 .mphitem+.mphitem{border-top:1px solid var(--line)}
 .mphrow{display:grid;grid-template-columns:42px 1fr auto 12px;gap:7px;align-items:center;width:100%;
@@ -4246,8 +4249,9 @@ function mpOpenEditor(prefill) {
   mpOpenModal();
 }
 function mpOpenPreviewHome() {
-  MPE = MPE || (MPS || mpLoad() ? mpEditFromMPS(MPS || mpLoad()) : mpNewEditor());
-  MP_TAB = mpHistEntries().length ? 'hist' : 'edit';
+  const cur = MPS || mpLoad();
+  MPE = cur ? mpEditFromMPS(cur) : mpNewEditor();
+  MP_TAB = 'edit';
   MP_VIEW = null;
   mpOpenModal();
 }
@@ -4260,8 +4264,10 @@ function mpPaintModal() {
   if (!box) return;
   const sheet = box.closest('.sheet'), sy = sheet ? sheet.scrollTop : 0;
   if (MP_TAB === 'edit' && !MPE) MPE = (MPS || mpLoad()) ? mpEditFromMPS(MPS || mpLoad()) : mpNewEditor();
+  const nHist = mpHistEntries().length;
   const tabs = '<div class="mptabs">' +
-    '<button type="button" data-mptab="hist" aria-pressed="' + (MP_TAB === 'hist' || MP_TAB === 'view') + '">📅 매치 프리뷰 이력</button>' +
+    '<button type="button" data-mptab="hist" aria-pressed="' + (MP_TAB === 'hist' || MP_TAB === 'view') + '">📅 이력' +
+    (nHist ? ' <span class="mptn">' + nHist + '</span>' : '') + '</button>' +
     '<button type="button" data-mptab="edit" aria-pressed="' + (MP_TAB === 'edit') + '">✏️ 등록·편집</button></div>';
   let body = '';
   if (MP_TAB === 'hist') body = mpHistoryHtml();
@@ -4451,7 +4457,14 @@ function mpHistEntries() {
     e.week = w;
     out[w.date] = e;
   });
-  if (PREVIEW && out[PREVIEW.date]) out[PREVIEW.date].upcoming = true;
+  if (PREVIEW) {
+    if (!out[PREVIEW.date]) {
+      out[PREVIEW.date] = { date: PREVIEW.date, mode: 3, teams: (PREVIEW.teams || []).map(function (t) {
+        return { team: t.team, cap: t.cap || '', roster: (t.roster || []).slice(), avg: t.avg, predPos: t.predPos };
+      }) };
+    }
+    out[PREVIEW.date].upcoming = true;
+  }
   return Object.keys(out).map(function (k) { return out[k]; }).sort(function (a, b) { return b.date.localeCompare(a.date); });
 }
 function mpHistRowHtml(e) {
