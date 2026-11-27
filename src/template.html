@@ -1239,6 +1239,10 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 /* 점수표 — 점수 입력칸을 조금 좁혀 그만큼 명단 폭/배율을 확보합니다(3자리 점수는 그대로 들어감) */
 #pg.pg-tab .pgtbl .sci{width:2.2em}
 #pg.pg-tab .pgtbl .qh.corner,#pg.pg-tab .pgtbl .qh.qfix{width:26px}
+/* 점수를 입력해 누적·승패 줄이 생겨도 칸 높이가 변하지 않도록 미리 자리를 잡아 둡니다
+   (빈 화면에서 맞춘 배율이 경기 중에 흘들어지지 않게) */
+#pg.pg-tab .pgtbl .cum{min-height:13px}
+#pg.pg-tab .pgtbl .pgtot .totv.none::after{content:'';display:block;height:.69em}
 /* 매치업 헤더 — 한 줄 유지. 폭이 모자라면 JS(mpHeaderFit)가 --mpfs 를 단계적으로 줄입니다.
    배지 점·간격·패딩을 줄이고 VS 를 얇은 구분선으로 바뀌 높은 배율에서도 한 줄로 들어갑니다. */
 #pg.pg-tab .pgtbl .mpair{flex-wrap:nowrap;gap:2px;font-size:var(--mpfs,9.5px);letter-spacing:-.02em}
@@ -3017,6 +3021,7 @@ const UPDATES = [
       '매치업 헤더(● 형광 | ● 화이트)가 칸 안에서 한 줄로 유지 — 배지 점·패딩·간격을 줄이고 헤더 글씨는 칸 폭에 맞춰 자동 조절',
       '배율은 이름·팀 머리글·헤더가 하나도 잘리지 않는 가장 큰 값으로 계산(폰트 실측 포함) — 125%·150% 도 이름이 잘리는 지점에서 멈춤(이미 최대면 안내 토스트)',
       '남는 세로 공간은 명단 행 높이로 채워 화면이 비어 보이지 않게',
+      '점수를 입력해 누적·승패 줄이 생겨도 칸 높이가 변하지 않아 경기 중에 화면이 흔들리지 않음(3자리 점수 포함)',
       '기기 폰트(이모지 포함)가 늦게 로드되어 글자 폭이 달라져도 한 번 더 다시 맞춤',
       '폰 화면(≤699px)은 픽셀 그대로 유지'
     ] },
@@ -5652,6 +5657,21 @@ function mpRefreshComputed() {
   });
   const box = $('#pgSum');
   if (box) box.innerHTML = mpSumInner(m, s);
+  mpRefitIfOverflow();
+}
+/* 점수·합계가 바뀌어 보드가 칸을 넘치면(3자리 점수 등) 배율만 다시 맞춥니다 — 잘림 방지 */
+function mpRefitIfOverflow() {
+  const pg = $('#pg');
+  if (!pg || pg.hidden || !PGS || !pg.classList.contains('pg-tab')) return;
+  const fs = $$('#pg .pgfit');
+  for (let i = 0; i < fs.length; i++) {
+    const el = fs[i], p = el.parentNode;
+    if (p && p.clientHeight && el.clientHeight > p.clientHeight + 1) {
+      mpZoomCache = { key: '', base: 1, z: 1 };
+      mpApplyFit();
+      return;
+    }
+  }
 }
 
 /* ---------------- 경기 진행: 열고 닫기 ---------------- */

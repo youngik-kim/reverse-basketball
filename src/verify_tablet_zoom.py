@@ -66,10 +66,13 @@ SNAP = """() => {
     return {h: el.clientHeight, ph: p.clientHeight, over: p.clientHeight ? el.clientHeight > p.clientHeight + 1 : false};
   });
   const sheet = document.querySelector('#pgSettings .pgsetp');
+  const badSci = [...document.querySelectorAll('#pg .sci')].filter(i => i.value && i.scrollWidth > i.clientWidth + 1)
+    .map(i => ({v: i.value, cw: i.clientWidth, sw: i.scrollWidth}));
   return {
     zoom: z, tab: pg.classList.contains('pg-tab'), cls: pg.className, vw: innerWidth, vh: innerHeight,
     badNames: names.filter(n => n.bad), badThs: ths.filter(t => t.bad), badMps: mps.filter(m => m.bad),
     mpair: mps, thr: ths.slice(0, 1), nameMinSlack: Math.min(...names.map(n => Math.round((n.cw - n.tw) * 10) / 10)),
+    badSci: badSci,
     fits, colOver: fits.filter(f => f.over).length,
     tblH: [...document.querySelectorAll('#pg .pgtblwrap')].filter(e => e.scrollWidth > e.clientWidth + 1).length,
     bodyScroll: {sh: body.scrollHeight, ch: body.clientHeight, sw: body.scrollWidth, cw: body.clientWidth},
@@ -135,6 +138,21 @@ with sync_playwright() as pw:
                   'names[slack %.1f]' % d['nameMinSlack'],
                   'mpair', [(m['spare'], m['fs'], m['lines']) for m in d['mpair']],
                   'th', d['thr'])
+        # 점수를 입력한 상태(3자리 포함)에서도 넘치지 않는지 — 경기 중 실제 사용 상태
+        if tag != 'phone':
+            setmode(page, 'auto')
+            ins = page.locator('#pg .sci')
+            ins.nth(0).fill('100'); ins.nth(1).fill('88')
+            page.wait_for_timeout(450)
+            dq = page.evaluate(SNAP)
+            page.screenshot(path=os.path.join(SHOTS, 'reverse-tablet-%s-scored.png' % tag))
+            ok('%s: 점수 입력(3자리) 후에도 넘침·잘림 0' % tag,
+               not dq['badNames'] and not dq['badThs'] and not dq['badMps'] and dq['colOver'] == 0
+               and dq['tblH'] == 0 and not dq['badSci']
+               and dq['bodyScroll']['sh'] <= dq['bodyScroll']['ch'] + 1,
+               {'zoom': dq['zoom'], 'colOver': dq['colOver'], 'sci': dq['badSci'], 'names': dq['badNames'][:2]})
+            ins.nth(0).fill(''); ins.nth(1).fill('')
+            page.wait_for_timeout(300)
         # 설정 시트 · 배율 버튼
         page.locator('#pg [data-pg="set"]').click()
         page.wait_for_timeout(350)
