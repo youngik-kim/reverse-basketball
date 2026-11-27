@@ -990,122 +990,141 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pchip.on{border-color:rgba(255,179,71,.75);background:rgba(255,179,71,.16)}
 
 /* ---------- 🏀 경기 진행 (전체 화면) ---------- */
-#pg{position:fixed;inset:0;z-index:300;display:none;overflow:auto;-webkit-overflow-scrolling:touch;
+#pg{position:fixed;inset:0;z-index:300;display:none;overflow:hidden;height:100vh;height:100dvh;
   background:var(--pg-bg);color:var(--pg-tx);font-family:inherit;
   --pg-bg:#080b10;--pg-card:#141b25;--pg-card2:#182230;--pg-line:rgba(255,255,255,.12);--pg-line2:rgba(255,255,255,.22);
-  --pg-tx:#eef3fa;--pg-tx2:#a7b5c7;--pg-tx3:#71819a;--pg-acc:#ffb347;--pg-hi:#38e08b;--pg-red:#ff6b6b;--pg-in:#0c121a}
-#pg.open{display:block}
+  --pg-tx:#eef3fa;--pg-tx2:#a7b5c7;--pg-tx3:#71819a;--pg-acc:#ffb347;--pg-hi:#38e08b;--pg-red:#ff6b6b;--pg-in:#0c121a;
+  --pgrh:26px;--pgnr:15px}
+#pg.open{display:flex;flex-direction:column}
 #pg.fsfallback{background:#05080c}
 #pg.pg-light{--pg-bg:#f2f5fa;--pg-card:#fff;--pg-card2:#e9eef6;--pg-line:rgba(12,25,45,.16);--pg-line2:rgba(12,25,45,.28);
   --pg-tx:#0f1a26;--pg-tx2:#3f4f60;--pg-tx3:#6b7a8b;--pg-acc:#b8520a;--pg-hi:#0d7a45;--pg-red:#c4242c;--pg-in:#fff}
-#pg.fs0 .pgboard{zoom:.9}
-#pg.fs2 .pgboard{zoom:1.08}
-#pg.fs2 .sci{width:2.2em}
-#pg.fs2 .pgtbl .qh{width:44px}
-#pg.fs2 .pgrc{min-width:30px;padding:0 4px}
-#pg.fs2 .pgrso{display:none}
-#pg.fs0 .pgbar,#pg.fs2 .pgbar{zoom:1}
-.pgbarInner{max-width:1080px;margin:0 auto}
-.pgbar{position:sticky;top:0;z-index:5;background:var(--pg-bg);border-bottom:1px solid var(--pg-line);
-  padding:9px 12px 7px;backdrop-filter:blur(8px)}
-.pghd{display:flex;align-items:center;gap:8px}
-.pgt{flex:1 1 auto;min-width:0;font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 상단 바 — 제목 + ⚙️ 설정 + ⛶ 전체화면 + ✕ 닫기 (1줄) */
+.pgbar{flex:0 0 auto;position:relative;z-index:6;background:var(--pg-bg);border-bottom:1px solid var(--pg-line);padding:4px 6px}
+.pgbarInner{display:flex;align-items:center;gap:5px;min-width:0}
+.pghd{display:flex;align-items:center;gap:4px;min-width:0;flex:1 1 auto}
+.pgt{flex:1 1 auto;min-width:0;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pgt b{font-weight:900}
-.pgx{flex:0 0 auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--pg-line2);background:transparent;
-  color:var(--pg-tx2);font-size:13px;cursor:pointer}
-.pgtools{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0 0}
-.pgtools button{flex:0 0 auto;height:30px;padding:0 9px;border-radius:8px;border:1px solid var(--pg-line2);
+.pgbtn{flex:0 0 auto;height:27px;padding:0 8px;border-radius:8px;border:1px solid var(--pg-line2);
   background:var(--pg-card);color:var(--pg-tx2);font-size:10.5px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
-.pgtools button[aria-pressed="true"]{color:var(--pg-hi);border-color:rgba(56,224,139,.5)}
-.pgtools button:active{transform:translateY(1px)}
-.pgopts{display:flex;align-items:center;gap:4px;margin:6px 0 0;overflow-x:auto;scrollbar-width:none}
-.pgopts::-webkit-scrollbar{display:none}
-.pgol{flex:0 0 auto;font-size:9.5px;font-weight:900;color:var(--pg-tx3);margin-right:1px}
-.pgopts button{flex:0 0 auto;height:25px;min-width:30px;padding:0 7px;border-radius:7px;border:1px solid var(--pg-line2);background:transparent;color:var(--pg-tx2);font-size:10px;font-weight:900;font-family:inherit;cursor:pointer}
-.pgopts button[aria-pressed="true"]{background:var(--pg-acc);color:#20140a;border-color:transparent}
-.pgnote{margin:7px 0 0;font-size:10px;line-height:1.5;color:var(--pg-tx3);font-weight:700;word-break:keep-all}
-.pgnote b{color:var(--pg-tx2);font-weight:900}
-.pgsums{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:5px;margin:7px 0 0}
-.pgs{display:block;border:1px solid var(--pg-line);border-radius:9px;
-  padding:4px 7px;background:var(--pg-card);font-size:10.5px;font-weight:800;min-width:0}
-.pgs1{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden}
-.pgs2{display:flex;align-items:center;gap:5px;margin-top:1px;white-space:nowrap}
-.pgs.win{border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.12)}
-.pgs .dot{width:8px;height:8px;border-radius:50%}
-.pgsn{font-weight:900;color:var(--pg-tx)}
-.pgsr{color:var(--pg-tx3);font-weight:900}
-.pgsrank{color:var(--pg-acc);font-weight:900}
-.pgs .pgsrank{color:var(--pg-acc);font-weight:900}
-.pgsrec{color:var(--pg-tx2)}
-.pgsd{font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
-.pgsd.up{color:var(--pg-hi)} .pgsd.dn{color:var(--pg-red)}
-.pgboard{max-width:1080px;margin:0 auto;padding:10px 10px 40px}
-.pgtblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.pgtbl{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed}
+.pgbtn:active{transform:translateY(1px)}
+.pgbtn.gon{color:var(--pg-acc);border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.14)}
+#pg.pg-light .pgbtn.gon{color:#8a3c00;border-color:rgba(138,60,0,.45);background:rgba(255,179,71,.22)}
+.pgx{flex:0 0 auto;width:27px;height:27px;border-radius:50%;border:1px solid var(--pg-line2);background:transparent;
+  color:var(--pg-tx2);font-size:12px;cursor:pointer;padding:0;font-family:inherit;line-height:1}
+@media (max-width:380px){.pgbtn .lbl{display:none}}
+/* 본문 — 가로: 점수표 | 명단 2단 / 세로: 위아래 */
+.pgbody{flex:1 1 auto;min-height:0;display:grid;gap:5px;padding:5px;overflow:hidden}
+#pg.pg-h .pgbody{grid-template-columns:minmax(0,1.02fr) minmax(0,1fr)}
+#pg.pg-h.pg-m2 .pgbody{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+#pg.pg-v .pgbody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;align-content:start}
+.pgcol{min-width:0;min-height:0;overflow:hidden}
+.pgfit{width:100%}
+#pg.pg-v .pgcol{overflow:visible}
+#pg.pg-h{--pgrh:44px}
+#pg.pg-h .sci{height:36px;font-size:17px}
+#pg.pg-h .pgnm{font-size:12.5px}
+#pg.pg-h .pgrc{min-width:28px;height:19px;font-size:9.5px}
+#pg.pg-h .pgth{height:26px}
+#pg.pg-h .pgnrh{height:26px}
+#pg.pg-h .pgs{padding:4px 6px;font-size:10px}
+#pg.pg-v{--pgrh:44px}
+#pg.pg-v .sci{height:40px;font-size:18px}
+#pg.pg-v .pgnm{font-size:13px}
+#pg.pg-v .pgrc{min-width:26px;height:21px;font-size:10px;padding:0 2px}
+#pg.pg-v .pgth{height:28px}
+#pg.pg-v .pgnrh{height:28px}
+#pg.pg-v .pgtbl .qh{width:46px}
+#pg.pg-v .pgs{padding:5px 7px;font-size:11px}
+#pg.pg-v .cum{font-size:10px;min-height:12px}
+#pg.pg-v .restl{font-size:10px}
+/* 점수표 */
+.pgtblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pgtblwrap::-webkit-scrollbar{display:none}
+.pgtbl{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed}
 .pgtbl th,.pgtbl td{vertical-align:middle;text-align:center}
-.pgtbl .qh{width:52px;font-size:11px;font-weight:900;color:var(--pg-tx3);background:var(--pg-card2);
-  border:1px solid var(--pg-line);border-radius:7px;padding:4px 2px}
-.pgtbl .qh .ql{display:block;font-size:12px;color:var(--pg-tx)}
-.pgtbl .qbtns,.mbtns,.gbtns{display:flex;gap:2px;justify-content:center;margin-top:2px}
-.pgtbl .qbtns button,.mbtns button,.gbtns button{width:19px;height:17px;border-radius:4px;border:1px solid var(--pg-line);
-  background:transparent;color:var(--pg-tx3);font-size:8px;line-height:1;cursor:pointer;padding:0}
-.pgtbl .mh{background:var(--pg-card2);border:1px solid var(--pg-line2);border-radius:8px;padding:4px 2px}
+.pgtbl .qh{width:42px;font-size:9.5px;font-weight:900;color:var(--pg-tx3);background:var(--pg-card2);
+  border:1px solid var(--pg-line);border-radius:6px;padding:2px 1px}
+.pgtbl .qh .ql{display:block;font-size:11px;color:var(--pg-tx);font-weight:900}
+.pgtbl .qbtns,.mbtns,.gbtns{display:flex;gap:2px;justify-content:center;margin-top:1px}
+.pgtbl .qbtns button,.mbtns button,.gbtns button{width:16px;height:14px;border-radius:3px;border:1px solid var(--pg-line);
+  background:transparent;color:var(--pg-tx3);font-size:7px;line-height:1;cursor:pointer;padding:0;font-family:inherit}
+.pgtbl .mh{background:var(--pg-card2);border:1px solid var(--pg-line2);border-radius:7px;padding:3px 2px}
 .pgtbl .mh[draggable="true"]{cursor:grab}
-.pgtbl .mpair{font-size:10.5px;font-weight:900;color:var(--pg-tx);line-height:1.25;word-break:keep-all}
-.pgtbl .mpair i{font-style:normal;color:var(--pg-tx3);font-size:9px;font-weight:800}
-.pgtbl .mpair .dot{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:1px}
-.pgtbl .pgcell{background:var(--pg-card);border:1px solid var(--pg-line);border-radius:9px;padding:5px 3px}
-.scin{display:flex;align-items:center;justify-content:center;gap:2px}
-.sci{width:2.5em;height:34px;border-radius:7px;border:1px solid var(--pg-line2);background:var(--pg-in);
-  color:var(--pg-tx);font-family:inherit;font-size:17px;font-weight:900;text-align:center;padding:0;
+.pgtbl .mpair{font-size:10px;font-weight:900;color:var(--pg-tx);line-height:1.2;word-break:keep-all}
+.pgtbl .mpair i{font-style:normal;color:var(--pg-tx3);font-size:8.5px;font-weight:800}
+.pgtbl .mpair .dot{display:inline-block;width:6px;height:6px;border-radius:50%;vertical-align:1px}
+.pgtbl .pgcell{background:var(--pg-card);border:1px solid var(--pg-line);border-radius:8px;padding:3px 2px}
+.scin{display:flex;align-items:center;justify-content:center;gap:1px}
+.sci{width:2.5em;height:30px;border-radius:6px;border:1px solid var(--pg-line2);background:var(--pg-in);
+  color:var(--pg-tx);font-family:inherit;font-size:16px;font-weight:900;text-align:center;padding:0;
   -moz-appearance:textfield;font-variant-numeric:tabular-nums}
 .sci::-webkit-outer-spin-button,.sci::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .sci:focus{outline:none;border-color:var(--pg-acc);box-shadow:0 0 0 2px rgba(255,179,71,.22)}
-.scc{font-size:13px;font-weight:900;color:var(--pg-tx3)}
-.cum{margin-top:2px;font-size:9.5px;font-weight:800;color:var(--pg-tx3);min-height:11px;font-variant-numeric:tabular-nums}
-.restl{margin-bottom:3px;font-size:9.5px;font-weight:900;color:var(--pg-acc);line-height:1.35;font-variant-numeric:tabular-nums}
+.scc{font-size:11px;font-weight:900;color:var(--pg-tx3)}
+.cum{margin-top:1px;font-size:9px;font-weight:800;color:var(--pg-tx3);min-height:10px;font-variant-numeric:tabular-nums}
+.restl{margin-bottom:2px;font-size:9px;font-weight:900;color:var(--pg-acc);line-height:1.3;font-variant-numeric:tabular-nums}
 .restl.none{color:var(--pg-tx3);font-weight:800}
-.restl .rteam{display:inline-flex;align-items:center;gap:3px;margin-right:5px}
-.restl .dot{display:inline-block;width:6px;height:6px;border-radius:50%}
+.restl .rteam{display:inline-flex;align-items:center;gap:2px;margin-right:3px}
+.restl .dot{display:inline-block;width:5px;height:5px;border-radius:50%}
 .totrow .qh{background:var(--pg-card2)}
-.pgtot{background:var(--pg-card2);border:1px solid var(--pg-line2);border-radius:9px;padding:5px 3px}
-.totv{display:block;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
-.totv i{font-style:normal;color:var(--pg-tx3);font-size:11px}
+.pgtot{background:var(--pg-card2);border:1px solid var(--pg-line2);border-radius:8px;padding:3px 2px}
+.totv{display:block;font-size:14px;font-weight:900;font-variant-numeric:tabular-nums}
+.totv i{font-style:normal;color:var(--pg-tx3);font-size:10px}
 .totv.none{color:var(--pg-tx3)}
-.totw{display:block;font-size:9px;font-weight:900;color:var(--pg-tx3)}
+.totw{display:block;font-size:8px;font-weight:900;color:var(--pg-tx3)}
 .totw.l,.totw.r{color:var(--pg-acc)}
-/* 2파전 */
+/* 2파전 — 경기(행) × 쿼터(열) 한 표 */
 .pggame{max-width:880px;margin:0 auto 12px;border:1px solid var(--pg-line);border-radius:12px;padding:7px 8px;background:rgba(255,255,255,.02)}
-.pggh{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.ggname{font-size:13px;font-weight:900;color:var(--pg-acc)}
-.ggsub{font-size:11px;font-weight:800;color:var(--pg-tx2)}
-.gbtns{margin-left:auto}
-.pgtbl.g2 .qh2{background:var(--pg-card2);border:1px solid var(--pg-line);border-radius:8px;padding:4px 2px}
+.pggh2{display:flex;align-items:center;gap:6px;margin:0 0 3px;padding:0 2px;font-size:11px;font-weight:900;color:var(--pg-acc)}
+.pggh2 span{font-size:9.5px;color:var(--pg-tx3);font-weight:800}
+.pgtbl.g2 .qh2{background:var(--pg-card2);border:1px solid var(--pg-line);border-radius:6px;padding:2px 1px}
 .pgtbl.g2 .qh2 .ql{font-size:10.5px;font-weight:900;color:var(--pg-tx2)}
-.pgtbl.g2 .restl{margin:2px 0 0}
-/* 명단 */
-.pgrosters{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:9px;margin-top:14px}
-.pgteam{border:1px solid var(--pg-line2);border-top:3px solid var(--tone,var(--pg-line2));border-radius:12px;
-  padding:8px 9px;background:var(--pg-card)}
-.pgth{display:flex;align-items:center;gap:6px;margin-bottom:7px}
-.pgth .dot{width:9px;height:9px;border-radius:50%}
-.pgth b{font-size:13px;font-weight:900}
-.pgtn{font-size:10px;font-weight:800;color:var(--pg-tx3)}
-.pgasg{margin-left:auto;height:25px;padding:0 7px;border-radius:7px;border:1px solid var(--pg-line2);
-  background:transparent;color:var(--pg-tx2);font-size:9.5px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
+.pgtbl.g2 .gh{width:46px;background:var(--pg-card2);border:1px solid var(--pg-line);border-radius:6px;padding:2px 1px}
+.pgtbl.g2 .gh .ggname{display:block;font-size:11px;font-weight:900;color:var(--pg-acc)}
+.pgtbl.g2 .restl{margin:0 0 1px}
+/* 팀 순위 요약 */
+.pgsums{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:3px;margin:4px 0 0}
+.pgs{display:block;border:1px solid var(--pg-line);border-radius:7px;
+  padding:2px 5px;background:var(--pg-card);font-size:9.5px;font-weight:800;min-width:0}
+.pgs1{display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden}
+.pgs2{display:flex;align-items:center;gap:4px;margin-top:0;white-space:nowrap}
+.pgs.win{border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.12)}
+.pgs .dot{width:7px;height:7px;border-radius:50%}
+.pgsn{font-weight:900;color:var(--pg-tx)}
+.pgsr{color:var(--pg-tx3);font-weight:900}
+.pgsrank{color:var(--pg-acc);font-weight:900}
+.pgsrec{color:var(--pg-tx2)}
+.pgsd{font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
+.pgsd.up{color:var(--pg-hi)} .pgsd.dn{color:var(--pg-red)}
+/* 명단 — 종이 기록지형 표 (번호 열 + 팀 열) */
+.pgrosters{display:flex;flex-direction:column;gap:3px;min-height:0}
+.pgrshead,.pgrsbody{display:grid;grid-template-columns:var(--pgnr) repeat(var(--nt),minmax(0,1fr));gap:3px}
+.pgnrh{display:flex;align-items:center;justify-content:center;height:23px;font-size:8px;font-weight:900;color:var(--pg-tx3)}
+.pgth{display:flex;align-items:center;gap:3px;min-width:0;height:23px;padding:0 4px;background:var(--pg-card);
+  border:1px solid var(--pg-line2);border-top:2px solid var(--tone,var(--pg-line2));border-radius:7px}
+.pgth .dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%}
+.pgth b{font-size:10.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgtn{flex:0 0 auto;font-size:8px;font-weight:800;color:var(--pg-tx3)}
+.pgasg{margin-left:auto;flex:0 0 auto;height:17px;padding:0 4px;border-radius:5px;border:1px solid var(--pg-line2);
+  background:transparent;color:var(--pg-tx2);font-size:8px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
 .pgasg.on{background:var(--pg-acc);color:#20140a;border-color:transparent}
-.pgrows{display:flex;flex-direction:column;gap:4px}
-.pgrow{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid var(--pg-line);
-  border-radius:8px;padding:5px 6px;user-select:none;-webkit-user-select:none}
-.pgrow.dragging{opacity:.75;border-color:var(--pg-acc);box-shadow:0 6px 16px rgba(0,0,0,.35)}
-.pgdrag{flex:0 0 auto;color:var(--pg-tx3);font-size:12px;cursor:grab;touch-action:none;padding:2px 3px}
-.pgord{flex:0 0 auto;width:17px;text-align:center;font-size:10px;font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
-.pgnm{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pgnm .crown{margin-right:2px}
-.pgrso{flex:0 0 auto;font-size:9.5px;font-weight:800;color:var(--pg-tx3)}
-.pgrso b{color:var(--pg-tx2);font-weight:900;font-variant-numeric:tabular-nums}
-.pgrc{flex:0 0 auto;min-width:36px;height:25px;padding:0 6px;border-radius:7px;border:1px solid var(--pg-line2);
-  background:transparent;color:var(--pg-tx2);font-size:10px;font-weight:900;font-family:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
+.pgrsnum{display:flex;flex-direction:column;gap:3px}
+.pgrsnum span{height:var(--pgrh);display:flex;align-items:center;justify-content:center;
+  font-size:9.5px;font-weight:900;color:var(--pg-tx3);font-variant-numeric:tabular-nums}
+.pgrows{display:flex;flex-direction:column;gap:3px;align-content:start}
+.pgrow{display:flex;align-items:center;gap:2px;height:var(--pgrh);min-width:0;padding:0 3px;
+  background:rgba(255,255,255,.04);border:1px solid var(--pg-line);border-radius:6px;overflow:hidden;
+  user-select:none;-webkit-user-select:none}
+.pgrow.dragging{opacity:.75;border-color:var(--pg-acc);box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.pgdrag{flex:0 0 auto;color:var(--pg-tx3);font-size:10px;cursor:grab;touch-action:none;padding:0;line-height:1}
+.pgnm{flex:1 1 auto;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgnm .crown{margin-right:0;font-size:8.5px}
+.pgrso{flex:0 0 auto;font-size:8px;font-weight:900;color:var(--pg-tx3);border:1px solid var(--pg-line);
+  border-radius:4px;padding:0 2px;line-height:11px;font-variant-numeric:tabular-nums}
+.pgrso b{color:var(--pg-tx2);font-weight:900}
+.pgrc{flex:0 0 auto;min-width:24px;height:16px;padding:0 3px;border-radius:5px;border:1px solid var(--pg-line2);
+  background:transparent;color:var(--pg-tx2);font-size:8.5px;font-weight:900;font-family:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
 .pgrc.n1{color:#9fe6ff;border-color:rgba(74,210,255,.55);background:rgba(74,210,255,.12)}
 .pgrc.n2{color:var(--pg-acc);border-color:rgba(255,179,71,.6);background:rgba(255,179,71,.14)}
 .pgrc.n3{color:var(--pg-red);border-color:rgba(255,107,107,.6);background:rgba(255,107,107,.14)}
@@ -1113,11 +1132,38 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 #pg.pg-light .pgrc.n2{color:#9a4a00;border-color:rgba(154,74,0,.45);background:rgba(255,179,71,.2)}
 #pg.pg-light .pgrc.n3{color:#a01414;border-color:rgba(160,20,20,.45);background:rgba(255,107,107,.18)}
 #pg.pg-light .dot{box-shadow:inset 0 0 0 1px rgba(0,0,0,.4)}
-.pgpick{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:1px dashed var(--pg-line2);
-  display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--pg-tx3)}
+.pgpick{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px dashed var(--pg-line2);
+  display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:var(--pg-tx3)}
 .pgpick.on{background:var(--pg-acc);color:#20140a;border-style:solid;border-color:transparent}
+/* 설정 시트 */
+.pgset{position:fixed;inset:0;z-index:18;display:flex;align-items:flex-end;justify-content:center}
+.pgset[hidden]{display:none}
+.pgsetbd{position:absolute;inset:0;background:rgba(3,6,10,.66)}
+.pgsetp{position:relative;width:100%;max-width:560px;max-height:88dvh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:var(--pg-card);border:1px solid var(--pg-line2);border-radius:16px 16px 0 0;padding:9px 11px 14px;
+  box-shadow:0 -12px 40px rgba(0,0,0,.5)}
+.pgseth{display:flex;align-items:center;gap:6px;margin:0 0 8px;position:sticky;top:-9px;background:var(--pg-card);padding:2px 0 5px}
+.pgseth b{flex:0 0 auto;font-size:13.5px;font-weight:900;color:var(--pg-tx)}
+.pgseth span{flex:1 1 auto;min-width:0;font-size:9.5px;font-weight:800;color:var(--pg-tx3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgsrow{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;gap:5px;margin-bottom:6px}
+.pgsl{font-size:9.5px;font-weight:900;color:var(--pg-tx3)}
+.pgsseg{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.pgsseg button{flex:0 0 auto;height:30px;padding:0 9px;border-radius:8px;border:1px solid var(--pg-line2);
+  background:var(--pg-card2);color:var(--pg-tx2);font-size:11px;font-weight:900;font-family:inherit;cursor:pointer;white-space:nowrap}
+.pgsseg button:active{transform:translateY(1px)}
+.pgsseg button[aria-pressed="true"]{background:var(--pg-acc);color:#20140a;border-color:transparent}
+.pgsseg button.danger{background:rgba(255,92,92,.14);border-color:rgba(255,92,92,.5);color:#ff9a9a}
+#pg.pg-h .pgset{align-items:center;padding:8px}
+#pg.pg-h .pgsetp{border-radius:14px;max-width:660px;max-height:96dvh;padding:8px 12px 10px}
+#pg.pg-h .pgsetb{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+#pg.pg-h .pgsrow{margin:0}
+#pg.pg-h .pgsseg button{height:27px;font-size:10.5px}
+#pg.pg-h .pgnote{grid-column:1/-1;margin:4px 0 0}
+.pgnote{margin:8px 0 0;font-size:10px;line-height:1.5;color:var(--pg-tx3);font-weight:700;word-break:keep-all}
+.pgnote b{color:var(--pg-tx2);font-weight:900}
 /* 초기화 확인 */
-.pgconfirm{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px}
+.pgconfirm{position:fixed;inset:0;z-index:22;display:flex;align-items:center;justify-content:center;padding:18px}
 .pgconfirm[hidden]{display:none}
 .pgcfbd{position:absolute;inset:0;background:rgba(3,6,10,.68)}
 .pgcf{position:relative;width:100%;max-width:330px;background:var(--pg-card);border:1px solid var(--pg-line2);
@@ -1141,8 +1187,12 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   body.pg-open #pg{position:static!important;display:block!important;height:auto!important;overflow:visible!important;
     background:#fff!important;color:#000!important}
   #pg .pgbar{position:static!important;background:#fff!important;border-bottom:1.5px solid #000!important;padding:0 0 4pt!important}
-  #pg .pgtools,#pg .pgopts,#pg .pgnote,#pg .pgx,#pg .qbtns,#pg .mbtns,#pg .gbtns,#pg .pgasg,#pg .pgdrag,#pg .pgpick,#pg .pgconfirm{display:none!important}
-  #pg .pgboard{zoom:.82;max-width:none!important;padding:0!important}
+  #pg .pgset,#pg .pgconfirm,#pg .pgbtn,#pg .pgx,#pg .pgnote,#pg .qbtns,#pg .mbtns,#pg .gbtns,
+  #pg .pgasg,#pg .pgdrag,#pg .pgpick{display:none!important}
+  #pg .pgbody{display:block!important;overflow:visible!important;padding:0!important;gap:0!important}
+  #pg .pgcol{overflow:visible!important;min-height:0!important}
+  #pg .pgfit{zoom:1!important}
+  #pg .pgrosters{margin-top:6pt!important}
   #pg *{background:transparent!important;color:#000!important;border-color:#000!important;box-shadow:none!important;text-shadow:none!important}
   #pg .pgt{font-size:13pt!important;font-weight:900!important}
   #pg .pgtbl{border-spacing:0!important}
@@ -1150,12 +1200,13 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
   #pg .sci{border:0!important;border-bottom:1px solid #000!important;width:2.6em!important;font-size:12pt!important;background:#fff!important}
   #pg .cum{color:#333!important;font-size:7.5pt!important}
   #pg .restl{color:#000!important;font-size:7.5pt!important}
-  #pg .pgcell,#pg .pgtot,#pg .mh,#pg .qh,.pggame,.pgteam{border:1px solid #000!important;border-radius:0!important;background:#fff!important}
-  #pg .pgteam{break-inside:avoid;border-top:2px solid #000!important}
-  #pg .pgrow{border:0!important;border-bottom:1px dotted #666!important;border-radius:0!important;padding:2pt 0!important}
+  #pg .pgcell,#pg .pgtot,#pg .mh,#pg .qh,#pg .qh2,#pg .gh,.pggame,.pgth{border:1px solid #000!important;border-radius:0!important;background:#fff!important}
+  #pg .pgrow{border:0!important;border-bottom:1px dotted #666!important;border-radius:0!important;padding:0!important;height:auto!important}
+  #pg .pgrsnum span{height:auto!important;min-height:14pt!important}
   #pg .pgrc{display:none!important}
+  #pg .pgrso{border:0!important;color:#000!important}
   #pg .pgrso b{color:#000!important}
-  #pg .pgrosters{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150pt,1fr))!important;gap:4pt!important}
+  #pg .pgth{height:auto!important;border-top:2px solid #000!important}
   #pg .pgsums{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(90pt,1fr))!important;gap:4pt!important;margin:4pt 0 0!important}
   #pg .pgs{border:1px solid #000!important;border-radius:0!important;padding:2pt 4pt!important}
   #pg.pg-light,#pg.pg-dark{background:#fff!important}
@@ -2771,6 +2822,14 @@ const UPDATES = [
       '2파전 — 경기당 1~3Q/1~4Q 선택, 쿼터 칸에 쉬는 순번(N-5명 순환) 자동 표기, 하이라이트 메모·휴식 횟수 없음',
       '어두운/밝은 테마 · 글씨 크기 · 전체화면 · 화면꺼짐 방지 · A4 인쇄 · 사진 저장(PNG) · 전체 초기화(확인 팝업)'
     ] },
+  { date: '2026-11-27', kind: '기능', title: '경기 진행 — 가로 한 화면 수납 · ⚙️ 설정 정리 · 정본 프리뷰 바로 연결',
+    items: [
+      '진행 화면 상단을 제목 · ⚙️ 설정 · ⛶ 전체화면 · ✕ 닫기 한 줄로 정리 — 테마·글씨 크기·화면꺼짐 방지·쿼터·경기 수·A4 인쇄·사진 저장·매치 프리뷰 수정·전체 초기화는 ⚙️ 설정 안으로 이동',
+      '가로(전체화면)에서는 왼쪽 점수표+팀 순위 / 오른쪽 팀별 명단 2단으로 나눠 세로 스크롤 없이 한 화면에 수납, 세로 화면도 같은 방식으로 화면에 맞춤',
+      '명단을 종이 기록지형 표로 — 왼쪽 1~6번 번호 열 + 팀별 열(3파전 3열 · 2파전 2열), 드래그·휴식 순서·횟수 기능은 그대로',
+      '2파전 점수표를 경기(행) × 쿼터(열) 한 표로 합쳐 한눈에 보이게 정리',
+      '정본 매치 프리뷰(2026-11-28)를 기기에 등록하지 않아도 메인 카드에서 🏀 경기 진행하기 · ✏️ 수정하기로 바로 연결 — 등록·편집 창도 정본 인원(3팀 각 5명, 팀장 포함)으로 채워서 열림'
+    ] },
   { date: '2026-11-27', kind: '기능', title: '⚖️ 팀 구성 추천하기 추가',
     items: [
       '3파전·2파전과 참석 인원(정회원·게스트·가상)을 고르면 팀 인원을 ±1명 이내로 나누고 팀 평균 승률·포지션·짝꿍 상성까지 맞춘 조합 추천',
@@ -4067,7 +4126,31 @@ function mpDB() {
   return { v: 2, items: items };
 }
 function mpItems() { return mpDB().items; }
-function mpItemFor(date) { return mpItems()[date] || null; }
+function mpItemFor(date) { return date ? (mpItems()[date] || null) : null; }
+/* 정본(데이터에 들어 있는) 매치 프리뷰 — 기기에 등록하지 않아도 그대로 진행할 수 있게 합니다. */
+function mpCanonFor(date) {
+  if (PREVIEW && PREVIEW.date === date && (PREVIEW.teams || []).length) return PREVIEW;
+  const w = CHRONO.filter(function (x) { return x.date === date && x.preview; })[0];
+  return (w && (w.preview.teams || []).length) ? w.preview : null;
+}
+function mpCanonItem(date) {
+  const c = mpCanonFor(date);
+  if (!c) return null;
+  const teams = (c.teams || []).map(function (t) {
+    return { team: t.team, cap: t.cap || '', roster: (t.roster || []).slice() };
+  });
+  if (!teams.length) return null;
+  const mode = teams.length === 2 ? 2 : 3;
+  return { v: 1, date: date, mode: mode, id: date + '|' + mode, teams: teams, canon: true };
+}
+function mpItemOrCanon(date) { return mpItemFor(date) || mpCanonItem(date); }
+/* 편집·진행 입구의 기본값: 이번 주 기기 등록분 → 이번 주 정본 프리뷰 → 마지막 등록분 */
+function mpCurrentItem() {
+  const t = mpToday();
+  const hit = t ? mpItemOrCanon(t) : null;
+  if (hit) return hit;
+  return MPS || mpLoad();
+}
 function mpSaveItem(item) {
   const db = mpDB();
   db.v = 2;
@@ -4150,8 +4233,8 @@ function mpPvBadge(w) {
   return '<button type="button" class="pvwbtn" data-pv-view="' + esc(w.date) + '">🔮 매치 프리뷰</button>';
 }
 function mpCardHtml(pv) {
-  let m = pv ? mpItemFor(pv.date) : null;
-  if (!m) m = MPS || mpLoad();
+  let m = pv ? mpItemOrCanon(pv.date) : null;
+  if (!m) m = mpCurrentItem();
   if (!m) return '';
   if (pv && m.date !== pv.date) return '';
   const a = mpRankRows({ teams: m.teams }), total = mpTeamTotal(m);
@@ -4168,15 +4251,15 @@ function mpCardHtml(pv) {
       }).join('') + '</div></div>';
   }).join('');
   return '<div class="pvcard mpcard">' +
-    '<div class="pvhead"><span class="pvbadge">📝 등록 매치 프리뷰 · ' + esc(m.date) + ' (' + wd(m.date) + ') · ' + m.mode + '파전</span>' +
-    '<span class="mpsaved">이 기기에 저장</span></div>' +
+    '<div class="pvhead"><span class="pvbadge">' + (m.canon ? '🔮 정본 매치 프리뷰' : '📝 등록 매치 프리뷰') + ' · ' + esc(m.date) + ' (' + wd(m.date) + ') · ' + m.mode + '파전</span>' +
+    '<span class="mpsaved">' + (m.canon ? '정본 데이터' : '이 기기에 저장') + '</span></div>' +
     '<div class="pvsub">' + esc((pv && pv.venue) || '부천JW스포츠센터') + ' · ' +
     (m.mode === 3 ? '3파전(팀당 2경기)' : '2파전') + ' · ' + total + '명 · 예상 1위 <b>' +
     (win ? esc(win.team) : '–') + '</b>' + (win && win.avg != null ? ' (평균 ' + pct(win.avg) + '%)' : '') + '</div>' +
     teams +
     '<div class="mpbtns">' +
-    '<button type="button" class="mpgo" data-mp-go="1">🏀 경기 진행하기</button>' +
-    '<button type="button" class="mpedit" data-mp-edit="1">✏️ 매치 프리뷰 수정하기</button>' +
+    '<button type="button" class="mpgo" data-mp-go="' + esc(m.date) + '">🏀 경기 진행하기</button>' +
+    '<button type="button" class="mpedit" data-mp-edit="' + esc(m.date) + '">' + (m.canon ? '✏️ 수정하기' : '✏️ 매치 프리뷰 수정하기') + '</button>' +
     '</div>' +
     (pv ? '<details class="mporig"><summary>🔮 기존 예정 프리뷰 보기 (' + esc(pv.date) + ')</summary><div class="mporigb">' + pvStaticHtml(pv) + '</div></details>' : '') +
     '</div>';
@@ -4242,14 +4325,14 @@ function mpCloseEditor() {
   document.body.style.overflow = '';
 }
 function mpOpenEditor(prefill) {
-  const cur = MPS || mpLoad();
+  const cur = mpCurrentItem();
   MPE = prefill || (cur ? mpEditFromMPS(cur) : mpNewEditor());
   if (prefill && !prefill.teams) MPE = mpNewEditor();
   MP_TAB = 'edit'; MP_VIEW = null;
   mpOpenModal();
 }
 function mpOpenPreviewHome() {
-  const cur = MPS || mpLoad();
+  const cur = mpCurrentItem();
   MPE = cur ? mpEditFromMPS(cur) : mpNewEditor();
   MP_TAB = 'edit';
   MP_VIEW = null;
@@ -4263,7 +4346,7 @@ function mpPaintModal() {
   const box = $('#mpBody');
   if (!box) return;
   const sheet = box.closest('.sheet'), sy = sheet ? sheet.scrollTop : 0;
-  if (MP_TAB === 'edit' && !MPE) MPE = (MPS || mpLoad()) ? mpEditFromMPS(MPS || mpLoad()) : mpNewEditor();
+  if (MP_TAB === 'edit' && !MPE) { const c0 = mpCurrentItem(); MPE = c0 ? mpEditFromMPS(c0) : mpNewEditor(); }
   const nHist = mpHistEntries().length;
   const tabs = '<div class="mptabs">' +
     '<button type="button" data-mptab="hist" aria-pressed="' + (MP_TAB === 'hist' || MP_TAB === 'view') + '">📅 이력' +
@@ -4381,7 +4464,7 @@ function mpEditorBodyHtml() {
     '<p class="pmsg" id="mpMsg" role="status" aria-live="polite" hidden></p>' +
     '<div class="mpeBtns"><button type="button" class="mpeSave" id="mpSave">📝 매치 프리뷰 등록 완료</button>' +
     '<button type="button" class="mpeCancel" data-mpclose="1">취소</button>' +
-    ((MPS || mpLoad()) ? '<button type="button" class="mpeDel" id="mpDel">🗑 등록 삭제</button>' : '') +
+    (mpItemFor(MPE.date || (MPS && MPS.date) || mpToday()) ? '<button type="button" class="mpeDel" id="mpDel">🗑 등록 삭제</button>' : '') +
     '</div>';
 }
 function mpRenderEditor() { MP_TAB = 'edit'; mpPaintModal(); }
@@ -4476,7 +4559,8 @@ function mpHistRowHtml(e) {
   return '<div class="mphitem"><button type="button" class="mphrow" data-mphist="' + esc(e.date) + '">' +
     '<span class="mphd">' + short(e.date) + '<i>' + wd(e.date) + '</i></span>' +
     '<span class="mpht">' + e.mode + '파전 · ' + n + '명' +
-    (mpItemFor(e.date) ? ' <span class="mphb">등록</span>' : '') + (e.week ? ' <span class="mphb wk">결과</span>' : '') + '</span>' +
+    (mpItemFor(e.date) ? ' <span class="mphb">등록</span>' : (mpCanonFor(e.date) ? ' <span class="mphb">정본</span>' : '')) +
+    (e.week ? ' <span class="mphb wk">결과</span>' : '') + '</span>' +
     '<span class="mphr">예상 1위 <b>' + esc(rows[0] ? rows[0].team : '–') + '</b> · ' + status + '</span>' +
     '<span class="mphch">▾</span></button>' +
     '<div class="mphbody" hidden>' + mpHistBodyHtml(e, rows) + '</div></div>';
@@ -4495,7 +4579,7 @@ function mpHistBodyHtml(e, rows) {
         return '<span class="chip mpn">' + (n === r.cap ? '<span class="st">👑</span>' : '') + esc(n) + '</span>';
       }).join('') + '</div></div>';
   }).join('');
-  const mine = mpItemFor(e.date);
+  const mine = mpItemOrCanon(e.date);
   return line + (mine ? '<div class="mphBtns">' +
     '<button type="button" class="mpgo" data-mphist-go="' + esc(e.date) + '">🏀 경기 진행하기</button>' +
     '<button type="button" class="mpedit" data-mphist-edit="' + esc(e.date) + '">✏️ 수정하기</button></div>' : '');
@@ -4542,7 +4626,7 @@ function mpViewHtml(date) {
     }
     const go = t.closest('[data-mphist-go]');
     if (go) {
-      const it = mpItemFor(go.getAttribute('data-mphist-go'));
+      const it = mpItemOrCanon(go.getAttribute('data-mphist-go'));
       if (!it) return;
       MPS = it;
       mpCloseEditor();
@@ -4552,7 +4636,7 @@ function mpViewHtml(date) {
     }
     const ed = t.closest('[data-mphist-edit]');
     if (ed) {
-      const it = mpItemFor(ed.getAttribute('data-mphist-edit'));
+      const it = mpItemOrCanon(ed.getAttribute('data-mphist-edit'));
       if (!it) return;
       mpOpenEditor(mpEditFromMPS(it));
       return;
@@ -4599,7 +4683,22 @@ function mpViewHtml(date) {
     if (t.getAttribute && t.getAttribute('data-mpcap') != null) {
       MPE.teams[Number(t.getAttribute('data-mpcap'))].cap = t.value; mpRenderEditor(); return;
     }
-    if (t.id === 'mpDate') { MPE.date = t.value; return; }
+    if (t.id === 'mpDate') {
+      MPE.date = t.value;
+      /* 정본 데이터에 프리뷰가 있는 날짜를 고르면 빈 편집창 대신 그 인원을 불러옵니다 */
+      const tot0 = MPE.teams.reduce(function (s2, x) { return s2 + x.roster.length; }, 0);
+      if (!tot0 && MPE.date && !mpItemFor(MPE.date)) {
+        const it = mpCanonItem(MPE.date);
+        if (it) {
+          MPE.mode = it.mode;
+          MPE.teams = it.teams.map(function (x) { return { team: x.team, roster: x.roster.slice(), cap: x.cap || '' }; });
+          MPE.target = 0;
+          mpRenderEditor();
+          mpMsg(MPE.date + ' 정본 매치 프리뷰 인원(' + it.teams.reduce(function (s2, x) { return s2 + x.roster.length; }, 0) + '명)을 불러왔습니다.');
+        }
+      }
+      return;
+    }
   });
   modal.addEventListener('input', function (e) {
     const t = e.target;
@@ -4621,8 +4720,21 @@ function mpViewHtml(date) {
   if (hb) hb.addEventListener('click', function () { mpOpenPreviewHome(); });
 })();
 document.addEventListener('click', function (e) {
-  if (e.target.closest('[data-mp-go]')) { mpOpenProgress(); return; }
-  if (e.target.closest('[data-mp-edit]')) { mpOpenEditor(null); return; }
+  const goB = e.target.closest('[data-mp-go]');
+  if (goB) {
+    const d = goB.getAttribute('data-mp-go');
+    const it = (d && d !== '1') ? mpItemOrCanon(d) : null;
+    if (it) MPS = it;
+    mpOpenProgress();
+    return;
+  }
+  const edB = e.target.closest('[data-mp-edit]');
+  if (edB) {
+    const d = edB.getAttribute('data-mp-edit');
+    const it = (d && d !== '1') ? mpItemOrCanon(d) : null;
+    mpOpenEditor(it ? mpEditFromMPS(it) : null);
+    return;
+  }
   const pv = e.target.closest('[data-pv-view]');
   if (pv) { e.preventDefault(); e.stopPropagation(); mpOpenView(pv.getAttribute('data-pv-view')); return; }
   const pb = e.target.closest('[data-mp-pair]');
@@ -4647,7 +4759,14 @@ document.addEventListener('click', function (e) {
 
 /* ---------------- 경기 진행: 상태 ---------------- */
 let mpWakeOn = false, mpWakeSentinel = null;
-let mpDrag = null, mpDragCol = null;
+let mpDrag = null, mpDragCol = null, mpSettingsOpen = false;
+function mpSetOpen(open) {
+  mpSettingsOpen = !!open;
+  const el = $('#pgSettings');
+  if (el) el.hidden = !mpSettingsOpen;
+  const b = $('#pg [data-pg="set"]');
+  if (b) b.classList.toggle('gon', mpSettingsOpen);
+}
 function mpMatchups(m) {
   const n = m.teams.map(function (t) { return t.team; });
   return [[n[0], n[1]], [n[1], n[2]], [n[2], n[0]]];
@@ -4833,26 +4952,37 @@ function mpGrid3(m, s) {
     '<tbody>' + rows + '<tr class="totrow"><th class="qh">합계</th>' + tots + '</tr></tbody></table></div>';
 }
 function mpGrid2(m, s) {
-  const A = m.teams[0].team, B = m.teams[1].team;
-  const blocks = s.gameOrder.map(function (g, gi) {
-    const heads = mpQOrder(s).map(function (q) {
-      return '<th class="qh2"><span class="ql">' + g + 'G' + q + 'Q</span></th>';
-    }).join('');
-    const cells = mpQOrder(s).map(function (q) {
-      return mpCellHtml(m, s, A, B, q, g);
-    }).join('');
-    return '<div class="pggame"><div class="pggh" draggable="true" data-gd="' + g + '"><span class="ggname">' + g + 'G</span>' +
-      '<span class="ggsub">' + esc(A) + ' vs ' + esc(B) + '</span>' +
+  const A = m.teams[0].team, B = m.teams[1].team, Q = mpQOrder(s);
+  const head = '<tr><th class="qh gh">경기</th>' + Q.map(function (q) {
+    return '<th class="qh2"><span class="ql">' + q + 'Q</span></th>';
+  }).join('') + '<th class="qh2"><span class="ql">합계</span></th></tr>';
+  const rows = s.gameOrder.map(function (g) {
+    const cells = Q.map(function (q) { return mpCellHtml(m, s, A, B, q, g); }).join('');
+    return '<tr><th class="gh" draggable="true" data-gd="' + g + '"><span class="ggname">' + g + 'G</span>' +
       '<span class="gbtns"><button type="button" data-gmove="' + g + '" data-dir="-1" aria-label="경기 위로">▲</button>' +
-      '<button type="button" data-gmove="' + g + '" data-dir="1" aria-label="경기 아래로">▼</button></span></div>' +
-      '<table class="pgtbl g2"><thead><tr>' + heads + '</tr></thead><tbody><tr>' + cells + '</tr>' +
-      '<tr class="totrow"><th>합계</th><td class="pgtot" colspan="' + mpQOrder(s).length + '" data-a="' + esc(A) + '" data-b="' + esc(B) + '" data-g="' + g + '">' + mpTotalHtml(mpTotals(s, A, B, g)) + '</td></tr></tbody></table></div>';
+      '<button type="button" data-gmove="' + g + '" data-dir="1" aria-label="경기 아래로">▼</button></span></th>' +
+      cells +
+      '<td class="pgtot" data-a="' + esc(A) + '" data-b="' + esc(B) + '" data-g="' + g + '">' + mpTotalHtml(mpTotals(s, A, B, g)) + '</td></tr>';
   }).join('');
-  return blocks;
+  return '<div class="pgtblwrap"><div class="pggh2">' + esc(A) + ' <span>vs</span> ' + esc(B) + ' <span>· ' + esc(Q.length + '쿼터') + '</span></div>' +
+    '<table class="pgtbl g2"><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
 }
+/* 명단 — 종이 기록지형 표: 왼쪽 번호 열 + 팀별 열(3파전 3열 / 2파전 2열) */
 function mpRostersHtml(m, s) {
-  return '<div class="pgrosters">' + m.teams.map(function (t) {
+  const nT = m.teams.length;
+  let maxN = 0;
+  m.teams.forEach(function (t) { if (t.roster.length > maxN) maxN = t.roster.length; });
+  const head = '<div class="pgrshead"><span class="pgnrh">번</span>' + m.teams.map(function (t) {
     const tone = MP_TONE[t.team] || MP_TONE['블랙'];
+    const on = mpAssign.team === t.team;
+    return '<div class="pgth" style="--tone:' + tone[2] + '"><span class="dot ' + mpCls(t.team) + '"></span><b>' + esc(t.team) + '</b>' +
+      '<span class="pgtn">' + t.roster.length + '명</span>' +
+      '<button type="button" class="pgasg' + (on ? ' on' : '') + '" data-asg="' + esc(t.team) + '" aria-label="' + esc(t.team) + ' 휴식 순서 정하기" title="' + esc(t.team) + ' 휴식 순서 정하기">' +
+      (on ? '✓ 지정중' : '순서') + '</button></div>';
+  }).join('') + '</div>';
+  let numHtml = '';
+  for (let i = 1; i <= maxN; i++) numHtml += '<span>' + i + '</span>';
+  const body = '<div class="pgrsnum">' + numHtml + '</div>' + m.teams.map(function (t) {
     const rc = s.restCount[t.team] || {};
     const on = mpAssign.team === t.team;
     const rows = t.roster.map(function (n, i) {
@@ -4860,20 +4990,14 @@ function mpRostersHtml(m, s) {
       const pick = on ? (mpAssign.list.indexOf(n) + 1) : 0;
       return '<div class="pgrow" data-row-team="' + esc(t.team) + '" data-row-name="' + esc(n) + '">' +
         '<span class="pgdrag" data-drag="1" role="button" aria-label="드래그해서 순서 변경">⠿</span>' +
-        '<span class="pgord">' + (i + 1) + '</span>' +
         '<span class="pgnm">' + (t.cap === n ? '<span class="crown">👑</span>' : '') + esc(n) + '</span>' +
-        '<span class="pgrso">휴식 <b>' + (i + 1) + '</b></span>' +
         (m.mode === 3 ? '<button type="button" class="pgrc n' + c + '" data-rc="' + esc(t.team) + '" data-name="' + esc(n) + '" aria-label="' + esc(n) + ' 휴식 횟수 ' + c + '회">' + c + '회</button>' : '') +
         (on ? '<span class="pgpick ' + (pick ? 'on' : '') + '">' + (pick ? pick : '·') + '</span>' : '') +
         '</div>';
     }).join('');
-    return '<div class="pgteam" style="--tone:' + tone[2] + '">' +
-      '<div class="pgth"><span class="dot ' + mpCls(t.team) + '"></span><b>' + esc(t.team) + '</b>' +
-      '<span class="pgtn">' + t.roster.length + '명</span>' +
-      '<button type="button" class="pgasg' + (on ? ' on' : '') + '" data-asg="' + esc(t.team) + '">' +
-      (on ? '✓ 순서 선택 중 (다시 누르면 취소)' : '휴식 순서 정하기') + '</button></div>' +
-      '<div class="pgrows" data-team="' + esc(t.team) + '">' + rows + '</div></div>';
-  }).join('') + '</div>';
+    return '<div class="pgrows" data-team="' + esc(t.team) + '">' + rows + '</div>';
+  }).join('');
+  return '<div class="pgrosters" style="--nt:' + nT + '">' + head + '<div class="pgrsbody">' + body + '</div></div>';
 }
 function mpConfirmHtml() {
   return '<div id="pgReset" class="pgconfirm" hidden><div class="pgcfbd" data-pg="resetcancel"></div>' +
@@ -4884,37 +5008,121 @@ function mpConfirmHtml() {
 function mpHeaderHtml(m, s) {
   return '<div class="pgbar"><div class="pgbarInner"><div class="pghd">' +
     '<div class="pgt">🏀 <b>' + esc(m.date) + ' (' + wd(m.date) + ')</b> · ' + m.mode + '파전 경기 진행</div>' +
-    '<button type="button" class="pgx" data-pg="close" aria-label="경기 진행 닫기">✕</button></div>' +
-    '<div class="pgtools">' +
+    '<button type="button" class="pgbtn" data-pg="set" aria-haspopup="dialog" aria-controls="pgSettings" title="설정 — 테마·글씨·쿼터·인쇄·초기화">' +
+    '<span aria-hidden="true">⚙️</span><span class="lbl"> 설정</span></button>' +
+    '<button type="button" class="pgbtn" data-pg="full" title="전체화면">' +
+    '<span aria-hidden="true">⛶</span><span class="lbl"> 전체화면</span></button>' +
+    '<button type="button" class="pgx" data-pg="close" aria-label="경기 진행 닫기">✕</button>' +
+    '</div></div></div>';
+}
+/* ⚙️ 설정 시트 — 상단 바에 늘어서 있던 옵션 버튼을 모두 여기에 모았습니다. */
+function mpSettingsHtml(m, s) {
+  const fs = MP_FS[s.scale == null ? 1 : s.scale];
+  const note = '점수 칸을 눌러 숫자를 입력하세요 · 인원 추가·삭제는 <b>매치 프리뷰 수정</b>에서만 가능합니다' +
+    (m.mode === 2 ? ' · 쿼터 위 숫자는 그 쿼터에 <b>쉬는 번호</b>입니다' : ' · 오른쪽 숫자가 휴식 순번, <b>n회</b>를 누르면 누적 횟수가 1→2→3→1로 바뀌듭니다') + '.';
+  return '<div id="pgSettings" class="pgset" role="dialog" aria-label="경기 진행 설정" aria-modal="true"' + (mpSettingsOpen ? '' : ' hidden') + '>' +
+    '<div class="pgsetbd" data-pg="setclose"></div>' +
+    '<div class="pgsetp">' +
+    '<div class="pgseth"><b>⚙️ 설정</b><span>' + esc(m.date) + ' (' + wd(m.date) + ') · ' + m.mode + '파전 · ' + mpTeamTotal(m) + '명</span>' +
+    '<button type="button" class="pgx" data-pg="setclose" aria-label="설정 닫기">✕</button></div>' +
+    '<div class="pgsetb">' +
+    '<div class="pgsrow"><span class="pgsl">화면</span><div class="pgsseg">' +
     '<button type="button" data-pg="theme">🌓 ' + (s.theme === 'light' ? '어두운' : '밝은') + ' 테마</button>' +
-    '<button type="button" data-pg="font">🔎 글씨 ' + MP_FS[s.scale || 1] + '</button>' +
-    '<button type="button" data-pg="full">⛶ 전체화면</button>' +
+    '<button type="button" data-pg="font">🔎 글씨 ' + fs + '</button>' +
     '<button type="button" data-pg="wake" aria-pressed="' + (mpWakeOn ? 'true' : 'false') + '">🔆 화면꺼짐 방지 ' + (mpWakeOn ? 'ON' : 'OFF') + '</button>' +
-    '<button type="button" data-pg="print">🖨️ A4 인쇄</button>' +
-    '<button type="button" data-pg="png">📸 사진 저장</button>' +
-    '<button type="button" data-pg="reset">🔄 전체 초기화</button>' +
-    '<button type="button" data-pg="edit">✏️ 매치 프리뷰 수정</button>' +
-    '</div>' +
-    '<div class="pgopts">' +
-    '<span class="pgol">쿼터</span>' +
+    '</div></div>' +
+    '<div class="pgsrow"><span class="pgsl">쿼터</span><div class="pgsseg">' +
     '<button type="button" data-pgq="3" aria-pressed="' + (s.quarters === 3) + '">1~3Q</button>' +
     '<button type="button" data-pgq="4" aria-pressed="' + (s.quarters === 4) + '">1~4Q</button>' +
-    (m.mode === 2 ? '<span class="pgol">경기 수</span>' +
+    '</div></div>' +
+    (m.mode === 2 ? '<div class="pgsrow"><span class="pgsl">경기 수</span><div class="pgsseg">' +
       [1, 2, 3, 4, 5].map(function (n) {
-        return '<button type="button" data-pgg="' + n + '" aria-pressed="' + (s.games === n) + '">' + n + '</button>';
-      }).join('') : '') +
-    '</div>' +
-    '<p class="pgnote">점수 칸을 눌러 숫자를 입력하세요 · 인원 추가·삭제는 <b>매치 프리뷰 수정</b>에서만 가능합니다' +
-    (m.mode === 2 ? ' · 쿼터 위 숫자는 그 쿼터에 <b>쉬는 순번</b>입니다' : ' · 명단의 <b>휴식</b> 숫자가 휴식 순서, 오른쪽 <b>n회</b>를 누르면 누적 횟수가 1→2→3→1로 바뀝니다') + '.</p>' +
-    '<div class="pgsums" id="pgSum">' + mpSumInner(m, s) + '</div></div></div>';
+        return '<button type="button" data-pgg="' + n + '" aria-pressed="' + (s.games === n) + '">' + n + '경기</button>';
+      }).join('') + '</div></div>' : '') +
+    '<div class="pgsrow"><span class="pgsl">내보내기</span><div class="pgsseg">' +
+    '<button type="button" data-pg="print">🖨️ A4 인쇄</button>' +
+    '<button type="button" data-pg="png">📸 사진 저장</button>' +
+    '<button type="button" data-pg="edit">✏️ 매치 프리뷰 수정</button>' +
+    '</div></div>' +
+    '<div class="pgsrow"><span class="pgsl">기록</span><div class="pgsseg">' +
+    '<button type="button" class="danger" data-pg="reset">🔄 전체 초기화</button>' +
+    '</div></div>' +
+    '<p class="pgnote">' + note + '</p>' +
+    '</div></div></div>';
 }
+/* 한 화면 수납 — 가로: 점수표 + 팀 순위 | 명단 / 세로: 위아래 */
+function mpBoardHtml(m, s) {
+  return '<div class="pgbody" id="pgBody">' +
+    '<div class="pgcol pgl"><div class="pgfit">' + (m.mode === 3 ? mpGrid3(m, s) : mpGrid2(m, s)) +
+    '<div class="pgsums" id="pgSum">' + mpSumInner(m, s) + '</div></div></div>' +
+    '<div class="pgcol pgr"><div class="pgfit">' + mpRostersHtml(m, s) + '</div></div>' +
+    '</div>';
+}
+/* 화면 배율 — 들어오는 만큼(100dvh) 줄이거나 키워 한 화면에 맞춥니다 */
+function mpApplyFit() {
+  const pg = $('#pg'), s = PGS, body = $('#pgBody');
+  if (!pg || !s || !body || pg.hidden) return;
+  const land = window.innerWidth > window.innerHeight;
+  pg.classList.toggle('pg-h', land);
+  pg.classList.toggle('pg-v', !land);
+  /* 글씨 크기 = 배율(작게 84% · 보통 꽉 채움 · 크게 꽉 채움+여유 있으면 18%까지 확대) */
+  const target = [0.84, 1, 1][s.scale == null ? 1 : s.scale] || 1;
+  const els = $$('#pg .pgfit');
+  if (!els.length) return;
+  els.forEach(function (el) { el.style.zoom = '1'; });
+  /* '크게'는 자리가 남으면 최대 18%까지 키웁니다(가로 폭이 좁아져 이름이 잘리지 않는 선) */
+  const cap = target >= 1 ? 1.18 : 1;
+  const clamp = function (z) { return Math.max(0.34, Math.min(1.25, z)); };
+  function fitOne(el, panel, avail) {
+    panel.style.overflowY = 'hidden';
+    const nat = el.offsetHeight;
+    if (!avail || !nat) return;
+    const hi = Math.min(cap, avail / nat) * target;
+    let z = clamp(hi);
+    el.style.zoom = z;
+    let vh = el.getBoundingClientRect().height;
+    let want = nat * hi;
+    if (vh > 0 && Math.abs(vh - want) > Math.max(3, want * 0.03)) {
+      z = clamp(z * want / vh);
+      el.style.zoom = z;
+      vh = el.getBoundingClientRect().height;
+    }
+    if (vh > avail + 1) panel.style.overflowY = 'auto';
+  }
+  if (land) {
+    els.forEach(function (el) { fitOne(el, el.parentNode, el.parentNode.clientHeight); });
+  } else {
+    const avail = Math.max(0, body.clientHeight - 10);
+    let nat = 5;
+    els.forEach(function (el) { nat += el.offsetHeight; });
+    const hi = Math.min(cap, avail / nat) * target;
+    let z = clamp(hi);
+    els.forEach(function (el) { el.style.zoom = z; });
+    let tot = 5;
+    els.forEach(function (el) { tot += el.getBoundingClientRect().height; });
+    const want = Math.max(1, nat - 5) * hi + 5;
+    if (tot > 0 && Math.abs(tot - want) > Math.max(3, want * 0.03)) {
+      z = clamp(z * want / tot);
+      els.forEach(function (el) { el.style.zoom = z; });
+      tot = 5;
+      els.forEach(function (el) { tot += el.getBoundingClientRect().height; });
+    }
+    body.style.overflowY = tot > avail + 1 ? 'auto' : 'hidden';
+  }
+}
+let mpFitRAF = 0;
+window.addEventListener('resize', function () {
+  const pg = $('#pg');
+  if (!pg || pg.hidden || !PGS) return;
+  cancelAnimationFrame(mpFitRAF);
+  mpFitRAF = requestAnimationFrame(mpApplyFit);
+});
 function mpPaintProgress(keepScroll) {
   const pg = $('#pg'), m = MPS, s = PGS;
   if (!pg || !m || !s) return;
-  const y = keepScroll ? pg.scrollTop : 0;
-  pg.className = 'open pg-' + (s.theme === 'light' ? 'light' : 'dark') + ' fs' + (s.scale == null ? 1 : s.scale);
-  pg.innerHTML = mpHeaderHtml(m, s) + '<div class="pgboard">' + (m.mode === 3 ? mpGrid3(m, s) : mpGrid2(m, s)) + mpRostersHtml(m, s) + '</div>' + mpConfirmHtml();
-  if (keepScroll) pg.scrollTop = y;
+  pg.className = 'open pg-' + (s.theme === 'light' ? 'light' : 'dark') + ' pg-m' + m.mode;
+  pg.innerHTML = mpHeaderHtml(m, s) + mpBoardHtml(m, s) + mpSettingsHtml(m, s) + mpConfirmHtml();
+  mpApplyFit();
 }
 function mpRefreshComputed() {
   const m = MPS, s = PGS;
@@ -4934,11 +5142,12 @@ function mpRefreshComputed() {
 
 /* ---------------- 경기 진행: 열고 닫기 ---------------- */
 function mpOpenProgress() {
-  const m = MPS || mpLoad();
+  const m = MPS || mpCurrentItem();
   if (!m) { mpToast('먼저 매치 프리뷰를 등록해 주세요.'); return; }
   MPS = m;
   mpPGSInit(m);
   mpAssign = { team: null, list: [] };
+  mpSettingsOpen = false;
   const pg = $('#pg');
   if (!pg) return;
   pg.hidden = false;
@@ -4950,6 +5159,7 @@ function mpOpenProgress() {
 function mpCloseProgress() {
   const pg = $('#pg');
   if (pg) { pg.hidden = true; pg.className = ''; pg.innerHTML = ''; }
+  mpSettingsOpen = false;
   document.body.classList.remove('pg-open');
   document.body.style.overflow = '';
   mpWake(false);
@@ -5189,6 +5399,8 @@ function mpExportPNG() {
     if (act) {
       const k = act.getAttribute('data-pg');
       if (k === 'close') { mpCloseProgress(); return; }
+      if (k === 'set') { const box = $('#pgSettings'); mpSetOpen(!box || box.hidden); return; }
+      if (k === 'setclose') { mpSetOpen(false); return; }
       if (k === 'theme') { PGS.theme = PGS.theme === 'light' ? 'dark' : 'light'; mpSavePGS(); mpPaintProgress(true); return; }
       if (k === 'font') { PGS.scale = ((PGS.scale == null ? 1 : PGS.scale) + 1) % 3; mpSavePGS(); mpPaintProgress(true); return; }
       if (k === 'full') { mpFullscreen(); return; }
@@ -5370,6 +5582,8 @@ function mpExportPNG() {
   document.addEventListener('keydown', function (e) {
     const box = $('#pg');
     if (e.key === 'Escape' && box && !box.hidden) {
+      const st = $('#pgSettings');
+      if (st && !st.hidden) { mpSetOpen(false); return; }
       const cf = $('#pgReset');
       if (cf && !cf.hidden) { mpConfirmOpen(false); return; }
       if (mpAssign.team) { mpAssign = { team: null, list: [] }; mpPaintProgress(true); return; }
