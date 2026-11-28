@@ -1230,13 +1230,14 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pgdrag{flex:0 0 auto;color:var(--pg-tx3);font-size:10px;cursor:grab;touch-action:none;padding:0;line-height:1}
 .pgnm{flex:1 1 auto;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pgnm .crown{margin-right:0;font-size:8.5px}
-/* 이름 칸 — 이름은 늘 같은 폭·같은 위치. 게스트 배지는 이름 옆이 아니라 칸 하단에 절대배치합니다. */
-.pgnmwrap{position:relative;flex:1 1 auto;min-width:0;align-self:stretch;display:flex;align-items:center;justify-content:center;
-  overflow:hidden;font-size:var(--pg-fs-name,11px);line-height:1}
+/* 이름 칸 — 이름은 늘 같은 폭·같은 위치. 게스트 배지는 이름 바로 아래(2px)에 세로로 붙여
+   이름+배지가 한 덩어리로 보이게 하고, 배지는 가로 폭을 쓰지 않아 이름 크기가 달라지지 않습니다. */
+.pgnmwrap{position:relative;flex:1 1 auto;min-width:0;align-self:stretch;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow:hidden;font-size:var(--pg-fs-name,11px);line-height:1}
 .pgnmwrap>.pgnm{flex:0 0 auto;width:100%}
-.pgkind{position:absolute;left:0;right:0;bottom:1px;text-align:center;pointer-events:none;
+.pgkind{margin-top:2px;max-width:100%;text-align:center;pointer-events:none;
   font-size:8px;font-weight:900;line-height:1.05;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#pg.pg-tab .pgkind{font-size:9.5px;bottom:2px}
+#pg.pg-tab .pgkind{font-size:9.5px;margin-top:2px}
 .pgkind.g{color:#ffd166}
 .pgkind.f{color:#5ad8ff}
 .pgrso{flex:0 0 auto;font-size:8px;font-weight:900;color:var(--pg-tx3);border:1px solid var(--pg-line);
@@ -1244,13 +1245,17 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 .pgrso b{color:var(--pg-tx2);font-weight:900}
 /* 오른쪽 2줄 미니 알약 — 위 `출전` / 아래 `휴식` (출전 = 그 팀이 점수를 입력한 쿼터 수 N − 휴식 M) */
 .pgpill{flex:0 0 auto;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:.06em;
-  width:30px;padding:3px 1px;border-radius:5px;border:1px solid var(--pg-line2);
+  width:28px;padding:2px 1px;border-radius:5px;border:1px solid var(--pg-line2);overflow:hidden;
   background:var(--pg-card2);color:var(--pg-tx2);font-family:inherit;font-weight:900;
   font-size:8.5px;line-height:1.1;cursor:pointer;touch-action:manipulation;
   -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;font-variant-numeric:tabular-nums;
   transition:transform .1s ease,background .12s ease}
 .pgpill .pl{display:flex;align-items:center;justify-content:center;gap:.2em;white-space:nowrap;font-size:.94em}
 .pgpill .pl b{font-size:1.12em;color:var(--pg-hi);font-weight:900}
+/* 5명 이하 팀(휴식 없음) — `출전 N` 한 줄만. 누를 수 없는 표시 전용.
+   폭은 2줄 알약과 같은 고정 폭이라 출석(✓/✕) 토글에도 이름 폭이 1px도 변하지 않습니다. */
+.pgpill.pl1{width:28px;padding:2px 1px;cursor:default}
+.pgpill.pl1:active{transform:none}
 .pgpill.rest .pl:last-child b{color:var(--pg-red)}
 .pgpill.rest{border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.1)}
 .pgpill.off{opacity:.42;cursor:default}
@@ -1372,7 +1377,7 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 #pg.pg-full .pgrsnum{display:grid;grid-template-rows:repeat(var(--n,5),minmax(0,1fr));gap:5px;height:100%}
 #pg.pg-full .pgrsnum span{height:auto;font-size:var(--pg-fs-meta)}
 #pg.pg-full .pgrows{display:grid;grid-template-rows:repeat(var(--n,5),minmax(0,1fr));gap:5px;height:100%;align-content:stretch}
-#pg.pg-full .pgrow{height:auto;min-height:0;gap:.2em;padding:0 .34em}
+#pg.pg-full .pgrow{height:auto;min-height:0;gap:.2em;padding:0 .3em 0 calc(.3em + 7px);position:relative}
 #pg.pg-full .pgnrh{height:auto;min-height:2.2em;font-size:var(--pg-fs-meta)}
 /* 팀 머리글 — 색 점·팀명·인원수를 가운데, `순서` 버튼만 오른쪽 끝 */
 #pg.pg-full .pgth{position:relative;height:auto;min-height:2.2em;padding:0 .4em;justify-content:center;gap:.3em}
@@ -1381,12 +1386,23 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 #pg.pg-full .pgtn{font-size:var(--pg-fs-meta)}
 #pg.pg-full .pgasg{position:absolute;right:.28em;top:50%;transform:translateY(-50%);margin:0;
   height:auto;min-height:1.6em;padding:.08em .34em;font-size:calc(var(--pg-fs-meta)*.9);line-height:1.3}
-/* 선수 이름 — 가운데 정렬(⠿ 핸들은 왼쪽, n회 배지는 오른쪽) */
+/* 선수 이름 — 가운데 정렬(⠿ 핸들은 왼쪽 홈통, 출전 알약은 오른쪽) */
 #pg.pg-full .pgnm{flex:0 0 auto;width:100%;font-size:var(--pg-fs-name);text-align:center;letter-spacing:-.02em}
 #pg.pg-full .pgnm .crown{font-size:.72em;margin-right:.1em;vertical-align:.04em}
-#pg.pg-full .pgdrag{font-size:calc(var(--pg-fs-meta)*.95);letter-spacing:-1px;padding:0 .1em}
-#pg.pg-full .pgpill{width:30px;padding:3px 1px;font-size:8.5px;max-height:100%}
-#pg.pg-full.pg-tab .pgpill{width:38px;padding:3px 2px;font-size:10.5px}
+/* 왼쪽 여백은 드래그 핸들과 출석 아이콘이 **같은 자리를 나눠 쓰는 좁은 홈통**입니다(가로 폭 소모 최소화).
+   출석이 켜지면 홈통의 ⠿ 대신 ✓/✕ 가 그 자리에 서고, 이름 폭·위치·글자 크기는 그대로입니다. */
+#pg.pg-full .pgdrag{position:absolute;left:1px;top:50%;transform:translateY(-50%);width:7px;text-align:center;
+  font-size:calc(var(--pg-fs-meta)*.95);letter-spacing:-1px;padding:0;z-index:1}
+#pg.pg-full .pgattslot{position:absolute;left:0;top:50%;transform:translateY(-50%);width:8px;height:1.1em;
+  display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none}
+#pg.pg-full .pgrow.att1 .pgdrag,#pg.pg-full .pgrow.att2 .pgdrag{visibility:hidden}
+/* 2안(한글 배지)은 좌상단 모서리에 얹어 가로 폭을 전혀 쓰지 않습니다(이름 영역은 그대로). */
+#pg.pg-full[data-attstyle="1"] .pgattslot,#pg.pg-full.pg-tab[data-attstyle="1"] .pgattslot{
+  left:1px;top:1px;transform:none;width:auto;height:auto;align-items:flex-start;justify-content:flex-start}
+#pg.pg-full .pgpill{width:28px;padding:2px 1px;font-size:8.5px;max-height:100%}
+#pg.pg-full .pgpill.pl1{width:28px;padding:2px 1px}
+#pg.pg-full.pg-tab .pgpill{width:35px;padding:2px 1px;font-size:10.5px}
+#pg.pg-full.pg-tab .pgpill.pl1{width:35px;padding:2px 1px}
 #pg.pg-full .pgrc{min-width:2.3em;height:1.75em;padding:0 .2em;font-size:var(--pg-fs-meta)}
 #pg.pg-full .pgpick{width:1.7em;height:1.7em;font-size:var(--pg-fs-meta)}
 /* 폰(좁은 화면) — 같은 꽉 채우기 배치를 조금 더 촘촘하게(간격·여백만 축소) */
@@ -1394,7 +1410,8 @@ body.locked .gate{display:flex;position:fixed;inset:0;z-index:300;align-items:ce
 #pg.pg-full:not(.pg-tab) .pgrosters{gap:3px}
 #pg.pg-full:not(.pg-tab) .pgrshead,#pg.pg-full:not(.pg-tab) .pgrsbody{gap:3px}
 #pg.pg-full:not(.pg-tab) .pgrsnum,#pg.pg-full:not(.pg-tab) .pgrows{gap:3px}
-#pg.pg-full:not(.pg-tab) .pgrow{padding:0 3px}
+#pg.pg-full:not(.pg-tab) .pgrow{padding:0 2px 0 8px;gap:2px}
+#pg.pg-full:not(.pg-tab) .pgattslot{width:8px}
 #pg.pg-full:not(.pg-tab) .pgtbl{border-spacing:3px}
 #pg.pg-full:not(.pg-tab) .pgsums{gap:3px;margin-top:4px}
 /* 폰에서도 매치업 헤더는 한 줄 — 두 줄로 쌓이면 칸이 비좁아집니다(폭이 모자라면 JS 가 글씨만 줄임) */
@@ -3245,6 +3262,14 @@ function clearBits() { try { localStorage.removeItem(LSKEY); } catch (e) { } }
    kind: '기능' | '기록' | '오픈' — 매주 경기 결과·누적 승률 반영은 '기록'으로 남깁니다.
    선수 개인정보(키·넘버·포지션·장단점) 수정 내역은 이 목록에 넣지 않습니다. */
 const UPDATES = [
+  { date: '2026-11-28', kind: '기능', title: '경기 진행 명단 — 이름 글씨 확대 · 게스트 배지 밀착 · 5명 이하 팀 `출전` 한 줄',
+    items: [
+      '이름 글씨를 이전 수준으로 확대 — 왼쪽 드래그 핸들·출석 표식을 한 좌표(홈통)에 겹쳐 두고, 오른쪽 알약 폭·패딩과 칸 좌우 여백을 좁혀 이름 영역을 넓혔습니다(폰 세로 11→16.2px · 폰 가로 13.5→16.5px · 태블릿 1024 16.5→21.6px · 1280 25.9→31.3px, 잘림·겹침 0건)',
+      '2안(한글 출석·불참 배지)은 칸 좌상단 모서리에 엽혀 이름 가로 폭을 전혀 쓰지 않습니다',
+      '게스트 / 게스트(첫출전) 배지를 칸 바닥이 아니라 이름 바로 아래(2px)에 바짝 붙여 이름과 한 덩어리로 보이게 했습니다(배지가 붙어도 이름 크기는 일반 선수와 동일)',
+      '3파전에서 팀 인원이 5명 이하면 5명이 모두 뛰므로 오른쪽 알약을 `출전 N` 한 줄로 줄였습니다(6명 이상 팀은 기존처럼 `출전 N / 아래 휴식 M` 2줄, 한 줄 알약은 누를 수 없는 표시 전용)',
+      '알약 폭을 고정해 출석(✓/✕/한글)을 눌러도 이름 글씨 크기·좌우 위치가 1px도 변하지 않습니다'
+    ] },
   { date: '2026-11-28', kind: '기능', title: '경기 진행 명단 — 출전·휴식 2줄 알약 · 고정 여백 · 게스트(첫출전) 표기',
     items: [
       '명단 오른쪽 0회 버튼을 [출전 N / 휴식 M] 2줄 알약으로 교체 — 그 팀이 점수를 입력한 쿼터 수가 N이고, 알약을 누르면 휴식이 0→1→…→N으로 올라가며 출전은 자동으로 N−M(출전+휴식=N, N에서 한 번 더 누르면 0, 길게 누르면 −1)',
@@ -5675,10 +5700,18 @@ function mpPillInner(played, rest) {
 function mpPillPaint(btn, N, M, att) {
   if (!btn) return;
   const nm = btn.getAttribute('data-name') || '';
+  const one = btn.getAttribute('data-norest') === '1';   /* 5명 이하 팀 — `출전` 한 줄 */
   const off = att === 2;
+  if (one) M = 0;                                        /* 쉬는 자리가 없으므로 휴식은 항상 0 */
   btn.classList.toggle('off', off);
-  btn.classList.toggle('rest', !off && M > 0);
+  btn.classList.toggle('rest', !off && !one && M > 0);
   btn.disabled = off;
+  if (one) {
+    btn.innerHTML = '<span class="pl">출전 <b>' + (off ? '–' : (N - M)) + '</b></span>';
+    btn.title = off ? '불참 — 출전 집계에서 제외' : '출전 ' + (N - M) + '쿼터 · 5명 이하 팀이라 휴식 없음';
+    btn.setAttribute('aria-label', nm + (off ? ' 불참 — 출전 집계에서 제외' : ' 출전 ' + (N - M) + '쿼터 · 휴식 없음'));
+    return;
+  }
   if (off) {
     btn.innerHTML = mpPillInner('–', '–');
     btn.setAttribute('aria-label', nm + ' 불참 — 출전·휴식 집계에서 제외');
@@ -5693,6 +5726,7 @@ function mpPillPaint(btn, N, M, att) {
 function mpRestStep(btn, dir) {
   const m = MPS, s = PGS;
   if (!btn || !m || !s || btn.disabled) return;
+  if (btn.getAttribute('data-norest') === '1') return;   /* 5명 이하 팀 — 휴식 없음 */
   const team = btn.getAttribute('data-rc'), nm = btn.getAttribute('data-name');
   const N = mpTeamN(m, s, team);
   const box = s.restCount[team] || (s.restCount[team] = {});
@@ -5741,23 +5775,30 @@ function mpRostersHtml(m, s) {
     const on = mpAssign.team === t.team;
     const at = s.attend[t.team] || {};
     const nQ = mpTeamN(m, s, t.team);
+    /* 3파전 5명 이하 팀 — 5명이 모두 코트에 서므로 쉬는 사람이 없습니다.
+       그래서 `휴식 M` 줄을 빼고 `출전 N` 한 줄만 보여 줍니다(6명 이상 팀은 기존 2줄). */
+    const noRest = m.mode === 3 && t.roster.length <= 5;
     const rows = t.roster.map(function (n, i) {
       const pick = on ? (mpAssign.list.indexOf(n) + 1) : 0;
       const att = at[n] === 1 || at[n] === 2 ? at[n] : 0;
       const kind = mpKindOf(n);
       const kb = kind === '첫출전' ? '<span class="pgkind f">게스트(첫출전)</span>'
         : kind === '게스트' ? '<span class="pgkind g">게스트</span>' : '';
-      const M = att === 2 ? 0 : Math.min(rc[n] || 0, nQ);
+      const M = (att === 2 || noRest) ? 0 : Math.min(rc[n] || 0, nQ);
       return '<div class="pgrow' + (att ? ' att' + att : '') + '" data-row-team="' + esc(t.team) + '" data-row-name="' + esc(n) + '"' +
         (att ? ' data-att="' + att + '"' : '') + '>' +
         '<span class="pgdrag" data-drag="1" role="button" aria-label="드래그해서 순서 변경">⠿</span>' +
         '<span class="pgattslot"><span class="pgatt" aria-hidden="true"><span class="pgic">' + (att === 2 ? '✕' : '✓') + '</span>' +
         '<span class="pgbd">' + (att === 2 ? '불참' : '출석') + '</span></span></span>' +
         '<span class="pgnmwrap"><span class="pgnm">' + (t.cap === n ? '<span class="crown">👑</span>' : '') + esc(n) + '</span>' + kb + '</span>' +
-        (m.mode === 3 ? '<button type="button" class="pgpill' + (att === 2 ? ' off' : '') + (M > 0 ? ' rest' : '') + '"' +
-          ' data-rc="' + esc(t.team) + '" data-name="' + esc(n) + '"' + (att === 2 ? ' disabled' : '') +
-          ' aria-label="' + esc(n) + ' ' + (att === 2 ? '불참 — 출전·휴식 집계에서 제외' : '출전 ' + (nQ - M) + '쿼터 · 휴식 ' + M + '회') + '">' +
-          (att === 2 ? mpPillInner('–', '–') : mpPillInner(nQ - M, M)) + '</button>' : '') +
+        (m.mode === 3 ? (noRest
+          ? '<span class="pgpill pl1' + (att === 2 ? ' off' : '') + '" data-rc="' + esc(t.team) + '" data-name="' + esc(n) + '" data-norest="1"' +
+            ' title="출전 ' + (att === 2 ? '–' : nQ) + ' · 5명 이하 팀이라 휴식 없음">' +
+            '<span class="pl">출전 <b>' + (att === 2 ? '–' : nQ) + '</b></span></span>'
+          : '<button type="button" class="pgpill' + (att === 2 ? ' off' : '') + (M > 0 ? ' rest' : '') + '"' +
+            ' data-rc="' + esc(t.team) + '" data-name="' + esc(n) + '"' + (att === 2 ? ' disabled' : '') +
+            ' aria-label="' + esc(n) + ' ' + (att === 2 ? '불참 — 출전·휴식 집계에서 제외' : '출전 ' + (nQ - M) + '쿼터 · 휴식 ' + M + '회') + '">' +
+            (att === 2 ? mpPillInner('–', '–') : mpPillInner(nQ - M, M)) + '</button>') : '') +
         (on ? '<span class="pgpick ' + (pick ? 'on' : '') + '">' + (pick ? pick : '·') + '</span>' : '') +
         '</div>';
     }).join('');
@@ -5908,6 +5949,10 @@ function mpTabIssues(pg) {
   $$('#pg .pgnm').forEach(function (n) {
     if (n.clientWidth && mpClamped(n, 2)) bad.name++;
   });
+  /* 이름+게스트 배지가 행 높이를 넘는지 — 배지가 세로로 쌓이므로 높이도 함께 봅니다 */
+  $$('#pg .pgnmwrap').forEach(function (w) {
+    if (w.clientHeight && w.scrollHeight > w.clientHeight + 1) bad.name++;
+  });
   $$('#pg .pgth').forEach(function (th) {
     if (th.scrollWidth > th.clientWidth + 1) bad.team++;
     const b = th.querySelector('b');
@@ -5985,7 +6030,7 @@ function mpTabFit(pg, body, s) {
     if (!avail) return;
     const fs0 = parseFloat(getComputedStyle(n).fontSize) || 22;
     const w0 = mpTextW(n);
-    if (w0 > 0) wFit = Math.min(wFit, (avail - 8) * fs0 / w0);
+    if (w0 > 0) wFit = Math.min(wFit, (avail - 5) * fs0 / w0);
   });
   /* 팀 머리글(● 팀명 N명 + 순서 버튼)이 한 줄에 들어가는 최대 글씨 — 버튼 자리를 빼고 잽니다 */
   let thFit = 999;
@@ -7111,6 +7156,8 @@ function mpExportPNG() {
     }
     const rc = t.closest('[data-rc]');
     if (rc) {
+      /* 5명 이하 팀의 `출전` 한 줄 알약(data-norest)은 표시 전용 — 눌러도 휴식이 늘지 않습니다 */
+      if (rc.getAttribute('data-norest') === '1') return;
       /* 길게 눌러 −1 한 뒤 따라오는 click 은 무시 — 짧은 탭은 휴식 +1 */
       if (mpPillHeld) { mpPillHeld = false; return; }
       mpRestStep(rc, 1);
@@ -7164,7 +7211,7 @@ function mpExportPNG() {
   pg.addEventListener('pointerdown', function (e) {
     const b = e.target.closest('.pgpill');
     mpPillHeld = false;
-    if (!b || b.disabled) return;
+    if (!b || b.disabled || b.getAttribute('data-norest') === '1') return;
     clearTimeout(mpPillHold);
     mpPillHold = setTimeout(function () {
       mpPillHold = 0; mpPillHeld = true;
