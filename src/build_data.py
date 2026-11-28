@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """리버스 웹페이지용 DATA 생성 + 누적 기록 검증 (원본: basketball/reverse-records.md, reverse-guests.md)"""
-import json, re, sys, io, os
+import json, re, sys, io, os, math
 
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(SITE)
@@ -197,6 +197,12 @@ for b in week_blocks:
 
 weeks.sort(key=lambda x: x["date"], reverse=True)
 
+# ---------- 집계 기간·정규 순위 기준 ----------
+# 주차 로그에서 자동 산출합니다 — 9주면 40% = 3.6 → 올림 4주.
+TOTAL_WEEKS = len(weeks)
+PERIOD_END = weeks[0]["date"] if weeks else "2026-11-28"
+MIN_WEEKS = max(1, math.ceil(TOTAL_WEEKS * 40 / 100))
+
 # ---------- 검증: 주차별 로스터로 개인 전적 재계산 ----------
 def label(d):
     return d[5:7] + "/" + d[8:10]
@@ -231,6 +237,14 @@ for g in guests:
         errors.append("게스트 미출전? " + g["name"]); continue
     if (c["w"], c["l"]) != (g["w"], g["l"]):
         errors.append(f"게스트 {g['name']}: 표 {g['w']}-{g['l']} vs 계산 {c['w']}-{c['l']}")
+
+# 정규 / 순위 외 구분이 참여율 40%(올림) 기준과 맞는지
+for p in members:
+    if p["weeks"] < MIN_WEEKS:
+        errors.append(f"정규 {p['name']}: {p['weeks']}주 < 기준 {MIN_WEEKS}주")
+for p in outsiders:
+    if p["weeks"] >= MIN_WEEKS:
+        errors.append(f"순위 외 {p['name']}: {p['weeks']}주 >= 기준 {MIN_WEEKS}주 (정규로 올려야 함)")
 
 print("정규", len(members), "순위외", len(outsiders), "게스트", len(guests), "주차", len(weeks))
 print("등번호·신장·포지션 포함 선수:", [p["name"] for p in members + outsiders + guests
@@ -290,10 +304,10 @@ data = dict(
     roster=roster_list,
     rosterMeta=dict(total=len(roster_list), regular=REGULAR_TOTAL,
                     ranked=len(members), outsiders=len(outsiders), absent=len(absent)),
-    period=dict(start="2026-10-03", end="2026-11-21", weeks=8),
-    criteria=dict(minRate=40, minWeeks=4, totalWeeks=8,
+    period=dict(start="2026-10-03", end=PERIOD_END, weeks=TOTAL_WEEKS),
+    criteria=dict(minRate=40, minWeeks=MIN_WEEKS, totalWeeks=TOTAL_WEEKS,
                   tiebreak=["다승", "팀장 승률", "가나다 순"],
-                  text="전체 경기 수 40% 이상 참여자 정규 순위 집계 (8주 중 4주 이상)"),
+                  text=f"전체 경기 수 40% 이상 참여자 정규 순위 집계 ({TOTAL_WEEKS}주 중 {MIN_WEEKS}주 이상)"),
     members=members, outsiders=outsiders, absent=absent, guests=guests, weeks=weeks,
     leaders=[dict(name=p["name"], **p["lead"]) for p in members + outsiders if p["lead"]],
 )

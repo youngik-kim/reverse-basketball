@@ -1640,7 +1640,7 @@ body.tac-open{overflow:hidden}
     <b>리버스 (REVERSE)</b> · 매주 토요일 · 부천JW스포츠센터<br>
     집계 기간 <span id="fPeriod"></span> · 3파전 라운드로빈(팀당 2경기)<br>
     주차 선택에서 과거 날짜를 고르면 그 주차까지의 누적 승률로 화면이 바뀝니다.<br>
-    정규 순위 커트라인은 진행 주차의 40%(올림) — 최종 8주 기준 4주.<br>
+    정규 순위 커트라인은 진행 주차의 40%(올림) — 최종 9주 기준 4주.<br>
     <span id="fNote"></span>
   </footer>
 </div>
@@ -1699,7 +1699,7 @@ body.tac-open{overflow:hidden}
     <div class="grab"></div>
     <button class="x" data-pclose2 aria-label="닫기">✕</button>
     <h3 class="ptitle" id="pTitle">🤝 짝꿍 승률 계산하기</h3>
-    <p class="plead">정회원 <b id="pRegN">24</b>명 중 1~7명을 고르면, 8주 기록에서 <b>같은 팀으로 함께 출전한 경기</b>만 모아 예상 승률을 계산합니다.</p>
+    <p class="plead">정회원 <b id="pRegN">24</b>명 중 1~7명을 고르면, 9주 기록에서 <b>같은 팀으로 함께 출전한 경기</b>만 모아 예상 승률을 계산합니다.</p>
     <p class="pwarn" id="pPosWarn" hidden></p>
     <div class="pbar2">
       <span class="pcnt">선택 <b id="pCount">0</b>/7명</span>
@@ -2066,6 +2066,28 @@ function dateOrder() {
   if (PREVIEW && o.indexOf(PREVIEW.date) < 0) o.push(PREVIEW.date);
   return o.slice().sort();
 }
+/* 그 주차 우승팀 — 승률이 같아 공동 1위면 여러 팀을 함께 돌려줍니다. */
+function champsOf(w) {
+  if (!w || w.noSheet || !(w.standings || []).length) return [];
+  const top = Math.min.apply(null, w.standings.map(s => s.pos));
+  return w.standings.filter(s => s.pos === top);
+}
+function champText(w) {
+  const cs = champsOf(w);
+  if (!cs.length) return '';
+  return (cs.length > 1 ? '공동 우승 ' : '우승 ') + cs.map(s => s.team).join('·');
+}
+function champCaps(w) {
+  return champsOf(w).map(s => s.cap).filter(Boolean);
+}
+function champCapLine(w) {
+  const caps = champCaps(w);
+  if (caps.length) return ' · 👑 ' + caps.join('·');
+  return w.noLeader ? ' · 팀장 없음' : '';
+}
+function isChampCap(w, name) {
+  return !!name && champCaps(w).indexOf(name) >= 0;
+}
 
 /* 그 주차까지의 누적 기록 계산 (weeks 로스터 기반) */
 function computeAsOf(date) {
@@ -2146,9 +2168,10 @@ function renderHero() {
 function renderSelector() {
   const pvOpt = PREVIEW ? `<option value="${PREVIEW.date}" ${curDate === PREVIEW.date ? 'selected' : ''}>🔮 ${esc(PREVIEW.label)}</option>` : '';
   $('#weekSel').innerHTML = pvOpt + CHRONO.map((w, i) => {
-    const champ = w.noSheet ? null : w.standings.slice().sort((a, b) => a.pos - b.pos)[0];
+    const cs = w.noSheet ? [] : champsOf(w);
     const label = w.noSheet ? `${w.date} · 원본 결과지 보완 예정`
-      : `${w.date} (${i + 1}주차) · ${champ ? champ.team + ' 우승' : '결과'}`;
+      : `${w.date} (${i + 1}주차) · ${!cs.length ? '결과'
+        : (cs.length > 1 ? cs.length + '팀 공동 1위' : cs[0].team + ' 우승')}`;
     return `<option value="${w.date}" ${w.date === curDate ? 'selected' : ''}>${esc(label)}</option>`;
   }).join('');
   const order = dateOrder(), i = order.indexOf(curDate);
@@ -2173,6 +2196,9 @@ function renderSelector() {
 function pvRows(pv, w) {
   const act = {};
   if (w) (w.standings || []).forEach(s => { act[s.team] = s; });
+  const actChamps = w ? champsOf(w) : [];
+  const actChampTeams = actChamps.map(s => s.team);
+  const tied = actChampTeams.length > 1;
   const list = (pv.teams || []).slice().sort((a, b) => (a.predPos || 0) - (b.predPos || 0));
   const rows = list.map((t, i) => {
     const a = act[t.team] || null;
@@ -2181,15 +2207,23 @@ function pvRows(pv, w) {
       team: t.team, cap: t.cap || '', avg: t.avg, expected: t.expected || '', note: t.note || '',
       roster: t.roster || [], predPos: predPos,
       actPos: a ? a.pos : 0, aw: a ? a.w : 0, al: a ? a.l : 0,
+      tie: !!(tied && a && a.pos === actChamps[0].pos),
       hit: a ? (a.pos === predPos) : null,
     };
   });
   const total = rows.filter(r => r.actPos).length;
   const hits = rows.filter(r => r.hit === true).length;
   const predChamp = rows.length ? rows[0] : null;
-  const actChamp = w ? (w.standings || []).slice().sort((a, b) => a.pos - b.pos)[0] : null;
-  return { rows: rows, hits: hits, total: total, predChamp: predChamp, actChamp: actChamp,
-    champHit: !!(predChamp && actChamp && predChamp.team === actChamp.team) };
+  const actChamp = actChamps.length ? actChamps[0] : null;
+  return { rows: rows, hits: hits, total: total, tied: tied,
+    predChamp: predChamp, actChamp: actChamp, actChamps: actChamps,
+    champHit: !!(predChamp && actChampTeams.indexOf(predChamp.team) >= 0) };
+}
+/* 실제 순위 표기 — 공동 1위면 '공동 1위 형광·화이트·블랙' */
+function actTopText(c) {
+  return c.actChamps.length
+    ? (c.actChamps.length > 1 ? '공동 1위 ' : '1위 ') + c.actChamps.map(s => s.team).join('·')
+    : '';
 }
 /* 주간 결과 카드 안에 보존되는 '경기 전 예상 vs 실제 결과' */
 function pvHistHtml(w) {
@@ -2201,12 +2235,12 @@ function pvHistHtml(w) {
         ${r.cap ? `<span class="cap">👑 ${esc(r.cap)}</span>` : ''}
         ${r.actPos ? `<span class="hb ${r.hit ? 'ok' : 'bad'}">${r.hit ? '순위 적중' : '빗나감'}</span>` : ''}</div>
       <div class="line">예상 <b>${r.predPos}위</b> · 평균 <span class="e">${pct(r.avg)}%</span> · ${esc(r.expected)}
-        ${r.actPos ? `<br>실제 <span class="a">${r.actPos}위 · ${r.aw}승 ${r.al}패</span>` : ''}</div>
+        ${r.actPos ? `<br>실제 <span class="a">${r.tie ? '공동 ' : ''}${r.actPos}위 · ${r.aw}승 ${r.al}패</span>` : ''}</div>
     </div>`).join('');
   const sum = c.actChamp
-    ? `예상 1위 <b>${esc(c.predChamp ? c.predChamp.team : '—')}</b> → 실제 1위 <b>${esc(c.actChamp.team)}</b>
+    ? `예상 1위 <b>${esc(c.predChamp ? c.predChamp.team : '—')}</b> → 실제 <b>${esc(actTopText(c))}</b>
        ${c.champHit ? '<span class="hb ok" style="margin-left:4px">적중</span>' : '<span class="hb bad" style="margin-left:4px">빗나감</span>'}
-       · 팀 순위 적중 <b>${c.hits}/${c.total}</b>`
+       · 팀 순위 적중 <b>${c.hits}/${c.total}</b>${c.tied ? ` — ${c.actChamps.length}팀이 승률·다승 동률` : ''}`
     : '아직 치르지 않은 경기입니다 — 결과가 반영되면 이 자리에서 실제 결과와 비교합니다.';
   return `<details class="pvhist">
       <summary>🔮 매치 프리뷰 &amp; 승률 예상<span class="hits">${c.actChamp ? `순위 적중 ${c.hits}/${c.total}` : '경기 전 기록'}</span><span class="chev">▼</span></summary>
@@ -2224,7 +2258,7 @@ function pvMiniHtml(w) {
     : '';
   return `<div class="pvmini">🔮 <b>경기 전 예상</b> ${avgline}
       <br>예상 1위 <b>${esc(c.predChamp ? c.predChamp.team : '—')}</b>
-      ${c.actChamp ? ` → 실제 1위 <span class="t">${esc(c.actChamp.team)}</span> ${verdict} · 순위 적중 ${c.hits}/${c.total}` : ''}
+      ${c.actChamp ? ` → 실제 ${esc(actTopText(c))} ${verdict} · 순위 적중 ${c.hits}/${c.total}` : ''}
       <br><button type="button" class="pvwbtn" data-pv-view="${w.date}">🔮 매치 프리뷰</button></div>`;
 }
 
@@ -2274,8 +2308,8 @@ function renderResult() {
   $('#resultCard').innerHTML = `<div class="rcard">
     <div class="top">
       <div class="dbox"><div class="m">${w.date.slice(5, 7)}월</div><div class="d">${w.date.slice(8, 10)}</div></div>
-      <div class="t"><div class="ttl">${esc(w.title)} ${champ ? `<span class="champ">우승 ${esc(champ.team)}</span>` : ''}</div>
-        <div class="sub">${esc(w.venue)} · ${nP}명${champ && champ.cap ? ' · 👑 ' + esc(champ.cap) : w.noLeader ? ' · 팀장 없음' : ''}</div></div>
+      <div class="t"><div class="ttl">${esc(w.title)} ${champ ? `<span class="champ">${esc(champText(w))}</span>` : ''}</div>
+        <div class="sub">${esc(w.venue)} · ${nP}명${champCapLine(w)}</div></div>
     </div>
     <div class="standstrip">${w.standings.slice().sort((a, b) => a.pos - b.pos).map(s => `<div class="sb" data-team="${esc(s.team)}">
         <div class="h"><span class="dot ${esc(s.team)}"></span>${esc(s.team)}<span class="pos">${s.pos}위</span></div>
@@ -2285,7 +2319,7 @@ function renderResult() {
     <details class="mini"><summary><span class="chev">▶</span> 팀 명단 · 특이사항</summary>
       ${Object.entries(w.rosters).map(([team, names]) => `<div style="margin-top:6px">
           <div class="tp" style="font-size:11px;font-weight:800;margin-bottom:3px"><span class="dot ${esc(team)}"></span> ${esc(team)}</div>
-          <div class="chips">${names.map(n => `<button class="chip" data-person="${esc(n)}">${esc(n)}${n === champ?.cap ? ' <span class="st">👑</span>' : ''}</button>`).join('')}</div>
+          <div class="chips">${names.map(n => `<button class="chip" data-person="${esc(n)}">${esc(n)}${isChampCap(w, n) ? ' <span class="st">👑</span>' : ''}</button>`).join('')}</div>
         </div>`).join('')}
       ${w.note ? `<div class="note"><b>NOTE</b> ${esc(w.note)}</div>` : ''}
     </details>
@@ -2458,8 +2492,8 @@ function renderWeeks() {
     return `<details class="wkcard ${sel ? 'sel' : ''}" data-date="${w.date}" ${sel ? 'open' : ''}>
       <summary>
         <div class="dbox"><div class="m">${w.date.slice(5, 7)}월</div><div class="d">${w.date.slice(8, 10)}</div></div>
-        <div class="wmeta"><div class="t">${esc(w.title)} ${champ ? `<span class="champ">우승 ${esc(champ.team)}</span>` : ''}</div>
-          <div class="s"><span>${idx}주차 · ${esc(w.venue)}</span><span>${nP}명</span>${champ && champ.cap ? `<span class="w">👑 ${esc(champ.cap)}</span>` : ''}${mpPvBadge(w)}</div></div>
+        <div class="wmeta"><div class="t">${esc(w.title)} ${champ ? `<span class="champ">${esc(champText(w))}</span>` : ''}</div>
+          <div class="s"><span>${idx}주차 · ${esc(w.venue)}</span><span>${nP}명</span>${champCaps(w).length ? `<span class="w">👑 ${esc(champCaps(w).join('·'))}</span>` : ''}${mpPvBadge(w)}</div></div>
         <span class="chev">▼</span>
       </summary>
       <div class="body">
@@ -2476,7 +2510,7 @@ function renderWeeks() {
         <div class="subhead">팀 명단</div>
         ${Object.entries(w.rosters).map(([team, names]) => `<div style="margin-bottom:6px">
             <div class="tp" style="font-size:11px;font-weight:800;margin-bottom:3px"><span class="dot ${esc(team)}"></span> ${esc(team)}</div>
-            <div class="chips">${names.map(n => `<button class="chip" data-person="${esc(n)}">${esc(n)}${n === champ?.cap ? ' <span class="st">👑</span>' : ''}</button>`).join('')}</div></div>`).join('')}
+            <div class="chips">${names.map(n => `<button class="chip" data-person="${esc(n)}">${esc(n)}${isChampCap(w, n) ? ' <span class="st">👑</span>' : ''}</button>`).join('')}</div></div>`).join('')}
         ${w.note ? `<div class="note"><b>NOTE</b> ${esc(w.note)}</div>` : ''}
         <button class="pickbtn" data-pick="${w.date}" ${sel ? 'disabled' : ''}>${sel ? '지금 이 주차를 보고 있습니다' : '이 주차 기준으로 보기'}</button>
       </div></details>`;
@@ -3128,6 +3162,14 @@ const UPDATES = [
       '히어로 4번째 버튼 🏀 작전판 — 짝꿍 승률·팀 구성·매치 프리뷰와 한 줄 4등분(폰 390px 에서도 줄바꿈·잘림 없음)',
       '🏀 작전판 — 반코트(올코트 전환)에 팀 색 선수 말 5개씩 + 농구공을 놓고 드래그, 손가락으로 전술 선 그리기, 🧽 부분 지우개·↶ 되돌리기·🧹 선 지우기·🔄 초기화, 번호/포지션/이름 표시 선택, 조합·코트·배치는 기기에 저장'
     ] },
+  { date: '2026-11-28', kind: '기록', title: '2026-11-28 9주차 경기 결과 반영 — 3팀 공동 1위',
+    items: [
+      '2026-11-28(토) 부천JW스포츠센터 3파전 — 화이트 26:28 블랙 · 형광 46:64 화이트 · 블랙 38:40 형광, 세 팀 모두 1승 1패 공동 1위(득실 형광 -16 / 화이트 +16 / 블랙 0)',
+      '9주 누적 승률·순위 갱신 — 정규 17명(4주 출전자 2명이 정규 순위로 진입) · 순위 외 5명 · 게스트 19명(신규 게스트 1명 첫 출전)',
+      '개근(🔥) 9주 전 경기 출전 2명 — 9주 중 9주 출전',
+      '공동 1위 표기 — 주차 카드와 주차 선택 목록에서 우승팀을 공동 우승(형광·화이트·블랙)으로 표시하고, 경기 전 예상 비교도 공동 1위 기준으로 표시',
+      '2026-11-28 매치 프리뷰(예상 1위 형광 53.7%)는 주간 결과 이력에 보존 — 실제 결과와 순위 적중 비교'
+    ] },
   { date: '2026-11-27', kind: '기능', title: '경기 진행 점수 계산 개선 (입력=누적 · 보조=쿼터점수)',
     items: [
       '큰 점수 칸에 적는 값은 전광판 기준 누적 점수 — 칸 아래 보조 줄은 쿼터점수(현재 누적 - 직전 입력 쿼터 누적)로 표시',
@@ -3284,8 +3326,8 @@ const UPDATES = [
 })();
 
 /* ---------------- 짝꿍 승률 (조합 예측) ----------------
-   8주 주차별 로스터에서 **같은 팀으로 함께 출전한 경기**만 모아 계산합니다.
-   - 1명: 해당 선수의 8주 누적 승률
+   9주 주차별 로스터에서 **같은 팀으로 함께 출전한 경기**만 모아 계산합니다.
+   - 1명: 해당 선수의 9주 누적 승률
    - 2명 이상: 조합을 이루는 모든 짝(pair)의 동반승/동반경기를 동반 경기 수로 가중 평균
               (= Σ짝 동반승 / Σ짝 동반경기)
    포지션은 data.json 의 position 으로 구성 안내만 하고 계산식에는 넣지 않습니다(표본 부족). */
@@ -3524,7 +3566,7 @@ function pairResultHtml() {
     const rate = s.g ? (s.w / s.g * 100) : null;
     return '<div class="pcard">'
       + '<div class="prow1"><span class="plabel">누적 승률</span><b class="pval' + (rate === null ? ' none' : '') + '">' + (rate === null ? '기록 없음' : pct1(rate)) + '</b></div>'
-      + '<div class="pmeta">8주 · <b>' + s.g + '경기</b> (' + s.w + '승 ' + (s.g - s.w) + '패)</div>'
+      + '<div class="pmeta">9주 · <b>' + s.g + '경기</b> (' + s.w + '승 ' + (s.g - s.w) + '패)</div>'
       + (rate === null ? '' : '<div class="pbar"><i style="width:' + Math.max(2, Math.min(100, rate)) + '%"></i></div>')
       + posLine + guestNote + '</div>';
   }
@@ -5006,6 +5048,7 @@ function mpHistRowHtml(e) {
     '<div class="mphbody" hidden>' + mpHistBodyHtml(e, rows) + '</div></div>';
 }
 function mpHistBodyHtml(e, rows) {
+  const nTop = rows.filter(function (r) { return r.actual && r.actual.pos === 1; }).length;
   const line = rows.map(function (r) {
     const tone = MP_TONE[r.team] || MP_TONE['블랙'];
     const hit = r.actual ? (r.actual.pos === r.predPos ? '<span class="hb ok">적중</span>' : '<span class="hb bad">빗나감</span>') : '';
@@ -5014,7 +5057,7 @@ function mpHistBodyHtml(e, rows) {
       (r.cap ? '<span class="cap">👑 ' + esc(r.cap) + '</span>' : '') +
       '<span class="mphAvg">예상 ' + r.predPos + '위 · 평균 ' + (r.avg == null ? '–' : pct(r.avg) + '%') + '</span>' + hit + '</div>' +
       (r.actual ? '<div class="mphAct">실제 ' + r.actual.pos + '위 · ' + r.actual.w + '승 ' + r.actual.l + '패' +
-        (r.actual.pos === 1 ? '<span class="mphCh">우승</span>' : '') + '</div>' : '') +
+        (r.actual.pos === 1 ? '<span class="mphCh">' + (nTop > 1 ? '공동 우승' : '우승') + '</span>' : '') + '</div>' : '') +
       '<div class="roster">' + r.roster.map(function (n) {
         return '<span class="chip mpn">' + (n === r.cap ? '<span class="st">👑</span>' : '') + esc(n) + '</span>';
       }).join('') + '</div></div>';
