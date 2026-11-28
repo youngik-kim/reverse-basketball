@@ -7,3 +7,8 @@ __pycache__/
 
 # 로컬 검증 산출물
 _verify*/
+
+# 로컬 검증 스크립트(선수 실명이 들어갈 수 있어 저장소에는 올리지 않습니다)
+_verify_*.py
+_shot_*.py
+src/verify_live_*.py
